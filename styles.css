@@ -1,0 +1,86 @@
+:root {
+  --alpha-width: 4;
+  --beta-width: 7;
+  --gamma-width: 13;
+  --grid-width: calc(var(--alpha-width) + var(--beta-width) + var(--gamma-width));
+  --color-red: rgb(150, 4, 4);
+  --color-white: rgb(243, 230, 230);
+}
+body {
+  margin: 0;
+}
+.section {
+  height: 100vh;
+  background: var(--color-white);
+}
+.section:nth-child(2n) {
+  background: var(--color-red);
+}
+.logo {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  left: 50px;
+  top: 50px;
+  background-color: var(--color-red);
+}
+.menu {
+  position: fixed;
+  right: 50px;
+  bottom: 50px;
+  background-color: var(--color-red);
+}
+.logo--contrast,
+.menu--contrast {
+  background-color: var(--color-white);
+}
+
+/* TODO MAKE IT WITHOUT STYLES*/
+.menu__nav {
+
+}
+
+.menu__link {
+  color: black; 
+  font-size: 3rem;
+  text-decoration: none;
+}
+
+.menu--contrast .menu__link {
+  color: red;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: nowrap;
+  /* background-size: calc(100% / var(--grid-width)) 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent calc(100% - 1px),
+    green calc(100% - 1px),
+    green 100%
+  ); */
+}
+.col {
+  /* box-shadow: inset -1px -1px 0 grey; */
+  height: 100vh;
+}
+.alpha {
+  flex-basis: calc(var(--alpha-width) / var(--grid-width) * 100vw);
+}
+.alpha-beta {
+  flex-basis: calc((var(--alpha-width) + var(--beta-width)) / var(--grid-width) * 100vw);
+}
+.alpha-beta-gamma {
+  flex-basis: calc((var(--alpha-width) + var(--beta-width) + var(--gamma-width)) / var(--grid-width) * 100vw);
+}
+.beta {
+  flex-basis: calc(var(--beta-width) / var(--grid-width) * 100vw);
+}
+.beta-gamma {
+  flex-basis: calc((var(--beta-width) + var(--gamma-width)) / var(--grid-width) * 100vw);
+}
+.gamma {
+  flex-basis: calc(var(--gamma-width) / var(--grid-width) * 100vw);
+}
