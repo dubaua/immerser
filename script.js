@@ -66,7 +66,6 @@ class Immerser {
       });
 
       const fixedChildren = Array.from(solidNode.children);
-      solidNode.innerHTML = '';
 
       solidConfig.states.forEach((state, index) => {
         const mask = document.createElement('div');
@@ -91,6 +90,8 @@ class Immerser {
         mask.appendChild(wrapper);
         solidNode.appendChild(mask);
       });
+
+      fixedChildren.forEach(child => child.style.display = 'none');
     }
   }
 
@@ -155,6 +156,7 @@ class Immerser {
     clearTimeout(this.resizeTimerId);
     this.resizeTimerId = setTimeout(() => {
       this.updateWindowSizes();
+      this.updateSolidSizes();
       this.setSizesAndStates();
       this.drawSolids();
     }, 250);
