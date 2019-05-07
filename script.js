@@ -1,13 +1,13 @@
 class Immerser {
-  constructor(settings) {
+  constructor() {
     this.CLASSNAMES = {
       CROPPER: 'immerser-cropper',
       MASK: 'immerser-mask',
       WRAPPER: 'immerser-wrapper',
     };
 
-    this.layers = Array.from(document.getElementsByClassName(settings.layerClassName));
-    this.solids = Array.from(document.getElementsByClassName(settings.solidClassName));
+    this.layers = Array.from(document.querySelectorAll('[data-immerser-config]'));
+    this.solids = Array.from(document.querySelectorAll('[data-immerser-id]'));
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.lastScrollPositionY = this.getLastScrollPositionY();
@@ -191,7 +191,4 @@ class Immerser {
   }
 }
 
-const myImmerser = new Immerser({
-  layerClassName: 'js-layer',
-  solidClassName: 'js-solid',
-});
+const myImmerser = new Immerser();
