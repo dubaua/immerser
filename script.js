@@ -12,83 +12,59 @@ class Immerser {
     this.windowHeight = 0;
     this.lastScrollPositionY = this.getLastScrollPositionY();
     this.config = {};
-
-    this.drawFixedElements = this.drawFixedElements.bind(this);
+    this.classConfig = {};
+    this.resizeTimerId = null;
 
     this.updateWindowSizes();
+    this.getSolidConfig();
+    this.setSizesAndStates(true);
+    this.applyStyles();
+    this.createDOMStructure();
+    this.drawSolids();
 
-    // get fixed elements - solids, and create config for them
-    this.config = this.solids.reduce((config, solid) => {
+    // bind context to access methods inside listeners
+    this.drawSolids = this.drawSolids.bind(this);
+    this.onResize = this.onResize.bind(this);
+
+    window.addEventListener('scroll', this.drawSolids, false);
+    window.addEventListener('resize', this.onResize, false);
+  }
+
+  getSolidConfig() {
+    this.config = this.solids.reduce((accumulator, solid) => {
       const solidId = solid.dataset.immerserId;
       delete solid.dataset.immerserId;
 
-      config[solidId] = {
+      accumulator[solidId] = {
         id: solidId,
         node: solid,
         states: [],
       };
 
-      return config;
+      return accumulator;
     }, {});
+  }
 
-    this.layers.forEach((layer, index) => {
-      // get classNames for solids from layer data attribute
-      const classConfig = JSON.parse(layer.dataset.immerserConfig);
-      delete layer.dataset.immerserConfig;
-
-      const layerStart = layer.offsetTop;
-      const layerEnd = layerStart + layer.offsetHeight;
-
-      for (const solidId in classConfig) {
-        if (this.config.hasOwnProperty(solidId)) {
-          const solidNode = this.config[solidId].node;
-          const isFirst = index === 0;
-          const isLast = index === this.layers.length - 1;
-
-          const prevConfig = isFirst ? null : this.config[solidId].states[index - 1];
-
-          const height = solidNode.offsetHeight;
-          const leave = isLast ? this.documentHeight : this.windowHeight - solidNode.offsetTop + layerStart;
-          const startLeave = isLast ? this.documentHeight : leave - height;
-          const enter = isFirst ? 0 : prevConfig.leave;
-          const startEnter = isFirst ? 0 : enter - height;
-
-          const state = {
-            id: layer.id,
-            className: classConfig[solidId],
-            startEnter,
-            enter,
-            startLeave,
-            leave,
-            height,
-            maskNode: null,
-            wrapperNode: null,
-          };
-
-          this.config[solidId].states.push(state);
-        }
-      }
-    });
-
-    // apply helper classes styles
+  applyStyles() {
     const helperStyles = `
-        .${this.CLASSNAMES.CROPPER} {
-          overflow: hidden;
-        }
-        .${this.CLASSNAMES.WRAPPER}, .${this.CLASSNAMES.MASK} {
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          overflow: hidden;
-        }
-      `;
+      .${this.CLASSNAMES.CROPPER} {
+        overflow: hidden;
+      }
+      .${this.CLASSNAMES.WRAPPER}, .${this.CLASSNAMES.MASK} {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: hidden;
+      }
+    `;
     const styleElement = document.createElement('style');
     styleElement.appendChild(document.createTextNode(helperStyles.replace(/\s/g, '')));
     document.head.appendChild(styleElement);
+  }
 
-    // create wrapper and mask for each solid
+  createDOMStructure() {
     for (const solidId in this.config) {
       const solidConfig = this.config[solidId];
       const solidNode = solidConfig.node;
@@ -123,11 +99,52 @@ class Immerser {
         solidNode.appendChild(mask);
       });
     }
+  }
 
-    this.drawFixedElements();
+  setSizesAndStates(isInitial) {
+    this.layers.forEach((layer, index) => {
+      if (isInitial) {
+        this.classConfig[layer.id] = JSON.parse(layer.dataset.immerserConfig);
+        delete layer.dataset.immerserConfig;
+      }
 
-    window.addEventListener('scroll', this.drawFixedElements, false);
-    window.addEventListener('resize', this.updateWindowSizes, false);
+      const layerStart = layer.offsetTop;
+      const layerEnd = layerStart + layer.offsetHeight;
+
+      for (const solidId in this.config) {
+        const solidNode = this.config[solidId].node;
+        const isFirst = index === 0;
+        const isLast = index === this.layers.length - 1;
+
+        const prevConfig = isFirst ? null : this.config[solidId].states[index - 1];
+
+        const height = solidNode.offsetHeight;
+        const leave = isLast ? this.documentHeight : this.windowHeight - solidNode.offsetTop + layerStart;
+        const startLeave = isLast ? this.documentHeight : leave - height;
+        const enter = isFirst ? 0 : prevConfig.leave;
+        const startEnter = isFirst ? 0 : enter - height;
+
+        const state = {
+          id: layer.id,
+          className: this.classConfig[layer.id][solidId],
+          startEnter,
+          enter,
+          startLeave,
+          leave,
+          height,
+        };
+
+        if (isInitial) {
+          this.config[solidId].states.push(state);
+        } else {
+          this.config[solidId].states.forEach(prevState => {
+            if (prevState.id === state.id) {
+              prevState = Object.assign(prevState, state);
+            }
+          });
+        }
+      }
+    });
   }
 
   getLastScrollPositionY() {
@@ -136,39 +153,39 @@ class Immerser {
   }
 
   updateWindowSizes() {
-    // chcek if window height changed
-    const newWindowHeight = window.innerHeight;
-    if (this.windowHeight === newWindowHeight) {
-      return;
-    }
-
-    // update windows
     this.documentHeight = document.documentElement.offsetHeight;
-    this.windowHeight = newWindowHeight;
-
-    // update crpper sized
-    // TODO
+    this.windowHeight = window.innerHeight;
   }
 
-  drawFixedElements() {
+  onResize() {
+    // simlpe debouncer
+    clearTimeout(this.resizeTimerId);
+    this.resizeTimerId = setTimeout(() => {
+      this.updateWindowSizes();
+      this.setSizesAndStates();
+      this.drawSolids();
+    }, 250);
+  }
+
+  drawSolids() {
     const y = this.getLastScrollPositionY();
     for (const solidId in this.config) {
       const solidConfig = this.config[solidId];
-      solidConfig.states.forEach((state, index) => {
+      solidConfig.states.forEach(({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode }) => {
         let progress;
-        if (state.startEnter > y) {
-          progress = state.height;
-        } else if (state.startEnter <= y && y < state.enter) {
-          progress = state.enter - y;
-        } else if (state.enter <= y && y < state.startLeave) {
+        if (startEnter > y) {
+          progress = height;
+        } else if (startEnter <= y && y < enter) {
+          progress = enter - y;
+        } else if (enter <= y && y < startLeave) {
           progress = 0;
-        } else if (state.startLeave <= y && y < state.leave) {
-          progress = state.startLeave - y;
+        } else if (startLeave <= y && y < leave) {
+          progress = startLeave - y;
         } else {
-          progress = -state.height;
+          progress = -height;
         }
-        state.maskNode.style.transform = `translateY(${progress}px)`;
-        state.wrapperNode.style.transform = `translateY(${-progress}px)`;
+        maskNode.style.transform = `translateY(${progress}px)`;
+        wrapperNode.style.transform = `translateY(${-progress}px)`;
       });
     }
   }
