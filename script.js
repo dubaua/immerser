@@ -1,19 +1,20 @@
 class Immerser {
   constructor() {
-    this.layers = Array.from(document.querySelectorAll('[data-immerser-config]'));
-    this.solids = Array.from(document.querySelectorAll('[data-immerser-id]'));
+    this.layerNodeArray = Array.from(document.querySelectorAll('[data-immerser-config]'));
+    this.solidNodeArray = Array.from(document.querySelectorAll('[data-immerser-id]'));
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.lastScrollPositionY = this.getLastScrollPositionY();
-    this.config = {};
-    this.classConfig = {};
+    this.solids = {};
+    this.layers = {};
     this.resizeTimerId = null;
 
-    this.updateWindowSizes();
-    this.getSolidConfig();
-    this.setSizesAndStates(true);
-    this.applyStyles();
+    this.setWindowSizes();
+    this.initLayers();
+    this.initSolids();
+    this.setStates();
     this.createDOMStructure();
+    this.setSolidSizes();
     this.drawSolids();
 
     // bind context to access methods inside listeners
@@ -24,25 +25,66 @@ class Immerser {
     window.addEventListener('resize', this.onResize, false);
   }
 
-  getSolidConfig() {
-    this.config = this.solids.reduce((accumulator, solid) => {
+  initLayers() {
+    this.layers = this.layerNodeArray.map(layer => {
+      const solidClassConfig = JSON.parse(layer.dataset.immerserConfig);
+      delete layer.dataset.immerserConfig;
+      return {
+        node: layer,
+        solidClassConfig,
+      };
+    });
+  }
+
+  initSolids() {
+    this.solids = this.solidNodeArray.map((solid, index) => {
       const solidId = solid.dataset.immerserId;
       delete solid.dataset.immerserId;
 
-      accumulator[solidId] = {
+      return {
         id: solidId,
         node: solid,
-        states: [],
+        originalChildren: null,
+        states: this.layers.map((layer, index) => ({ layerIndex: index })),
       };
-
-      return accumulator;
-    }, {});
+    });
   }
 
-  applyStyles(node, styles) {
-    for (const rule in styles) {
-      node.style[rule] = styles[rule];
-    }
+  setStates() {
+    this.layers.forEach((layer, layerIndex) => {
+      const layerStart = layer.node.offsetTop;
+      const layerEnd = layerStart + layer.node.offsetHeight;
+
+      this.solids.forEach((solid, solidIndex) => {
+        // actually here we should check top and bottom layers, not top and bottom of document
+        const isFirst = layerIndex === 0;
+        const isLast = layerIndex === this.layers.length - 1;
+
+        const prevState = isFirst ? null : this.solids[solidIndex].states[layerIndex - 1];
+
+        const height = solid.node.offsetHeight;
+        const leave = isLast ? this.documentHeight : this.windowHeight - solid.node.offsetTop + layerStart;
+        const startLeave = isLast ? this.documentHeight : leave - height;
+        const enter = isFirst ? 0 : prevState.leave;
+        const startEnter = isFirst ? 0 : enter - height;
+
+        const nextState = {
+          className: this.layers[layerIndex].solidClassConfig[solid.id],
+          layerIndex,
+          startEnter,
+          enter,
+          startLeave,
+          leave,
+          height,
+        };
+
+        this.solids[solidIndex].states.forEach(state => {
+          if (state.layerIndex === nextState.layerIndex) {
+            state = Object.assign(state, nextState);
+          }
+        });
+      });
+    });
   }
 
   createDOMStructure() {
@@ -55,117 +97,77 @@ class Immerser {
       overflow: 'hidden',
     };
 
-    for (const solidId in this.config) {
-      const solidConfig = this.config[solidId];
-      const solidNode = solidConfig.node;
-      this.applyStyles(solidNode, {
-        overflow: 'hidden',
-        // +1 px because offsetWidth/offsetHeight doesn't return fractional part
-        width: solidNode.offsetWidth + 1 + 'px',
-        height: solidNode.offsetHeight + 1 + 'px',
-      });
-
-      const fixedChildren = Array.from(solidNode.children);
-
-      solidConfig.states.forEach((state, index) => {
-        const mask = document.createElement('div');
-        this.applyStyles(mask, maskAndWrapperStyles);
-
+    this.solids.forEach(solid => {
+      solid.originalChildren = Array.from(solid.node.children);
+      solid.states.forEach((state, stateIndex) => {
         const wrapper = document.createElement('div');
         this.applyStyles(wrapper, maskAndWrapperStyles);
+        state.wrapperNode = wrapper;
 
-        fixedChildren.forEach(child => wrapper.appendChild(child.cloneNode(true)));
+        solid.originalChildren.forEach(child => wrapper.appendChild(child.cloneNode(true)));
 
-        if (index !== 0) {
+        const mask = document.createElement('div');
+        this.applyStyles(mask, maskAndWrapperStyles);
+        state.maskNode = mask;
+
+        if (stateIndex !== 0) {
           mask.setAttribute('aria-hidden', 'true');
         }
 
         if (state.className) {
           mask.classList.add(state.className);
         }
-
-        state.maskNode = mask;
-        state.wrapperNode = wrapper;
-
         mask.appendChild(wrapper);
-        solidNode.appendChild(mask);
+        solid.node.appendChild(mask);
       });
-
-      fixedChildren.forEach(child => child.style.display = 'none');
-    }
-  }
-
-  setSizesAndStates(isInitial) {
-    this.layers.forEach((layer, index) => {
-      if (isInitial) {
-        this.classConfig[layer.id] = JSON.parse(layer.dataset.immerserConfig);
-        delete layer.dataset.immerserConfig;
-      }
-
-      const layerStart = layer.offsetTop;
-      const layerEnd = layerStart + layer.offsetHeight;
-
-      for (const solidId in this.config) {
-        const solidNode = this.config[solidId].node;
-        const isFirst = index === 0;
-        const isLast = index === this.layers.length - 1;
-
-        const prevConfig = isFirst ? null : this.config[solidId].states[index - 1];
-
-        const height = solidNode.offsetHeight;
-        const leave = isLast ? this.documentHeight : this.windowHeight - solidNode.offsetTop + layerStart;
-        const startLeave = isLast ? this.documentHeight : leave - height;
-        const enter = isFirst ? 0 : prevConfig.leave;
-        const startEnter = isFirst ? 0 : enter - height;
-
-        const state = {
-          id: layer.id,
-          className: this.classConfig[layer.id][solidId],
-          startEnter,
-          enter,
-          startLeave,
-          leave,
-          height,
-        };
-
-        if (isInitial) {
-          this.config[solidId].states.push(state);
-        } else {
-          this.config[solidId].states.forEach(prevState => {
-            if (prevState.id === state.id) {
-              prevState = Object.assign(prevState, state);
-            }
-          });
-        }
-      }
     });
   }
 
-  getLastScrollPositionY() {
-    // limit scroll position between 0 and document height in case of iOS overflow scroll
-    return Math.min(Math.max(document.documentElement.scrollTop, 0), this.documentHeight);
+  setSolidSizes() {
+    this.solids.forEach(solid => {
+      // reset to original child sizes, show original child
+      solid.originalChildren.forEach(child => (child.style.display = ''));
+      this.applyStyles(solid.node, {
+        width: null,
+        height: null,
+      });
+
+      // get sizes
+      const { width, height } = solid.node.getBoundingClientRect();
+
+      // apply sizes
+      this.applyStyles(solid.node, {
+        overflow: 'hidden',
+        width: width + 'px',
+        height: height + 'px',
+      });
+
+      // hide
+      solid.originalChildren.forEach(child => (child.style.display = 'none'));
+    });
   }
 
-  updateWindowSizes() {
+  setWindowSizes() {
     this.documentHeight = document.documentElement.offsetHeight;
     this.windowHeight = window.innerHeight;
   }
 
   onResize() {
     // simlpe debouncer
+    // TODO refactor on requestAnimationFrame
     clearTimeout(this.resizeTimerId);
     this.resizeTimerId = setTimeout(() => {
-      this.updateWindowSizes();
-      this.updateSolidSizes();
-      this.setSizesAndStates();
+      this.setWindowSizes();
+      this.setSolidSizes();
+      this.setStates();
       this.drawSolids();
-    }, 250);
+    }, 16);
   }
 
   drawSolids() {
     const y = this.getLastScrollPositionY();
-    for (const solidId in this.config) {
-      const solidConfig = this.config[solidId];
+    for (const solidId in this.solids) {
+      const solidConfig = this.solids[solidId];
       solidConfig.states.forEach(({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode }) => {
         let progress;
         if (startEnter > y) {
@@ -182,6 +184,18 @@ class Immerser {
         maskNode.style.transform = `translateY(${progress}px)`;
         wrapperNode.style.transform = `translateY(${-progress}px)`;
       });
+    }
+  }
+
+  // utils
+  getLastScrollPositionY() {
+    // limit scroll position between 0 and document height in case of iOS overflow scroll
+    return Math.min(Math.max(document.documentElement.scrollTop, 0), this.documentHeight);
+  }
+
+  applyStyles(node, styles) {
+    for (const rule in styles) {
+      node.style[rule] = styles[rule];
     }
   }
 }

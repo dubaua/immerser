@@ -42,8 +42,14 @@ body {
 
 .menu__link {
   color: black; 
-  font-size: 3rem;
+  font-size: 2rem;
   text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .menu__link {
+    font-size: 4rem;
+  }
 }
 
 .menu--contrast .menu__link {
