@@ -1,11 +1,5 @@
 class Immerser {
   constructor() {
-    this.CLASSNAMES = {
-      CROPPER: 'immerser-cropper',
-      MASK: 'immerser-mask',
-      WRAPPER: 'immerser-wrapper',
-    };
-
     this.layers = Array.from(document.querySelectorAll('[data-immerser-config]'));
     this.solids = Array.from(document.querySelectorAll('[data-immerser-id]'));
     this.documentHeight = 0;
@@ -45,42 +39,41 @@ class Immerser {
     }, {});
   }
 
-  applyStyles() {
-    const helperStyles = `
-      .${this.CLASSNAMES.CROPPER} {
-        overflow: hidden;
-      }
-      .${this.CLASSNAMES.WRAPPER}, .${this.CLASSNAMES.MASK} {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        overflow: hidden;
-      }
-    `;
-    const styleElement = document.createElement('style');
-    styleElement.appendChild(document.createTextNode(helperStyles.replace(/\s/g, '')));
-    document.head.appendChild(styleElement);
+  applyStyles(node, styles) {
+    for (const rule in styles) {
+      node.style[rule] = styles[rule];
+    }
   }
 
   createDOMStructure() {
+    const maskAndWrapperStyles = {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      overflow: 'hidden',
+    };
+
     for (const solidId in this.config) {
       const solidConfig = this.config[solidId];
       const solidNode = solidConfig.node;
-      solidNode.classList.add(this.CLASSNAMES.CROPPER);
-      solidNode.style.width = solidNode.offsetWidth + 1 + 'px';
-      solidNode.style.height = solidNode.offsetHeight + 1 + 'px';
+      this.applyStyles(solidNode, {
+        overflow: 'hidden',
+        // +1 px because offsetWidth/offsetHeight doesn't return fractional part
+        width: solidNode.offsetWidth + 1 + 'px',
+        height: solidNode.offsetHeight + 1 + 'px',
+      });
 
       const fixedChildren = Array.from(solidNode.children);
       solidNode.innerHTML = '';
 
       solidConfig.states.forEach((state, index) => {
         const mask = document.createElement('div');
-        mask.classList.add(this.CLASSNAMES.MASK);
+        this.applyStyles(mask, maskAndWrapperStyles);
 
         const wrapper = document.createElement('div');
-        wrapper.classList.add(this.CLASSNAMES.WRAPPER);
+        this.applyStyles(wrapper, maskAndWrapperStyles);
 
         fixedChildren.forEach(child => wrapper.appendChild(child.cloneNode(true)));
 
