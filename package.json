@@ -1,0 +1,23 @@
+{
+  "name": "immerser",
+  "version": "1.0.0",
+  "description": "Javascript library for switching fixed elements on scroll through sections. Like Midnight.js, but without jQuery",
+  "main": "immerser.js",
+  "keywords": [
+    "scroll",
+    "fixed",
+    "sticky",
+  ],
+  "repository": "git@github.com:dubaua/immerser.git",
+  "author": "dubaua <dubaua@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/preset-env": "^7.4.4",
+    "parcel-bundler": "^1.12.3"
+  },
+  "scripts": {
+    "build": "parcel build immerser.js --out-file immerser.min.js",
+    "example": "parcel build example/index.html --out-dir dist/example --public-url ./"
+  }
+}
