@@ -191,4 +191,9 @@ export default function immerser() {
 
   window.addEventListener('scroll', drawSolids, false);
   window.addEventListener('resize', onResize, false);
+
+  return {
+    solids,
+    layers,
+  }
 }
