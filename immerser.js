@@ -1,30 +1,33 @@
-var layerNodeArray = Array.from(document.querySelectorAll('[data-immerser-config]'));
-var layers = {};
-var solidNodeArray = Array.from(document.querySelectorAll('[data-immerser-id]'));
-var solids = {};
-var documentHeight = 0;
-var windowHeight = 0;
-var resizeTimerId = null;
+let layers = [];
+let solids = [];
+let documentHeight = 0;
+let windowHeight = 0;
+let resizeTimerId = null;
 
-function initLayers() {
-  layers = layerNodeArray.map(layer => {
-    const solidClassConfig = JSON.parse(layer.dataset.immerserConfig);
-    delete layer.dataset.immerserConfig;
+function initLayers({ layerSelector, solidClassnames }) {
+  const layerNodeArray = Array.from(document.querySelectorAll(layerSelector));
+
+  layers = layerNodeArray.map((layerNode, index) => {
+    const classNames = solidClassnames ? solidClassnames[index] : JSON.parse(layerNode.dataset.immerserClassnames);
+    delete layerNode.dataset.immerserConfig;
+
     return {
-      node: layer,
-      solidClassConfig,
+      node: layerNode,
+      classNames,
     };
   });
 }
 
-function initSolids() {
-  solids = solidNodeArray.map((solid, index) => {
-    const solidId = solid.dataset.immerserId;
-    delete solid.dataset.immerserId;
+function initSolids({ solidSelector, solidIds }) {
+  const solidNodeArray = Array.from(document.querySelectorAll(solidSelector));
+
+  solids = solidNodeArray.map((solidNode, index) => {
+    const solidId = solidIds ? solidIds[index] : solidNode.dataset.immerserId;
+    delete solidNode.dataset.immerserId;
 
     return {
       id: solidId,
-      node: solid,
+      node: solidNode,
       originalChildren: null,
       states: layers.map((layer, index) => ({ layerIndex: index })),
     };
@@ -50,7 +53,7 @@ function setStates() {
       const startEnter = isFirst ? 0 : enter - height;
 
       const nextState = {
-        className: layers[layerIndex].solidClassConfig[solid.id],
+        className: layers[layerIndex].classNames[solid.id],
         layerIndex,
         startEnter,
         enter,
@@ -180,10 +183,19 @@ function applyStyles(node, styles) {
   }
 }
 
-export default function immerser() {
+export default function immerser(_options) {
+  const defaults = {
+    layerSelector: '[data-immerser-classnames]',
+    solidSelector: '[data-immerser-id]',
+    solidClassnames: null,
+    solidIds: null,
+  };
+
+  const options = Object.assign({}, defaults, _options);
+
   setWindowSizes();
-  initLayers();
-  initSolids();
+  initLayers(options);
+  initSolids(options);
   setStates();
   createDOMStructure();
   setSolidSizes();
@@ -195,5 +207,5 @@ export default function immerser() {
   return {
     solids,
     layers,
-  }
+  };
 }
