@@ -1,73 +1,106 @@
+const defaults = {
+  immerserSelector: '[data-immerser]',
+  layerSelector: '[data-immerser-classnames]',
+  solidSelector: '[data-immerser-solid-id]',
+  pagerSelector: '[data-immerser-pager]',
+  solidClassnames: null,
+  createPager: false,
+  pagerTreshold: 0.5,
+  classnames: {
+    immerser: 'immerser',
+    immerserWrapper: 'immerser__wrapper',
+    immerserMask: 'immerser__mask',
+    pager: 'pager',
+    pagerLink: 'pager__link',
+    pagerLinkActive: 'pager__link--active',
+  },
+};
+
+let immerserNode = null;
+let originalChildrenNodeList = [];
+let immerserClassnames = [];
 let layers = [];
 let solids = [];
+let states = [];
 let documentHeight = 0;
 let windowHeight = 0;
 let resizeTimerId = null;
+let options = {};
 
-function initLayers({ layerSelector, solidClassnames }) {
+// TODO validate options
+
+function init({ immerserSelector, layerSelector, solidClassnames, solidSelector }) {
+  // init immerser
+  immerserNode = document.querySelector(immerserSelector);
+
+  if (!immerserNode) {
+    console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
+  }
+
+  // init layers
+  // check if solidClassnames given in options
+  if (solidClassnames) {
+    immerserClassnames = solidClassnames;
+  }
   const layerNodeArray = Array.from(document.querySelectorAll(layerSelector));
-
   layers = layerNodeArray.map((layerNode, index) => {
-    const classNames = solidClassnames ? solidClassnames[index] : JSON.parse(layerNode.dataset.immerserClassnames);
-    delete layerNode.dataset.immerserConfig;
-
+    if (!solidClassnames) {
+      immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
+    }
     return {
       node: layerNode,
-      classNames,
+      start: 0,
+      end: 0,
     };
   });
+
+  states = layers.map(() => ({}))
+  // warn if no classnames given
 }
 
-function initSolids({ solidSelector, solidIds }) {
-  const solidNodeArray = Array.from(document.querySelectorAll(solidSelector));
-
-  solids = solidNodeArray.map((solidNode, index) => {
-    const solidId = solidIds ? solidIds[index] : solidNode.dataset.immerserId;
-    delete solidNode.dataset.immerserId;
-
-    return {
-      id: solidId,
-      node: solidNode,
-      originalChildren: null,
-      states: layers.map((layer, index) => ({ layerIndex: index })),
-    };
+function createPagerLinks({ pagerSelector, createPager, pagerClassnames }) {
+  if (!createPager) return;
+  const pagerNode = document.querySelector(pagerSelector);
+  pagerNode.classList.add(pagerClassnames.root);
+  layers.forEach((layer, index) => {
+    let layerId = layer.node.id;
+    if (layerId === '') {
+      layerId = 'immerser-section-' + index;
+      layer.node.id = layerId;
+    }
+    const pagerLinkNode = document.createElement('a');
+    pagerLinkNode.classList.add(pagerClassnames.link);
+    pagerLinkNode.href = '#' + layerId;
+    layer.pagerLinkNodeArray.push(pagerLinkNode);
+    pagerNode.appendChild(pagerLinkNode);
   });
 }
 
 function setStates() {
-  layers.forEach((layer, layerIndex) => {
-    const layerStart = layer.node.offsetTop;
-    const layerEnd = layerStart + layer.node.offsetHeight;
+  states = states.map((state, index) => {
+    const isFirst = index === 0;
+    const isLast = index === layers.length - 1;
 
-    solids.forEach((solid, solidIndex) => {
-      // actually here we should check top and bottom layers, not top and bottom of document
-      const isFirst = layerIndex === 0;
-      const isLast = layerIndex === layers.length - 1;
+    const immerserHeight = immerserNode.offsetHeight;
+    const immerserTop = immerserNode.offsetTop;
 
-      const prevState = isFirst ? null : solids[solidIndex].states[layerIndex - 1];
+    // actually not 0 and documentHeight but start of first and end of last.
+    const startEnter = isFirst ? 0 : immerserTop + layers[index - 1].start; // == previous start
+    const enter = isFirst ? 0 : startEnter + immerserHeight;
+    const startLeave = isLast ? documentHeight : immerserTop + layers[index].start;
+    const leave = isLast ? documentHeight : startLeave + immerserHeight;
+    const pagerActive = isFirst ? 0 : Math.floor(layers[index].start - windowHeight * options.pagerTreshold);
 
-      const height = solid.node.offsetHeight;
-      const leave = isLast ? documentHeight : windowHeight - solid.node.offsetTop + layerStart;
-      const startLeave = isLast ? documentHeight : leave - height;
-      const enter = isFirst ? 0 : prevState.leave;
-      const startEnter = isFirst ? 0 : enter - height;
-
-      const nextState = {
-        className: layers[layerIndex].classNames[solid.id],
-        layerIndex,
-        startEnter,
-        enter,
-        startLeave,
-        leave,
-        height,
-      };
-
-      solids[solidIndex].states.forEach(state => {
-        if (state.layerIndex === nextState.layerIndex) {
-          state = Object.assign(state, nextState);
-        }
-      });
-    });
+    return {
+      startEnter,
+      enter,
+      startLeave,
+      leave,
+      height: immerserHeight,
+      pagerActive,
+      wrapperNode: state.wrapperNode || null,
+      maskNode: state.maskNode || null,
+    };
   });
 }
 
@@ -81,53 +114,51 @@ function createDOMStructure() {
     overflow: 'hidden',
   };
 
-  solids.forEach(solid => {
-    solid.originalChildren = Array.from(solid.node.children);
-    solid.states.forEach((state, stateIndex) => {
-      const wrapper = document.createElement('div');
-      applyStyles(wrapper, maskAndWrapperStyles);
-      state.wrapperNode = wrapper;
+  const { immerser, immerserWrapper, immerserMask } = options.classnames;
 
-      solid.originalChildren.forEach(child => wrapper.appendChild(child.cloneNode(true)));
+  originalChildrenNodeList = Array.from(immerserNode.children);
+  immerserNode.classList.add(immerser);
 
-      const mask = document.createElement('div');
-      applyStyles(mask, maskAndWrapperStyles);
-      state.maskNode = mask;
+  states = states.map((state, stateIndex) => {
+    const wrapper = document.createElement('div');
+    applyStyles(wrapper, maskAndWrapperStyles);
+    wrapper.classList.add(immerserWrapper);
+    state.wrapperNode = wrapper;
 
-      if (stateIndex !== 0) {
-        mask.setAttribute('aria-hidden', 'true');
-      }
-
-      if (state.className) {
-        mask.classList.add(state.className);
-      }
-      mask.appendChild(wrapper);
-      solid.node.appendChild(mask);
+    originalChildrenNodeList.forEach(childNode => {
+      const clonnedChildNode = childNode.cloneNode(true);
+      wrapper.appendChild(clonnedChildNode);
+      childNode.remove();
     });
+
+    const clonedSolidNodeList = wrapper.querySelectorAll(options.solidSelector);
+    clonedSolidNodeList.forEach(clonnedSolidNode => {
+      const solidId = clonnedSolidNode.dataset.immerserSolidId;
+      if (immerserClassnames[stateIndex].hasOwnProperty(solidId)) {
+        clonnedSolidNode.classList.add(immerserClassnames[stateIndex][solidId]);
+      }
+    });
+
+    const mask = document.createElement('div');
+    applyStyles(mask, maskAndWrapperStyles);
+    mask.classList.add(immerserMask);
+    state.maskNode = mask;
+
+    if (stateIndex !== 0) {
+      mask.setAttribute('aria-hidden', 'true');
+    }
+
+    mask.appendChild(wrapper);
+    immerserNode.appendChild(mask);
+
+    return state;
   });
 }
 
-function setSolidSizes() {
-  solids.forEach(solid => {
-    // reset to original child sizes, show original child
-    solid.originalChildren.forEach(child => (child.style.display = ''));
-    applyStyles(solid.node, {
-      width: null,
-      height: null,
-    });
-
-    // get sizes
-    const { width, height } = solid.node.getBoundingClientRect();
-
-    // apply sizes
-    applyStyles(solid.node, {
-      overflow: 'hidden',
-      width: width + 'px',
-      height: height + 'px',
-    });
-
-    // hide
-    solid.originalChildren.forEach(child => (child.style.display = 'none'));
+function setLayerSizes() {
+  layers.forEach(layer => {
+    layer.start = layer.node.offsetTop;
+    layer.end = layer.start + layer.node.offsetHeight;
   });
 }
 
@@ -142,33 +173,51 @@ function onResize() {
   clearTimeout(resizeTimerId);
   resizeTimerId = setTimeout(() => {
     setWindowSizes();
-    setSolidSizes();
+    setLayerSizes();
     setStates();
     drawSolids();
+    drawPager(options);
   }, 16);
+}
+
+function onScroll() {
+  drawSolids();
+  drawPager(options);
 }
 
 function drawSolids() {
   const y = getLastScrollPositionY();
-  for (const solidId in solids) {
-    const solidConfig = solids[solidId];
-    solidConfig.states.forEach(({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode }) => {
-      let progress;
-      if (startEnter > y) {
-        progress = height;
-      } else if (startEnter <= y && y < enter) {
-        progress = enter - y;
-      } else if (enter <= y && y < startLeave) {
-        progress = 0;
-      } else if (startLeave <= y && y < leave) {
-        progress = startLeave - y;
-      } else {
-        progress = -height;
-      }
-      maskNode.style.transform = `translateY(${progress}px)`;
-      wrapperNode.style.transform = `translateY(${-progress}px)`;
-    });
-  }
+  states.forEach(({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode }) => {
+    let progress;
+    if (startEnter > y) {
+      progress = height;
+    } else if (startEnter <= y && y < enter) {
+      progress = enter - y;
+    } else if (enter <= y && y < startLeave) {
+      progress = 0;
+    } else if (startLeave <= y && y < leave) {
+      progress = startLeave - y;
+    } else {
+      progress = -height;
+    }
+    maskNode.style.transform = `translateY(${progress}px)`;
+    wrapperNode.style.transform = `translateY(${-progress}px)`;
+  });
+}
+
+function drawPager({ pagerClassnames }) {
+  // layers.forEach(layer => {
+  //   const scrollCenter = getLastScrollPositionY() + windowHeight / 2;
+  //   if (layer.start <= scrollCenter && scrollCenter < layer.end) {
+  //     layer.pagerLinkNodeArray.forEach(link => {
+  //       link.classList.add(pagerClassnames.active);
+  //     });
+  //   } else {
+  //     layer.pagerLinkNodeArray.forEach(link => {
+  //       link.classList.remove(pagerClassnames.active);
+  //     });
+  //   }
+  // });
 }
 
 // utils
@@ -184,28 +233,19 @@ function applyStyles(node, styles) {
 }
 
 export default function immerser(_options) {
-  const defaults = {
-    layerSelector: '[data-immerser-classnames]',
-    solidSelector: '[data-immerser-id]',
-    solidClassnames: null,
-    solidIds: null,
-  };
+  options = Object.assign({}, defaults, _options);
 
-  const options = Object.assign({}, defaults, _options);
-
+  init(options);
   setWindowSizes();
-  initLayers(options);
-  initSolids(options);
+  setLayerSizes();
   setStates();
+  createPagerLinks(options);
   createDOMStructure();
-  setSolidSizes();
   drawSolids();
+  drawPager(options);
 
-  window.addEventListener('scroll', drawSolids, false);
+  window.addEventListener('scroll', onScroll, false);
   window.addEventListener('resize', onResize, false);
 
-  return {
-    solids,
-    layers,
-  };
+  return { states, immerserClassnames };
 }
