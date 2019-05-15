@@ -1,258 +1,260 @@
-const defaults = {
-  immerserSelector: '[data-immerser]',
-  layerSelector: '[data-immerser-classnames]',
-  solidSelector: '[data-immerser-solid-id]',
-  pagerSelector: '[data-immerser-pager]',
-  solidClassnames: null,
-  createPager: false,
-  pagerTreshold: 0.5,
-  classnames: {
-    immerser: 'immerser',
-    immerserWrapper: 'immerser__wrapper',
-    immerserMask: 'immerser__mask',
-    pager: 'pager',
-    pagerLink: 'pager__link',
-    pagerLinkActive: 'pager__link--active',
-  },
-};
+export default class Immerser {
+  constructor(options) {
+    this.defaults = {
+      immerserSelector: '[data-immerser]',
+      layerSelector: '[data-immerser-classnames]',
+      solidSelector: '[data-immerser-solid-id]',
+      pagerSelector: '[data-immerser-pager]',
+      solidClassnames: null,
+      pagerTreshold: 0.5,
+      classnames: {
+        immerser: 'immerser',
+        immerserWrapper: 'immerser__wrapper',
+        immerserMask: 'immerser__mask',
+        pager: 'pager',
+        pagerLink: 'pager__link',
+        pagerLinkActive: 'pager__link--active',
+      },
+    };
 
-let immerserNode = null;
-let immerserClassnames = [];
-let states = [];
-let documentHeight = 0;
-let windowHeight = 0;
-let resizeTimerId = null;
-let options = {};
+    // TODO user defined solid layout
 
-// TODO validate options
+    // TODO validate options
+    this.options = this.options = { ...this.defaults, ...options };
 
-function init({ immerserSelector, layerSelector, solidClassnames }) {
-  // init immerser
-  immerserNode = document.querySelector(immerserSelector);
+    // state
+    this.immerserNode = null;
+    this.immerserClassnames = [];
+    this.states = [];
+    this.documentHeight = 0;
+    this.windowHeight = 0;
+    this.resizeTimerId = null;
 
-  if (!immerserNode) {
-    console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
+    this.init();
+    this.setWindowSizes();
+    this.setLayerSizes();
+    this.setStates();
+    this.createPagerLinks(options);
+    this.createDOMStructure();
+    this.initPagerLinks();
+    this.draw();
+
+    window.addEventListener('scroll', this.draw.bind(this), false);
+    window.addEventListener('resize', this.onResize.bind(this), false);
   }
 
-  // init layers
-  // check if solidClassnames given in options
-  if (solidClassnames) {
-    immerserClassnames = solidClassnames;
-  }
-  const layerNodeArray = document.querySelectorAll(layerSelector);
-  layerNodeArray.forEach(layerNode => {
+  init() {
+    this.immerserNode = document.querySelector(this.options.immerserSelector);
+    if (!this.immerserNode) {
+      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
+    }
+
+    if (this.options.solidClassnames) {
+      this.immerserClassnames = this.options.solidClassnames;
+    }
+    const layerNodeArray = document.querySelectorAll(this.options.layerSelector);
+    this.forEachNode(layerNodeArray, layerNode => {
+      if (!this.options.solidClassnames) {
+        this.immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
+      }
+      this.states.push({
+        node: layerNode,
+        top: 0,
+        bottom: 0,
+      });
+    });
     // warn if no classnames given
-    if (!solidClassnames) {
-      immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
-    }
-    states.push({
-      node: layerNode,
+  }
+
+  setWindowSizes() {
+    this.documentHeight = document.documentElement.offsetHeight;
+    this.windowHeight = window.innerHeight;
+  }
+
+  setLayerSizes() {
+    this.states = this.states.map(state => {
+      const top = state.node.offsetTop;
+      const bottom = top + state.node.offsetHeight;
+      return {
+        ...state,
+        top,
+        bottom,
+      };
+    });
+  }
+
+  setStates() {
+    this.states = this.states.map((state, index) => {
+      const isFirst = index === 0;
+      const isLast = index === this.states.length - 1;
+
+      const immerserHeight = this.immerserNode.offsetHeight;
+      const immerserTop = this.immerserNode.offsetTop;
+
+      // actually not 0 and this.documentHeight but start of first and end of last.
+      const startEnter = isFirst ? 0 : immerserTop + this.states[index - 1].top; // == previous start
+      const enter = isFirst ? 0 : startEnter + immerserHeight;
+      const startLeave = isLast ? this.documentHeight : immerserTop + this.states[index].top;
+      const leave = isLast ? this.documentHeight : startLeave + immerserHeight;
+
+      return {
+        ...state,
+        startEnter,
+        enter,
+        startLeave,
+        leave,
+        height: immerserHeight,
+      };
+    });
+  }
+
+  createPagerLinks() {
+    const pagerNode = document.querySelector(this.options.pagerSelector);
+    if (!pagerNode) return;
+
+    const { pager, pagerLink } = this.options.classnames;
+    pagerNode.classList.add(pager);
+
+    this.states.forEach((state, index) => {
+      let layerId = state.node.id;
+
+      // if no layerId create it, to point anchor to
+      if (layerId === '') {
+        layerId = `immerser-section-${index}`;
+        state.node.id = layerId;
+      }
+
+      const pagerLinkNode = document.createElement('a');
+      pagerLinkNode.classList.add(pagerLink);
+      pagerLinkNode.href = `#${layerId}`;
+      // not the best way to store index for
+      pagerLinkNode.dataset.stateIndex = index;
+      pagerNode.appendChild(pagerLinkNode);
+
+      state.pagerLinkNodeArray = [];
+    });
+  }
+
+  createDOMStructure() {
+    const maskAndWrapperStyles = {
+      position: 'absolute',
       top: 0,
+      right: 0,
       bottom: 0,
-    });
-  });
-}
-
-function setWindowSizes() {
-  documentHeight = document.documentElement.offsetHeight;
-  windowHeight = window.innerHeight;
-}
-
-function setLayerSizes() {
-  states = states.map(state => {
-    const top = state.node.offsetTop;
-    const bottom = top + state.node.offsetHeight;
-    return {
-      ...state,
-      top,
-      bottom,
+      left: 0,
+      overflow: 'hidden',
     };
-  });
-}
 
-function setStates() {
-  states = states.map((state, index) => {
-    const isFirst = index === 0;
-    const isLast = index === states.length - 1;
+    const { immerser, immerserWrapper, immerserMask } = this.options.classnames;
+    const originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
+    this.immerserNode.classList.add(immerser);
 
-    const immerserHeight = immerserNode.offsetHeight;
-    const immerserTop = immerserNode.offsetTop;
+    this.states = this.states.map((state, stateIndex) => {
+      const wrapper = document.createElement('div');
+      this.applyStyles(wrapper, maskAndWrapperStyles);
+      wrapper.classList.add(immerserWrapper);
 
-    // actually not 0 and documentHeight but start of first and end of last.
-    const startEnter = isFirst ? 0 : immerserTop + states[index - 1].top; // == previous start
-    const enter = isFirst ? 0 : startEnter + immerserHeight;
-    const startLeave = isLast ? documentHeight : immerserTop + states[index].top;
-    const leave = isLast ? documentHeight : startLeave + immerserHeight;
+      this.forEachNode(originalChildrenNodeList, childNode => {
+        const clonnedChildNode = childNode.cloneNode(true);
+        wrapper.appendChild(clonnedChildNode);
+        // TODO remove original children. mess with DOM
+      });
 
-    return {
-      ...state,
-      startEnter,
-      enter,
-      startLeave,
-      leave,
-      height: immerserHeight,
-    };
-  });
-}
+      const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
+      this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
+        const solidId = dataset.immerserSolidId;
+        if (this.immerserClassnames[stateIndex].hasOwnProperty(solidId)) {
+          classList.add(this.immerserClassnames[stateIndex][solidId]);
+        }
+      });
 
-function createPagerLinks({ pagerSelector, createPager, classnames }) {
-  if (!createPager) return;
-  const { pager, pagerLink } = classnames;
-  const pagerNode = document.querySelector(pagerSelector);
-  pagerNode.classList.add(pager);
+      const mask = document.createElement('div');
+      this.applyStyles(mask, maskAndWrapperStyles);
+      mask.classList.add(immerserMask);
 
-  states.forEach((state, index) => {
-    let layerId = state.node.id;
-    if (layerId === '') {
-      layerId = 'immerser-section-' + index;
-      state.node.id = layerId;
-    }
-    const pagerLinkNode = document.createElement('a');
-    pagerLinkNode.classList.add(pagerLink);
-    pagerLinkNode.href = '#' + layerId;
-    pagerLinkNode.dataset.stateIndex = index;
-    pagerNode.appendChild(pagerLinkNode);
-    state.pagerLinkNodeArray = [];
-  });
-}
+      if (stateIndex !== 0) {
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      mask.appendChild(wrapper);
+      this.immerserNode.appendChild(mask);
 
-function createDOMStructure() {
-  const maskAndWrapperStyles = {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    overflow: 'hidden',
-  };
-
-  const { immerser, immerserWrapper, immerserMask } = options.classnames;
-
-  const originalChildrenNodeList = Array.from(immerserNode.children);
-  immerserNode.classList.add(immerser);
-
-  states = states.map((state, stateIndex) => {
-    const wrapper = document.createElement('div');
-    applyStyles(wrapper, maskAndWrapperStyles);
-    wrapper.classList.add(immerserWrapper);
-    state.wrapperNode = wrapper;
-
-    originalChildrenNodeList.forEach(childNode => {
-      const clonnedChildNode = childNode.cloneNode(true);
-      wrapper.appendChild(clonnedChildNode);
-      childNode.remove();
+      state.maskNode = mask;
+      state.wrapperNode = wrapper;
+      return state;
     });
-
-    const clonedSolidNodeList = wrapper.querySelectorAll(options.solidSelector);
-    clonedSolidNodeList.forEach(clonnedSolidNode => {
-      const solidId = clonnedSolidNode.dataset.immerserSolidId;
-      if (immerserClassnames[stateIndex].hasOwnProperty(solidId)) {
-        clonnedSolidNode.classList.add(immerserClassnames[stateIndex][solidId]);
-      }
-    });
-
-    const mask = document.createElement('div');
-    applyStyles(mask, maskAndWrapperStyles);
-    mask.classList.add(immerserMask);
-    state.maskNode = mask;
-
-    if (stateIndex !== 0) {
-      mask.setAttribute('aria-hidden', 'true');
-    }
-
-    mask.appendChild(wrapper);
-    immerserNode.appendChild(mask);
-
-    return state;
-  });
-}
-
-function initPagerLinks() {
-  const pagerLinkHTMLCollection = immerserNode.getElementsByClassName(options.classnames.pagerLink);
-  for (var index = 0; index < pagerLinkHTMLCollection.length; index++) {
-    var pagerLinkNode = pagerLinkHTMLCollection[index];
-    var stateIndex = pagerLinkNode.dataset.stateIndex;
-    states[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
   }
-}
 
-function drawSolids() {
-  const y = getLastScrollPositionY();
-  states.forEach(
-    ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom, pagerLinkNodeArray }) => {
-      let progress;
-      if (startEnter > y) {
-        progress = height;
-      } else if (startEnter <= y && y < enter) {
-        progress = enter - y;
-      } else if (enter <= y && y < startLeave) {
-        progress = 0;
-      } else if (startLeave <= y && y < leave) {
-        progress = startLeave - y;
-      } else {
-        progress = -height;
-      }
-      maskNode.style.transform = `translateY(${progress}px)`;
-      wrapperNode.style.transform = `translateY(${-progress}px)`;
-
-      // check if pager
-      const pagerScrollActivePoint = y + windowHeight * options.pagerTreshold;
-
-      if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-        pagerLinkNodeArray.forEach(pagerLinkNode => {
-          pagerLinkNode.classList.add(options.classnames.pagerLinkActive);
-        });
-      } else {
-        pagerLinkNodeArray.forEach(pagerLinkNode => {
-          pagerLinkNode.classList.remove(options.classnames.pagerLinkActive);
-        });
-      }
+  initPagerLinks() {
+    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnames.pagerLink);
+    for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
+      const pagerLinkNode = pagerLinkHTMLCollection[index];
+      const stateIndex = pagerLinkNode.dataset.stateIndex;
+      this.states[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
     }
-  );
-}
-
-function onResize() {
-  // simlpe debouncer
-  // TODO refactor on requestAnimationFrame
-  clearTimeout(resizeTimerId);
-  resizeTimerId = setTimeout(() => {
-    setWindowSizes();
-    setLayerSizes();
-    setStates();
-    drawSolids();
-  }, 16);
-}
-
-function onScroll() {
-  drawSolids();
-}
-
-// utils
-function getLastScrollPositionY() {
-  // limit scroll position between 0 and document height in case of iOS overflow scroll
-  return Math.min(Math.max(document.documentElement.scrollTop, 0), documentHeight);
-}
-
-function applyStyles(node, styles) {
-  for (const rule in styles) {
-    node.style[rule] = styles[rule];
   }
-}
 
-export default function immerser(_options) {
-  options = Object.assign({}, defaults, _options);
+  draw() {
+    const y = this.getLastScrollPositionY();
+    this.states.forEach(
+      ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom, pagerLinkNodeArray }) => {
+        let progress;
+        if (startEnter > y) {
+          progress = height;
+        } else if (startEnter <= y && y < enter) {
+          progress = enter - y;
+        } else if (enter <= y && y < startLeave) {
+          progress = 0;
+        } else if (startLeave <= y && y < leave) {
+          progress = startLeave - y;
+        } else {
+          progress = -height;
+        }
+        maskNode.style.transform = `translateY(${progress}px)`;
+        wrapperNode.style.transform = `translateY(${-progress}px)`;
 
-  init(options);
-  setWindowSizes();
-  setLayerSizes();
-  setStates();
-  createPagerLinks(options);
-  createDOMStructure();
-  initPagerLinks();
-  drawSolids();
+        // check if pager
+        const pagerScrollActivePoint = y + this.windowHeight * this.options.pagerTreshold;
+        if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
+          pagerLinkNodeArray.forEach(({ classList }) => {
+            classList.add(this.options.classnames.pagerLinkActive);
+          });
+        } else {
+          pagerLinkNodeArray.forEach(({ classList }) => {
+            classList.remove(this.options.classnames.pagerLinkActive);
+          });
+        }
+      }
+    );
+  }
 
-  window.addEventListener('scroll', onScroll, false);
-  window.addEventListener('resize', onResize, false);
+  onResize() {
+    // TODO maybe refactor on requestAnimationFrame
+    // simlpe debouncer
+    clearTimeout(this.resizeTimerId);
+    this.resizeTimerId = setTimeout(() => {
+      this.setWindowSizes();
+      this.setLayerSizes();
+      this.setStates();
+      this.draw();
+    }, 16);
+  }
 
-  return { states, immerserClassnames };
+  // utils
+  getLastScrollPositionY() {
+    // limit scroll position between 0 and document height in case of iOS overflow scroll
+    return Math.min(Math.max(document.documentElement.scrollTop, 0), this.documentHeight);
+  }
+
+  applyStyles({ style }, styles) {
+    for (const rule in styles) {
+      style[rule] = styles[rule];
+    }
+  }
+
+  forEachNode(nodeList, callback) {
+    for (let index = 0; index < nodeList.length; index++) {
+      const node = nodeList[index];
+      callback(node, index, nodeList);
+    }
+  }
 }
