@@ -17,10 +17,7 @@ const defaults = {
 };
 
 let immerserNode = null;
-let originalChildrenNodeList = [];
 let immerserClassnames = [];
-let layers = [];
-let solids = [];
 let states = [];
 let documentHeight = 0;
 let windowHeight = 0;
@@ -29,7 +26,7 @@ let options = {};
 
 // TODO validate options
 
-function init({ immerserSelector, layerSelector, solidClassnames, solidSelector }) {
+function init({ immerserSelector, layerSelector, solidClassnames }) {
   // init immerser
   immerserNode = document.querySelector(immerserSelector);
 
@@ -42,65 +39,80 @@ function init({ immerserSelector, layerSelector, solidClassnames, solidSelector 
   if (solidClassnames) {
     immerserClassnames = solidClassnames;
   }
-  const layerNodeArray = Array.from(document.querySelectorAll(layerSelector));
-  layers = layerNodeArray.map((layerNode, index) => {
+  const layerNodeArray = document.querySelectorAll(layerSelector);
+  layerNodeArray.forEach(layerNode => {
+    // warn if no classnames given
     if (!solidClassnames) {
       immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
     }
-    return {
+    states.push({
       node: layerNode,
-      start: 0,
-      end: 0,
-    };
+      top: 0,
+      bottom: 0,
+    });
   });
-
-  states = layers.map(() => ({}))
-  // warn if no classnames given
 }
 
-function createPagerLinks({ pagerSelector, createPager, pagerClassnames }) {
-  if (!createPager) return;
-  const pagerNode = document.querySelector(pagerSelector);
-  pagerNode.classList.add(pagerClassnames.root);
-  layers.forEach((layer, index) => {
-    let layerId = layer.node.id;
-    if (layerId === '') {
-      layerId = 'immerser-section-' + index;
-      layer.node.id = layerId;
-    }
-    const pagerLinkNode = document.createElement('a');
-    pagerLinkNode.classList.add(pagerClassnames.link);
-    pagerLinkNode.href = '#' + layerId;
-    layer.pagerLinkNodeArray.push(pagerLinkNode);
-    pagerNode.appendChild(pagerLinkNode);
+function setWindowSizes() {
+  documentHeight = document.documentElement.offsetHeight;
+  windowHeight = window.innerHeight;
+}
+
+function setLayerSizes() {
+  states = states.map(state => {
+    const top = state.node.offsetTop;
+    const bottom = top + state.node.offsetHeight;
+    return {
+      ...state,
+      top,
+      bottom,
+    };
   });
 }
 
 function setStates() {
   states = states.map((state, index) => {
     const isFirst = index === 0;
-    const isLast = index === layers.length - 1;
+    const isLast = index === states.length - 1;
 
     const immerserHeight = immerserNode.offsetHeight;
     const immerserTop = immerserNode.offsetTop;
 
     // actually not 0 and documentHeight but start of first and end of last.
-    const startEnter = isFirst ? 0 : immerserTop + layers[index - 1].start; // == previous start
+    const startEnter = isFirst ? 0 : immerserTop + states[index - 1].top; // == previous start
     const enter = isFirst ? 0 : startEnter + immerserHeight;
-    const startLeave = isLast ? documentHeight : immerserTop + layers[index].start;
+    const startLeave = isLast ? documentHeight : immerserTop + states[index].top;
     const leave = isLast ? documentHeight : startLeave + immerserHeight;
-    const pagerActive = isFirst ? 0 : Math.floor(layers[index].start - windowHeight * options.pagerTreshold);
 
     return {
+      ...state,
       startEnter,
       enter,
       startLeave,
       leave,
       height: immerserHeight,
-      pagerActive,
-      wrapperNode: state.wrapperNode || null,
-      maskNode: state.maskNode || null,
     };
+  });
+}
+
+function createPagerLinks({ pagerSelector, createPager, classnames }) {
+  if (!createPager) return;
+  const { pager, pagerLink } = classnames;
+  const pagerNode = document.querySelector(pagerSelector);
+  pagerNode.classList.add(pager);
+
+  states.forEach((state, index) => {
+    let layerId = state.node.id;
+    if (layerId === '') {
+      layerId = 'immerser-section-' + index;
+      state.node.id = layerId;
+    }
+    const pagerLinkNode = document.createElement('a');
+    pagerLinkNode.classList.add(pagerLink);
+    pagerLinkNode.href = '#' + layerId;
+    pagerLinkNode.dataset.stateIndex = index;
+    pagerNode.appendChild(pagerLinkNode);
+    state.pagerLinkNodeArray = [];
   });
 }
 
@@ -116,7 +128,7 @@ function createDOMStructure() {
 
   const { immerser, immerserWrapper, immerserMask } = options.classnames;
 
-  originalChildrenNodeList = Array.from(immerserNode.children);
+  const originalChildrenNodeList = Array.from(immerserNode.children);
   immerserNode.classList.add(immerser);
 
   states = states.map((state, stateIndex) => {
@@ -155,16 +167,48 @@ function createDOMStructure() {
   });
 }
 
-function setLayerSizes() {
-  layers.forEach(layer => {
-    layer.start = layer.node.offsetTop;
-    layer.end = layer.start + layer.node.offsetHeight;
-  });
+function initPagerLinks() {
+  const pagerLinkHTMLCollection = immerserNode.getElementsByClassName(options.classnames.pagerLink);
+  for (var index = 0; index < pagerLinkHTMLCollection.length; index++) {
+    var pagerLinkNode = pagerLinkHTMLCollection[index];
+    var stateIndex = pagerLinkNode.dataset.stateIndex;
+    states[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
+  }
 }
 
-function setWindowSizes() {
-  documentHeight = document.documentElement.offsetHeight;
-  windowHeight = window.innerHeight;
+function drawSolids() {
+  const y = getLastScrollPositionY();
+  states.forEach(
+    ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom, pagerLinkNodeArray }) => {
+      let progress;
+      if (startEnter > y) {
+        progress = height;
+      } else if (startEnter <= y && y < enter) {
+        progress = enter - y;
+      } else if (enter <= y && y < startLeave) {
+        progress = 0;
+      } else if (startLeave <= y && y < leave) {
+        progress = startLeave - y;
+      } else {
+        progress = -height;
+      }
+      maskNode.style.transform = `translateY(${progress}px)`;
+      wrapperNode.style.transform = `translateY(${-progress}px)`;
+
+      // check if pager
+      const pagerScrollActivePoint = y + windowHeight * options.pagerTreshold;
+
+      if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
+        pagerLinkNodeArray.forEach(pagerLinkNode => {
+          pagerLinkNode.classList.add(options.classnames.pagerLinkActive);
+        });
+      } else {
+        pagerLinkNodeArray.forEach(pagerLinkNode => {
+          pagerLinkNode.classList.remove(options.classnames.pagerLinkActive);
+        });
+      }
+    }
+  );
 }
 
 function onResize() {
@@ -176,48 +220,11 @@ function onResize() {
     setLayerSizes();
     setStates();
     drawSolids();
-    drawPager(options);
   }, 16);
 }
 
 function onScroll() {
   drawSolids();
-  drawPager(options);
-}
-
-function drawSolids() {
-  const y = getLastScrollPositionY();
-  states.forEach(({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode }) => {
-    let progress;
-    if (startEnter > y) {
-      progress = height;
-    } else if (startEnter <= y && y < enter) {
-      progress = enter - y;
-    } else if (enter <= y && y < startLeave) {
-      progress = 0;
-    } else if (startLeave <= y && y < leave) {
-      progress = startLeave - y;
-    } else {
-      progress = -height;
-    }
-    maskNode.style.transform = `translateY(${progress}px)`;
-    wrapperNode.style.transform = `translateY(${-progress}px)`;
-  });
-}
-
-function drawPager({ pagerClassnames }) {
-  // layers.forEach(layer => {
-  //   const scrollCenter = getLastScrollPositionY() + windowHeight / 2;
-  //   if (layer.start <= scrollCenter && scrollCenter < layer.end) {
-  //     layer.pagerLinkNodeArray.forEach(link => {
-  //       link.classList.add(pagerClassnames.active);
-  //     });
-  //   } else {
-  //     layer.pagerLinkNodeArray.forEach(link => {
-  //       link.classList.remove(pagerClassnames.active);
-  //     });
-  //   }
-  // });
 }
 
 // utils
@@ -241,8 +248,8 @@ export default function immerser(_options) {
   setStates();
   createPagerLinks(options);
   createDOMStructure();
+  initPagerLinks();
   drawSolids();
-  drawPager(options);
 
   window.addEventListener('scroll', onScroll, false);
   window.addEventListener('resize', onResize, false);
