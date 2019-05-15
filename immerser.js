@@ -20,7 +20,7 @@ export default class Immerser {
     // TODO user defined solid layout
 
     // TODO validate options
-    this.options = this.options = { ...this.defaults, ...options };
+    this.options = { ...this.defaults, ...options };
 
     // state
     this.immerserNode = null;
@@ -52,8 +52,8 @@ export default class Immerser {
     if (this.options.solidClassnames) {
       this.immerserClassnames = this.options.solidClassnames;
     }
-    const layerNodeArray = document.querySelectorAll(this.options.layerSelector);
-    this.forEachNode(layerNodeArray, layerNode => {
+    const layerNodeList = document.querySelectorAll(this.options.layerSelector);
+    this.forEachNode(layerNodeList, layerNode => {
       if (!this.options.solidClassnames) {
         this.immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
       }
