@@ -1,23 +1,14 @@
-:root {
-  --alpha-width: 4;
-  --beta-width: 7;
-  --gamma-width: 13;
-  --grid-width: calc(var(--alpha-width) + var(--beta-width) + var(--gamma-width));
-  --color-red: rgb(150, 4, 4);
-  --color-white: rgb(243, 230, 230);
-}
-
 body {
   margin: 0;
 }
 
 .section {
   height: 100vh;
-  background: var(--color-white);
+  background: rgb(243, 230, 230);
 }
 
 .section:nth-child(2n) {
-  background: var(--color-red);
+  background: rgb(150, 4, 4);
 }
 
 .fixed {
@@ -35,19 +26,19 @@ body {
   top: 0;
   width: 50px;
   height: 50px;
-  background-color: var(--color-red);
+  background-color: rgb(150, 4, 4);
 }
 
 .menu {
   position: absolute;
   right: 0;
   bottom: 0;
-  background-color: var(--color-red);
+  background-color: rgb(150, 4, 4);
 }
 
 .pager {
   position: absolute;
-  left: 50px;
+  left: 0;
   top: 150px;
 }
 
@@ -56,17 +47,24 @@ body {
   margin: 10px 0;
   width: 10px;
   height: 10px;
-  box-shadow: inset 0 0 0 2px var(--color-red);
+  box-shadow: inset 0 0 0 2px rgb(150, 4, 4);
   transition: .2s opacity ease-in-out;
 }
 
 .pager__link--active {
-  box-shadow: inset 0 0 0 5px var(--color-red);
+  box-shadow: inset 0 0 0 5px rgb(150, 4, 4);
+}
+
+.pager--contrast .pager__link {
+  box-shadow: inset 0 0 0 2px rgb(243, 230, 230);
+}
+.pager--contrast .pager__link--active {
+  box-shadow: inset 0 0 0 5px rgb(243, 230, 230);
 }
 
 .logo--contrast,
 .menu--contrast {
-  background-color: var(--color-white);
+  background-color: rgb(243, 230, 230);
 }
 
 .menu__link {
@@ -88,34 +86,25 @@ body {
 .grid {
   display: flex;
   flex-wrap: nowrap;
-  /* background-size: calc(100% / var(--grid-width)) 1px;
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent calc(100% - 1px),
-    green calc(100% - 1px),
-    green 100%
-  ); */
 }
 .col {
-  /* box-shadow: inset -1px -1px 0 grey; */
   height: 100vh;
 }
 .alpha {
-  flex-basis: calc(var(--alpha-width) / var(--grid-width) * 100vw);
+  flex-basis: 16.666666666666664vw;
 }
 .alpha-beta {
-  flex-basis: calc((var(--alpha-width) + var(--beta-width)) / var(--grid-width) * 100vw);
+  flex-basis: 45.83333333333333vw;
 }
 .alpha-beta-gamma {
-  flex-basis: calc((var(--alpha-width) + var(--beta-width) + var(--gamma-width)) / var(--grid-width) * 100vw);
+  flex-basis: 100vw;
 }
 .beta {
-  flex-basis: calc(var(--beta-width) / var(--grid-width) * 100vw);
+  flex-basis: 29.166666666666668vw;
 }
 .beta-gamma {
-  flex-basis: calc((var(--beta-width) + var(--gamma-width)) / var(--grid-width) * 100vw);
+  flex-basis: 83.33333333333334vw;
 }
 .gamma {
-  flex-basis: calc(var(--gamma-width) / var(--grid-width) * 100vw);
+  flex-basis: 54.166666666666664vw;
 }

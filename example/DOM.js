@@ -1,3 +1,5 @@
-import immerser from '../immerser.js';
+import Immerser from '../immerser.js';
 
-console.log(immerser());
+const my = new Immerser();
+
+console.log(my);

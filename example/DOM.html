@@ -8,41 +8,45 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="logo" data-immerser-id="logo"></div>
-    <div class="menu" data-immerser-id="menu">
-      <div class="menu__nav">
-        <a href="#" class="menu__link">Kek</a>
-        <a href="#" class="menu__link">Kek</a>
+
+    <div class="fixed" data-immerser>
+      <div class="pager" data-immerser-pager data-immerser-solid-id="pager"></div>
+      <div class="logo" data-immerser-solid-id="logo"></div>
+      <div class="menu" data-immerser-solid-id="menu">
+        <div class="menu__nav">
+          <a href="#" class="menu__link">Kek</a>
+          <a href="#" class="menu__link">Kek</a>
+        </div>
       </div>
     </div>
 
-    <div id="section-1" class="section" data-immerser-classnames='{ "logo": "logo--contrast" }'>
+    <div id="section-1" class="section" data-immerser-classnames='{ "logo": "logo--contrast", "pager": "pager--contrast" }'>
       <div class="grid">
-        <div class="col alpha" style="background: var(--color-red);"></div>
-        <div class="col beta" style="background: var(--color-white);"></div>
-        <div class="col gamma" style="background: var(--color-white);"></div>
+        <div class="col alpha" style="background: rgb(150, 4, 4);"></div>
+        <div class="col beta" style="background: rgb(243, 230, 230);"></div>
+        <div class="col gamma" style="background: rgb(243, 230, 230);"></div>
       </div>
     </div>
 
     <div id="section-2" class="section" data-immerser-classnames='{ "menu": "menu--contrast" }'>
       <div class="grid">
-        <div class="col alpha-beta" style="background: var(--color-white);"></div>
-        <div class="col gamma" style="background: var(--color-red);"></div>
+        <div class="col alpha-beta" style="background: rgb(243, 230, 230);"></div>
+        <div class="col gamma" style="background: rgb(150, 4, 4);"></div>
       </div>
     </div>
 
-    <div id="section-3" class="section" data-immerser-classnames='{ "logo": "logo--contrast" }'>
+    <div class="section" data-immerser-classnames='{ "logo": "logo--contrast", "pager": "pager--contrast" }'>
       <div class="grid">
-        <div class="col alpha" style="background: var(--color-red);"></div>
-        <div class="col beta-gamma" style="background: var(--color-white);"></div>
+        <div class="col alpha" style="background: rgb(150, 4, 4);"></div>
+        <div class="col beta-gamma" style="background: rgb(243, 230, 230);"></div>
       </div>
     </div>
 
     <div id="section-4" class="section" data-immerser-classnames='{ "menu": "menu--contrast" }'>
       <div class="grid">
-        <div class="col alpha" style="background: var(--color-white);"></div>
-        <div class="col beta" style="background: var(--color-white);"></div>
-        <div class="col gamma" style="background: var(--color-red);"></div>
+        <div class="col alpha" style="background: rgb(243, 230, 230);"></div>
+        <div class="col beta" style="background: rgb(243, 230, 230);"></div>
+        <div class="col gamma" style="background: rgb(150, 4, 4);"></div>
       </div>
     </div>
 
