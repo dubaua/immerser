@@ -76,15 +76,15 @@ export default class Immerser {
 
     for (const key in this.defaults) {
       const { defaultValue, description, validator } = this.defaults[key];
+      this.options[key] = defaultValue;
       if (options.hasOwnProperty(key)) {
         const value = options[key];
         if (validator(value)) {
           this.options[key] = value;
         } else {
           console.warn(
-            `Expected ${key} is ${description}, got ${typeof value} ${value}. Fallback to default value ${defaultValue}`
+            `Expected ${key} is ${description}, got ${typeof value} ${value}. Fallback to default value ${defaultValue}.`
           );
-          this.options[key] = defaultValue;
         }
       }
     }
