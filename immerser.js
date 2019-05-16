@@ -7,7 +7,7 @@ export default class Immerser {
         validator: this.selectorValidator,
       },
       layerSelector: {
-        defaultValue: '[data-immerser-classnames]',
+        defaultValue: '[data-immerser-solid-classnames]',
         description: 'non empty .js- preffixed classname or data-attribute selector',
         validator: this.selectorValidator,
       },
@@ -21,7 +21,7 @@ export default class Immerser {
         description: 'non empty .js- preffixed classname or data-attribute selector',
         validator: this.selectorValidator,
       },
-      solidClassnames: {
+      solidClassnameArray: {
         defaultValue: null,
         description: 'non empty array of objects',
         validator: x => Array.isArray(x) && x.length !== 0,
@@ -72,8 +72,32 @@ export default class Immerser {
     this.windowHeight = 0;
     this.resizeTimerId = null;
 
-    // TODO user defined solid layout
+    this.init(options);
+  }
 
+  init(options) {
+    this.mergeOptions(options);
+
+    this.immerserNode = document.querySelector(this.options.immerserSelector);
+    if (!this.immerserNode) {
+      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
+      return;
+    }
+
+    this.initStates();
+    this.setWindowSizes();
+    this.setLayerSizes();
+    this.setStates();
+    this.createPagerLinks();
+    this.createDOMStructure();
+    this.initPagerLinks();
+    this.draw();
+
+    window.addEventListener('scroll', this.draw.bind(this), false);
+    window.addEventListener('resize', this.onResize.bind(this), false);
+  }
+
+  mergeOptions(options) {
     for (const key in this.defaults) {
       const { defaultValue, description, validator } = this.defaults[key];
       this.options[key] = defaultValue;
@@ -88,47 +112,26 @@ export default class Immerser {
         }
       }
     }
-
-    this.init();
-    this.setWindowSizes();
-    this.setLayerSizes();
-    this.setStates();
-    this.createPagerLinks(options);
-    this.createDOMStructure();
-    this.initPagerLinks();
-    this.draw();
-
-    window.addEventListener('scroll', this.draw.bind(this), false);
-    window.addEventListener('resize', this.onResize.bind(this), false);
   }
 
-  init() {
-    this.immerserNode = document.querySelector(this.options.immerserSelector);
-    if (!this.immerserNode) {
-      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
-    }
-
+  initStates() {
     const layerNodeList = document.querySelectorAll(this.options.layerSelector);
-    this.forEachNode(layerNodeList, layerNode => {
-      if (layerNode.dataset.immerserClassnames) {
+    this.forEachNode(layerNodeList, (layerNode, layerIndex) => {
+      let solidClassnames = this.options.solidClassnameArray[layerIndex];
+      if (layerNode.dataset.immerserSolidClassnames) {
         try {
-          const layerClassnames = JSON.parse(layerNode.dataset.immerserClassnames);
-          this.options.solidClassnames.push(layerClassnames);
+          solidClassnames = JSON.parse(layerNode.dataset.immerserSolidClassnames);
         } catch (e) {
           console.error('Failed to parse JSON class configuration.', e);
         }
       }
-
       this.states.push({
         node: layerNode,
+        solidClassnames,
         top: 0,
         bottom: 0,
       });
     });
-
-    if (!this.options.solidClassnames) {
-      console.warn('No class configuration found');
-    }
   }
 
   setWindowSizes() {
@@ -230,8 +233,8 @@ export default class Immerser {
       const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
       this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
         const solidId = dataset.immerserSolidId;
-        if (this.options.solidClassnames && this.options.solidClassnames[stateIndex].hasOwnProperty(solidId)) {
-          classList.add(this.options.solidClassnames[stateIndex][solidId]);
+        if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
+          classList.add(state.solidClassnames[solidId]);
         }
       });
 
@@ -297,7 +300,7 @@ export default class Immerser {
   }
 
   onResize() {
-    if (this.resizeTimerId) cancelAnimationFrame(this.resizeTimerId);
+    if (this.resizeTimerId) window.cancelAnimationFrame(this.resizeTimerId);
     this.resizeTimerId = window.requestAnimationFrame(() => {
       this.setWindowSizes();
       this.setLayerSizes();
