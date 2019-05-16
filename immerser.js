@@ -1,32 +1,93 @@
 export default class Immerser {
   constructor(options) {
     this.defaults = {
-      immerserSelector: '[data-immerser]',
-      layerSelector: '[data-immerser-classnames]',
-      solidSelector: '[data-immerser-solid-id]',
-      pagerSelector: '[data-immerser-pager]',
-      solidClassnames: null,
-      pagerTreshold: 0.5,
-      immerserClassname: 'immerser',
-      immerserWrapperClassname: 'immerser__wrapper',
-      immerserMaskClassname: 'immerser__mask',
-      pagerClassname: 'pager',
-      pagerLinkClassname: 'pager__link',
-      pagerLinkActiveClassname: 'pager__link--active',
+      immerserSelector: {
+        defaultValue: '[data-immerser]',
+        description: 'non empty .js- preffixed classname or data-attribute selector',
+        validator: this.selectorValidator,
+      },
+      layerSelector: {
+        defaultValue: '[data-immerser-classnames]',
+        description: 'non empty .js- preffixed classname or data-attribute selector',
+        validator: this.selectorValidator,
+      },
+      solidSelector: {
+        defaultValue: '[data-immerser-solid-id]',
+        description: 'non empty .js- preffixed classname or data-attribute selector',
+        validator: this.selectorValidator,
+      },
+      pagerSelector: {
+        defaultValue: '[data-immerser-pager]',
+        description: 'non empty .js- preffixed classname or data-attribute selector',
+        validator: this.selectorValidator,
+      },
+      solidClassnames: {
+        defaultValue: null,
+        description: 'non empty array of objects',
+        validator: x => Array.isArray(x) && x.length !== 0,
+      },
+      pagerTreshold: {
+        defaultValue: 0.5,
+        description: 'a number between 0 and 1',
+        validator: x => typeof x === 'number' && 0 <= x && x <= 1,
+      },
+      immerserClassname: {
+        defaultValue: 'immerser',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      immerserWrapperClassname: {
+        defaultValue: 'immerser__wrapper',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      immerserMaskClassname: {
+        defaultValue: 'immerser__mask',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      pagerClassname: {
+        defaultValue: 'pager',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      pagerLinkClassname: {
+        defaultValue: 'pager__link',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      pagerLinkActiveClassname: {
+        defaultValue: 'pager__link--active',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
     };
-    
-    // TODO user defined solid layout
-
-    // TODO validate options
-    this.options = { ...this.defaults, ...options };
 
     // state
+    this.options = {};
     this.immerserNode = null;
     this.immerserClassnames = [];
     this.states = [];
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
+
+    // TODO user defined solid layout
+
+    for (const key in this.defaults) {
+      const { defaultValue, description, validator } = this.defaults[key];
+      if (options.hasOwnProperty(key)) {
+        const value = options[key];
+        if (validator(value)) {
+          this.options[key] = value;
+        } else {
+          console.warn(
+            `Expected ${key} is ${description}, got ${typeof value} ${value}. Fallback to default value ${defaultValue}`
+          );
+          this.options[key] = defaultValue;
+        }
+      }
+    }
 
     this.init();
     this.setWindowSizes();
@@ -256,5 +317,13 @@ export default class Immerser {
       const node = nodeList[index];
       callback(node, index, nodeList);
     }
+  }
+
+  classnameValidator(string) {
+    return typeof string === 'string' && string !== '' && /^[a-z_-][a-z\d_-]*$/i.test(string);
+  }
+
+  selectorValidator(string) {
+    return typeof string === 'string' && string !== '' && /\.js\-[a-z-_]+|\[[a-z]+(\-[a-z]+)*\]/.test(string);
   }
 }
