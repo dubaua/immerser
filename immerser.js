@@ -108,21 +108,27 @@ export default class Immerser {
       console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
     }
 
-    if (this.options.solidClassnames) {
-      this.immerserClassnames = this.options.solidClassnames;
-    }
     const layerNodeList = document.querySelectorAll(this.options.layerSelector);
     this.forEachNode(layerNodeList, layerNode => {
-      if (!this.options.solidClassnames) {
-        this.immerserClassnames.push(JSON.parse(layerNode.dataset.immerserClassnames));
+      if (layerNode.dataset.immerserClassnames) {
+        try {
+          const layerClassnames = JSON.parse(layerNode.dataset.immerserClassnames);
+          this.options.solidClassnames.push(layerClassnames);
+        } catch (e) {
+          console.error('Failed to parse JSON class configuration.', e);
+        }
       }
+
       this.states.push({
         node: layerNode,
         top: 0,
         bottom: 0,
       });
     });
-    // warn if no classnames given
+
+    if (!this.options.solidClassnames) {
+      console.warn('No class configuration found');
+    }
   }
 
   setWindowSizes() {
@@ -224,8 +230,8 @@ export default class Immerser {
       const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
       this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
         const solidId = dataset.immerserSolidId;
-        if (this.immerserClassnames[stateIndex].hasOwnProperty(solidId)) {
-          classList.add(this.immerserClassnames[stateIndex][solidId]);
+        if (this.options.solidClassnames && this.options.solidClassnames[stateIndex].hasOwnProperty(solidId)) {
+          classList.add(this.options.solidClassnames[stateIndex][solidId]);
         }
       });
 
