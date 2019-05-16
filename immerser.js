@@ -65,9 +65,9 @@ export default class Immerser {
 
     // state
     this.options = {};
-    this.immerserNode = null;
-    this.immerserClassnames = [];
     this.states = [];
+    this.immerserNode = null;
+    this.pagerNode = null;
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
@@ -168,11 +168,11 @@ export default class Immerser {
   }
 
   createPagerLinks() {
-    const pagerNode = document.querySelector(this.options.pagerSelector);
-    if (!pagerNode) return;
+    this.pagerNode = document.querySelector(this.options.pagerSelector);
+    if (!this.pagerNode) return;
 
     const { pagerClassname, pagerLinkClassname } = this.options;
-    pagerNode.classList.add(pagerClassname);
+    this.pagerNode.classList.add(pagerClassname);
 
     this.states.forEach((state, index) => {
       let layerId = state.node.id;
@@ -188,7 +188,7 @@ export default class Immerser {
       pagerLinkNode.href = `#${layerId}`;
       // not the best way to store index for
       pagerLinkNode.dataset.stateIndex = index;
-      pagerNode.appendChild(pagerLinkNode);
+      this.pagerNode.appendChild(pagerLinkNode);
 
       state.pagerLinkNodeArray = [];
     });
@@ -246,6 +246,7 @@ export default class Immerser {
   }
 
   initPagerLinks() {
+    if (!this.pagerNode) return;
     const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.pagerLinkClassname);
     for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
       const pagerLinkNode = pagerLinkHTMLCollection[index];
@@ -273,16 +274,17 @@ export default class Immerser {
         maskNode.style.transform = `translateY(${progress}px)`;
         wrapperNode.style.transform = `translateY(${-progress}px)`;
 
-        // check if pager
-        const pagerScrollActivePoint = y + this.windowHeight * this.options.pagerTreshold;
-        if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-          pagerLinkNodeArray.forEach(({ classList }) => {
-            classList.add(this.options.pagerLinkActiveClassname);
-          });
-        } else {
-          pagerLinkNodeArray.forEach(({ classList }) => {
-            classList.remove(this.options.pagerLinkActiveClassname);
-          });
+        if (this.pagerNode) {
+          const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
+          if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
+            pagerLinkNodeArray.forEach(({ classList }) => {
+              classList.add(this.options.pagerLinkActiveClassname);
+            });
+          } else {
+            pagerLinkNodeArray.forEach(({ classList }) => {
+              classList.remove(this.options.pagerLinkActiveClassname);
+            });
+          }
         }
       }
     );
