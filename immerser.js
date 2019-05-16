@@ -297,15 +297,13 @@ export default class Immerser {
   }
 
   onResize() {
-    // TODO maybe refactor on requestAnimationFrame
-    // simlpe debouncer
-    clearTimeout(this.resizeTimerId);
-    this.resizeTimerId = setTimeout(() => {
+    if (this.resizeTimerId) cancelAnimationFrame(this.resizeTimerId);
+    this.resizeTimerId = window.requestAnimationFrame(() => {
       this.setWindowSizes();
       this.setLayerSizes();
       this.setStates();
       this.draw();
-    }, 16);
+    });
   }
 
   // utils
