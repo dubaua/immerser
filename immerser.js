@@ -7,16 +7,14 @@ export default class Immerser {
       pagerSelector: '[data-immerser-pager]',
       solidClassnames: null,
       pagerTreshold: 0.5,
-      classnames: {
-        immerser: 'immerser',
-        immerserWrapper: 'immerser__wrapper',
-        immerserMask: 'immerser__mask',
-        pager: 'pager',
-        pagerLink: 'pager__link',
-        pagerLinkActive: 'pager__link--active',
-      },
+      immerserClassname: 'immerser',
+      immerserWrapperClassname: 'immerser__wrapper',
+      immerserMaskClassname: 'immerser__mask',
+      pagerClassname: 'pager',
+      pagerLinkClassname: 'pager__link',
+      pagerLinkActiveClassname: 'pager__link--active',
     };
-
+    
     // TODO user defined solid layout
 
     // TODO validate options
@@ -112,8 +110,8 @@ export default class Immerser {
     const pagerNode = document.querySelector(this.options.pagerSelector);
     if (!pagerNode) return;
 
-    const { pager, pagerLink } = this.options.classnames;
-    pagerNode.classList.add(pager);
+    const { pagerClassname, pagerLinkClassname } = this.options;
+    pagerNode.classList.add(pagerClassname);
 
     this.states.forEach((state, index) => {
       let layerId = state.node.id;
@@ -125,7 +123,7 @@ export default class Immerser {
       }
 
       const pagerLinkNode = document.createElement('a');
-      pagerLinkNode.classList.add(pagerLink);
+      pagerLinkNode.classList.add(pagerLinkClassname);
       pagerLinkNode.href = `#${layerId}`;
       // not the best way to store index for
       pagerLinkNode.dataset.stateIndex = index;
@@ -145,20 +143,22 @@ export default class Immerser {
       overflow: 'hidden',
     };
 
-    const { immerser, immerserWrapper, immerserMask } = this.options.classnames;
+    const { immerserClassname, immerserWrapperClassname, immerserMaskClassname } = this.options;
     const originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
-    this.immerserNode.classList.add(immerser);
+    this.immerserNode.classList.add(immerserClassname);
 
     this.states = this.states.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
       this.applyStyles(wrapper, maskAndWrapperStyles);
-      wrapper.classList.add(immerserWrapper);
+      wrapper.classList.add(immerserWrapperClassname);
 
       this.forEachNode(originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
         wrapper.appendChild(clonnedChildNode);
         // TODO remove original children. mess with DOM
       });
+
+      // TODO achieve hovering with linking clonned elements
 
       const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
       this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
@@ -170,7 +170,7 @@ export default class Immerser {
 
       const mask = document.createElement('div');
       this.applyStyles(mask, maskAndWrapperStyles);
-      mask.classList.add(immerserMask);
+      mask.classList.add(immerserMaskClassname);
 
       if (stateIndex !== 0) {
         mask.setAttribute('aria-hidden', 'true');
@@ -185,7 +185,7 @@ export default class Immerser {
   }
 
   initPagerLinks() {
-    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnames.pagerLink);
+    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.pagerLinkClassname);
     for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
       const pagerLinkNode = pagerLinkHTMLCollection[index];
       const stateIndex = pagerLinkNode.dataset.stateIndex;
@@ -216,11 +216,11 @@ export default class Immerser {
         const pagerScrollActivePoint = y + this.windowHeight * this.options.pagerTreshold;
         if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
           pagerLinkNodeArray.forEach(({ classList }) => {
-            classList.add(this.options.classnames.pagerLinkActive);
+            classList.add(this.options.pagerLinkActiveClassname);
           });
         } else {
           pagerLinkNodeArray.forEach(({ classList }) => {
-            classList.remove(this.options.classnames.pagerLinkActive);
+            classList.remove(this.options.pagerLinkActiveClassname);
           });
         }
       }
