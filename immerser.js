@@ -7,12 +7,12 @@ export default class Immerser {
         validator: this.selectorValidator,
       },
       layerSelector: {
-        defaultValue: '[data-immerser-solid-classnames]',
+        defaultValue: '[data-immerser-layer]',
         description: 'non empty .js- preffixed classname or data-attribute selector',
         validator: this.selectorValidator,
       },
       solidSelector: {
-        defaultValue: '[data-immerser-solid-id]',
+        defaultValue: '[data-immerser-solid]',
         description: 'non empty .js- preffixed classname or data-attribute selector',
         validator: this.selectorValidator,
       },
@@ -118,9 +118,9 @@ export default class Immerser {
     const layerNodeList = document.querySelectorAll(this.options.layerSelector);
     this.forEachNode(layerNodeList, (layerNode, layerIndex) => {
       let solidClassnames = this.options.solidClassnameArray[layerIndex];
-      if (layerNode.dataset.immerserSolidClassnames) {
+      if (layerNode.dataset.immerserLayerConfig) {
         try {
-          solidClassnames = JSON.parse(layerNode.dataset.immerserSolidClassnames);
+          solidClassnames = JSON.parse(layerNode.dataset.immerserLayerConfig);
         } catch (e) {
           console.error('Failed to parse JSON class configuration.', e);
         }
@@ -232,7 +232,7 @@ export default class Immerser {
 
       const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
       this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
-        const solidId = dataset.immerserSolidId;
+        const solidId = dataset.immerserSolid;
         if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
           classList.add(state.solidClassnames[solidId]);
         }
