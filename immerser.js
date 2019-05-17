@@ -22,7 +22,7 @@ export default class Immerser {
         validator: this.selectorValidator,
       },
       solidClassnameArray: {
-        defaultValue: null,
+        defaultValue: [],
         description: 'non empty array of objects',
         validator: x => Array.isArray(x) && x.length !== 0,
       },
@@ -101,7 +101,7 @@ export default class Immerser {
     for (const key in this.defaults) {
       const { defaultValue, description, validator } = this.defaults[key];
       this.options[key] = defaultValue;
-      if (options.hasOwnProperty(key)) {
+      if (options && options.hasOwnProperty(key)) {
         const value = options[key];
         if (validator(value)) {
           this.options[key] = value;
