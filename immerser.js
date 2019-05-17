@@ -31,6 +31,11 @@ export default class Immerser {
         description: 'a number between 0 and 1',
         validator: x => typeof x === 'number' && 0 <= x && x <= 1,
       },
+      stylesInCSS: {
+        defaultValue: false,
+        description: 'boolean',
+        validator: x => typeof x === 'boolean',
+      },
       immerserClassname: {
         defaultValue: 'immerser',
         description: 'valid non empty classname string',
@@ -43,6 +48,11 @@ export default class Immerser {
       },
       immerserMaskClassname: {
         defaultValue: 'immerser__mask',
+        description: 'valid non empty classname string',
+        validator: this.classnameValidator,
+      },
+      immerserSolidClassname: {
+        defaultValue: 'immerser__solid',
         description: 'valid non empty classname string',
         validator: this.classnameValidator,
       },
@@ -107,7 +117,7 @@ export default class Immerser {
           this.options[key] = value;
         } else {
           console.warn(
-            `Expected ${key} is ${description}, got ${typeof value} ${value}. Fallback to default value ${defaultValue}.`
+            `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}.`
           );
         }
       }
@@ -213,19 +223,17 @@ export default class Immerser {
       overflow: 'hidden',
     };
 
-    const { immerserClassname, immerserWrapperClassname, immerserMaskClassname } = this.options;
+    const { immerserClassname, immerserWrapperClassname, immerserMaskClassname, immerserSolidClassname } = this.options;
     const originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
-    this.immerserNode.classList.add(immerserClassname);
-    this.immerserNode.style.pointerEvents = 'none';
+    this.bindClassOrStyle(this.immerserNode, immerserClassname, { pointerEvents: 'none' });
 
     this.states = this.states.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
-      this.applyStyles(wrapper, maskAndWrapperStyles);
-      wrapper.classList.add(immerserWrapperClassname);
+      this.bindClassOrStyle(wrapper, immerserWrapperClassname, maskAndWrapperStyles);
 
       this.forEachNode(originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
-        clonnedChildNode.style.pointerEvents = 'all';
+        this.bindClassOrStyle(clonnedChildNode, immerserSolidClassname, {pointerEvents: 'all'});
         wrapper.appendChild(clonnedChildNode);
         // TODO remove original children. mess with DOM
       });
@@ -241,8 +249,7 @@ export default class Immerser {
       });
 
       const mask = document.createElement('div');
-      this.applyStyles(mask, maskAndWrapperStyles);
-      mask.classList.add(immerserMaskClassname);
+      this.bindClassOrStyle(mask, immerserMaskClassname, maskAndWrapperStyles);
 
       if (stateIndex !== 0) {
         mask.setAttribute('aria-hidden', 'true');
@@ -320,6 +327,14 @@ export default class Immerser {
   applyStyles({ style }, styles) {
     for (const rule in styles) {
       style[rule] = styles[rule];
+    }
+  }
+
+  bindClassOrStyle(node, classname, styles) {
+    if (this.options.stylesInCSS) {
+      node.classList.add(classname);
+    } else {
+      this.applyStyles(node, styles);
     }
   }
 

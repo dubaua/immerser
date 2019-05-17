@@ -14,7 +14,8 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/preset-env": "^7.4.4",
-    "parcel-bundler": "^1.12.3"
+    "parcel-bundler": "^1.12.3",
+    "sass": "^1.20.1"
   },
   "scripts": {
     "build": "parcel build immerser.js --out-file immerser.min.js",
