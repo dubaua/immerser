@@ -233,7 +233,7 @@ export default class Immerser {
 
       this.forEachNode(originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
-        this.bindClassOrStyle(clonnedChildNode, immerserSolidClassname, {pointerEvents: 'all'});
+        this.bindClassOrStyle(clonnedChildNode, immerserSolidClassname, { pointerEvents: 'all' });
         wrapper.appendChild(clonnedChildNode);
         // TODO remove original children. mess with DOM
       });
@@ -278,17 +278,17 @@ export default class Immerser {
     this.states.forEach(
       ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom, pagerLinkNodeArray }) => {
         let progress;
-        if (startEnter > y) {
-          progress = height;
-        } else if (startEnter <= y && y < enter) {
-          progress = enter - y;
-        } else if (enter <= y && y < startLeave) {
-          progress = 0;
-        } else if (startLeave <= y && y < leave) {
-          progress = startLeave - y;
-        } else {
-          progress = -height;
-        }
+
+        if (startEnter > y) progress = height;
+
+        if (startEnter <= y && y < enter) progress = enter - y;
+
+        if (enter <= y && y < startLeave) progress = 0;
+
+        if (startLeave <= y && y < leave) progress = startLeave - y;
+
+        if (y >= leave) progress = -height;
+
         maskNode.style.transform = `translateY(${progress}px)`;
         wrapperNode.style.transform = `translateY(${-progress}px)`;
 
