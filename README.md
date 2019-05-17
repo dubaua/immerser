@@ -1,6 +1,8 @@
 # Library for switching fixed elements on scroll
 
-# How it work
+Look, you have fixed posh things on your page and contrast sections with same color. If you want smoothly recolor your fixeds on scroll use this.
+
+# How it works
 
 Immerser clone your nodes to recolor, I call them 'solids', wrap them with cropper containers, and bind classes to clonned children, according to given configuration. On scroll immerser calculate position of solids relative to layers and mask solids as they enter or leave.
 
@@ -30,15 +32,7 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
   <div class="pagination" data-immerser-pager></div>
 </div>
 
-<section
-  class="section"
-  data-immerser-layer
-  data-immerser-layer-config='{
-    "logo": "logo--default",
-    "navigation": "navigation--default",
-    "footer": "footer--default"
-  }'
-></section>
+<section class="section" data-immerser-layer></section>
 <section
   class="section section--contrast"
   data-immerser-layer
@@ -48,27 +42,41 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
     "footer": "footer--contrast"
   }'
 ></section>
+<section class="section" data-immerser-layer></section>
 <section
-  class="section"
+  class="section section--contrast"
   data-immerser-layer
   data-immerser-layer-config='{
-    "logo": "hidden",
-    "navigation": "hidden",
-    "footer": "hidden"
-  }'
-></section>
-<section
-  class="section"
-  data-immerser-layer
-  data-immerser-layer-config='{
-    "logo": null,
-    "navigation": null,
-    "footer": null
+    "logo": "logo--contrast",
+    "navigation": "navigation--contrast",
+    "footer": "footer--contrast"
   }'
 ></section>
 ```
 
 ## Add style modifiers
+
+```css
+.section {
+  min-height: 100vh;
+  background: white;
+  color: black;
+}
+.section--contrast {
+  background: black;
+  color: white;
+}
+.logo,
+.navigation,
+.footer {
+  color: black;
+}
+.logo--contrast,
+.navigation--contrast,
+.footer--contrast {
+  color: white;
+}
+```
 
 ## Init immerser
 
