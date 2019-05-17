@@ -216,6 +216,7 @@ export default class Immerser {
     const { immerserClassname, immerserWrapperClassname, immerserMaskClassname } = this.options;
     const originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
     this.immerserNode.classList.add(immerserClassname);
+    this.immerserNode.style.pointerEvents = 'none';
 
     this.states = this.states.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
@@ -224,6 +225,7 @@ export default class Immerser {
 
       this.forEachNode(originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
+        clonnedChildNode.style.pointerEvents = 'all';
         wrapper.appendChild(clonnedChildNode);
         // TODO remove original children. mess with DOM
       });
