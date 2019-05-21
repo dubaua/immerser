@@ -4,49 +4,53 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Immerser — JS library to switch fixed blocks on scroll</title>
+    <link href="https://fonts.googleapis.com/css?family=Questrial&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.scss">
   </head>
   <body>
 
     <div class="fixed" data-immerser>
-      <div class="pager" data-immerser-pager data-immerser-solid-id="pager"></div>
-      <div class="logo" data-immerser-solid-id="logo"></div>
-      <div class="menu" data-immerser-solid-id="menu">
-        <div class="menu__nav">
-          <a href="#" class="menu__link">Kek</a>
-          <a href="#" class="menu__link">Kek</a>
-        </div>
+      <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
+      <div class="fixed__logo logo" data-immerser-solid="logo">Immerser</div>
+      <div class="fixed__menu menu" data-immerser-solid="menu">
+        <a href="#reasoning" class="menu__link">Reasoning</a>
+        <a href="#how-to-use" class="menu__link">How to use</a>
+        <a href="#options" class="menu__link">Options</a>
+        <a href="#limitations" class="menu__link">Limitations</a>
+      </div>
+      <div class="fixed__social social" data-immerser-solid="social">
+        <a href="https://github.com/dubaua/immerser">github</a>
+        <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
+      </div>
+      <div class="fixed__footer footer" data-immerser-solid="footer">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+    </div>
+
+    <div id="reasoning" class="section" data-immerser-layer data-immerser-layer-config='{ "logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast" }'>
+      <div class="grid">
+        <div class="col alpha background--contrast"></div>
+        <div class="col beta-gamma background"></div>
       </div>
     </div>
 
-    <div id="section-1" class="section" data-immerser-classnames='{ "logo": "logo--contrast", "pager": "pager--contrast" }'>
+    <div id="how-to-use" class="section" data-immerser-layer data-immerser-layer-config='{ "menu": "menu--contrast",  "footer": "footer--contrast" }'>
       <div class="grid">
-        <div class="col alpha" style="background: rgb(150, 4, 4);"></div>
-        <div class="col beta" style="background: rgb(243, 230, 230);"></div>
-        <div class="col gamma" style="background: rgb(243, 230, 230);"></div>
+        <div class="col alpha-beta background"></div>
+        <div class="col gamma background--contrast"></div>
       </div>
     </div>
 
-    <div id="section-2" class="section" data-immerser-classnames='{ "menu": "menu--contrast" }'>
+    <div id="options" class="section" data-immerser-layer data-immerser-layer-config='{ "logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast" }'>
       <div class="grid">
-        <div class="col alpha-beta" style="background: rgb(243, 230, 230);"></div>
-        <div class="col gamma" style="background: rgb(150, 4, 4);"></div>
+        <div class="col alpha background--contrast"></div>
+        <div class="col beta-gamma background"></div>
       </div>
     </div>
 
-    <div class="section" data-immerser-classnames='{ "logo": "logo--contrast", "pager": "pager--contrast" }'>
+    <div id="limitations" class="section" data-immerser-layer data-immerser-layer-config='{ "menu": "menu--contrast",  "footer": "footer--contrast" }'>
       <div class="grid">
-        <div class="col alpha" style="background: rgb(150, 4, 4);"></div>
-        <div class="col beta-gamma" style="background: rgb(243, 230, 230);"></div>
-      </div>
-    </div>
-
-    <div id="section-4" class="section" data-immerser-classnames='{ "menu": "menu--contrast" }'>
-      <div class="grid">
-        <div class="col alpha" style="background: rgb(243, 230, 230);"></div>
-        <div class="col beta" style="background: rgb(243, 230, 230);"></div>
-        <div class="col gamma" style="background: rgb(150, 4, 4);"></div>
+        <div class="col alpha-beta background"></div>
+        <div class="col gamma background--contrast"></div>
       </div>
     </div>
 

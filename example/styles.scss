@@ -1,0 +1,163 @@
+html {
+  scroll-behavior: smooth;
+  font-family: 'Questrial', sans-serif;
+}
+
+$color-background: white;
+$color-background--contrast: black;
+$color-text: black;
+$color-text--contrast: white;
+
+body {
+  margin: 0;
+}
+
+.section {
+  height: 100vh;
+}
+
+.background {
+  background: $color-background;
+  &--contrast {
+    background: $color-background--contrast;
+  }
+}
+
+.fixed {
+  position: fixed;
+  top: 3em;
+  bottom: 3em;
+  left: 3em;
+  right: 3em;
+
+  &__pager {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+  }
+
+  &__logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  &__menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  &__footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  &__social {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.logo {
+  font-size: 2em;
+  @media (min-width: 768px) {
+    font-size: 3rem;
+  }
+  color: $color-text;
+  &--contrast {
+    color: $color-text--contrast;
+  }
+}
+
+.menu {
+  $menu: &;
+  display: flex;
+
+  &__link {
+    color: black;
+    display: block;
+    margin-left: 1em;
+    font-size: 1.5em;
+    text-decoration: none;
+    line-height: 1.75em;
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+  &--contrast #{$menu}__link {
+    color: $color-text--contrast;
+  }
+}
+
+.pager {
+  $pager: &;
+  &__link {
+    display: block;
+    margin: 12px 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px $color-text;
+    transition: 0.2s opacity ease-in-out;
+
+    &--active {
+      box-shadow: inset 0 0 0 6px $color-text;
+    }
+  }
+
+  &--contrast #{$pager}__link {
+    box-shadow: inset 0 0 0 1.5px $color-text--contrast;
+
+    &--active {
+      box-shadow: inset 0 0 0 6px $color-text--contrast;
+    }
+  }
+}
+
+.social {
+  a {
+    color: $color-text;
+    display: inline-block;
+    margin-right: 0.8em;
+  }
+  &--contrast a {
+    color: $color-text--contrast;
+  }
+}
+
+.footer {
+  color: $color-text;
+  &--contrast {
+    color: $color-text--contrast;
+  }
+}
+
+.grid {
+  display: flex;
+  flex-wrap: nowrap;
+}
+.col {
+  height: 100vh;
+}
+.alpha {
+  flex-basis: 16.666666666666664vw;
+}
+.alpha-beta {
+  flex-basis: 45.83333333333333vw;
+}
+.alpha-beta-gamma {
+  flex-basis: 100vw;
+}
+.beta {
+  flex-basis: 29.166666666666668vw;
+}
+.beta-gamma {
+  flex-basis: 83.33333333333334vw;
+}
+.gamma {
+  flex-basis: 54.166666666666664vw;
+}
