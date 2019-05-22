@@ -1,26 +1,17 @@
 export default class Immerser {
   constructor(options) {
     this.defaults = {
-      immerserSelector: {
-        defaultValue: '[data-immerser]',
-        description: 'non empty .js- preffixed classname or data-attribute selector',
-        validator: this.selectorValidator,
-      },
-      layerSelector: {
-        defaultValue: '[data-immerser-layer]',
-        description: 'non empty .js- preffixed classname or data-attribute selector',
-        validator: this.selectorValidator,
-      },
-      solidSelector: {
-        defaultValue: '[data-immerser-solid]',
-        description: 'non empty .js- preffixed classname or data-attribute selector',
-        validator: this.selectorValidator,
-      },
-      pagerSelector: {
-        defaultValue: '[data-immerser-pager]',
-        description: 'non empty .js- preffixed classname or data-attribute selector',
-        validator: this.selectorValidator,
-      },
+      // not redefineable defaults
+      selectorImmerser: '[data-immerser]',
+      selectorLayer: '[data-immerser-layer]',
+      selectorSolid: '[data-immerser-solid]',
+      selectorPager: '[data-immerser-pager]',
+      classnameImmerser: 'immerser',
+      classnameImmerserWrapper: 'immerser__wrapper',
+      classnameImmerserMask: 'immerser__mask',
+      classnameImmerserSolid: 'immerser__solid',
+
+      // redefineable defaults
       solidClassnameArray: {
         defaultValue: [],
         description: 'non empty array of objects',
@@ -36,37 +27,17 @@ export default class Immerser {
         description: 'boolean',
         validator: x => typeof x === 'boolean',
       },
-      immerserClassname: {
-        defaultValue: 'immerser',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      immerserWrapperClassname: {
-        defaultValue: 'immerser__wrapper',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      immerserMaskClassname: {
-        defaultValue: 'immerser__mask',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      immerserSolidClassname: {
-        defaultValue: 'immerser__solid',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      pagerClassname: {
+      classnamePager: {
         defaultValue: 'pager',
         description: 'valid non empty classname string',
         validator: this.classnameValidator,
       },
-      pagerLinkClassname: {
+      classnamePagerLink: {
         defaultValue: 'pager__link',
         description: 'valid non empty classname string',
         validator: this.classnameValidator,
       },
-      pagerLinkActiveClassname: {
+      classnamePagerLinkActive: {
         defaultValue: 'pager__link--active',
         description: 'valid non empty classname string',
         validator: this.classnameValidator,
@@ -92,7 +63,7 @@ export default class Immerser {
   init(options) {
     this.mergeOptions(options);
 
-    this.immerserNode = document.querySelector(this.options.immerserSelector);
+    this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
       console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
       return;
@@ -111,25 +82,29 @@ export default class Immerser {
     window.addEventListener('resize', this.onResize.bind(this), false);
   }
 
-  mergeOptions(options) {
+  mergeOptions(options = {}) {
     for (const key in this.defaults) {
-      const { defaultValue, description, validator } = this.defaults[key];
-      this.options[key] = defaultValue;
-      if (options && options.hasOwnProperty(key)) {
-        const value = options[key];
-        if (validator(value)) {
-          this.options[key] = value;
-        } else {
-          console.warn(
-            `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}.`
-          );
+      if (typeof this.defaults[key].validator !== 'function') {
+        this.options[key] = this.defaults[key];
+      } else {
+        const { defaultValue, description, validator } = this.defaults[key];
+        this.options[key] = defaultValue;
+        if (options.hasOwnProperty(key)) {
+          const value = options[key];
+          if (validator(value)) {
+            this.options[key] = value;
+          } else {
+            console.warn(
+              `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}.`
+            );
+          }
         }
       }
     }
   }
 
   initStates() {
-    const layerNodeList = document.querySelectorAll(this.options.layerSelector);
+    const layerNodeList = document.querySelectorAll(this.options.selectorLayer);
     this.forEachNode(layerNodeList, (layerNode, layerIndex) => {
       let solidClassnames = this.options.solidClassnameArray[layerIndex];
       if (layerNode.dataset.immerserLayerConfig) {
@@ -191,11 +166,11 @@ export default class Immerser {
   }
 
   createPagerLinks() {
-    this.pagerNode = document.querySelector(this.options.pagerSelector);
+    this.pagerNode = document.querySelector(this.options.selectorPager);
     if (!this.pagerNode) return;
 
-    const { pagerClassname, pagerLinkClassname } = this.options;
-    this.pagerNode.classList.add(pagerClassname);
+    const { classnamePager, classnamePagerLink } = this.options;
+    this.pagerNode.classList.add(classnamePager);
 
     this.states.forEach((state, index) => {
       let layerId = state.node.id;
@@ -207,7 +182,7 @@ export default class Immerser {
       }
 
       const pagerLinkNode = document.createElement('a');
-      pagerLinkNode.classList.add(pagerLinkClassname);
+      pagerLinkNode.classList.add(classnamePagerLink);
       pagerLinkNode.href = `#${layerId}`;
       // not the best way to store index for
       pagerLinkNode.dataset.stateIndex = index;
@@ -227,23 +202,23 @@ export default class Immerser {
       overflow: 'hidden',
     };
 
-    const { immerserClassname, immerserWrapperClassname, immerserMaskClassname, immerserSolidClassname } = this.options;
-    this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
-    this.bindClassOrStyle(this.immerserNode, immerserClassname, { pointerEvents: 'none' });
+    const { classnameImmerser, classnameImmerserWrapper, classnameImmerserMask, classnameImmerserSolid } = this.options;
+    this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.selectorSolid);
+    this.bindClassOrStyle(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
 
     this.states = this.states.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
-      this.bindClassOrStyle(wrapper, immerserWrapperClassname, maskAndWrapperStyles);
+      this.bindClassOrStyle(wrapper, classnameImmerserWrapper, maskAndWrapperStyles);
 
       this.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
-        this.bindClassOrStyle(clonnedChildNode, immerserSolidClassname, { pointerEvents: 'all' });
+        this.bindClassOrStyle(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
         wrapper.appendChild(clonnedChildNode);
       });
 
       // TODO achieve hovering with linking clonned elements
 
-      const clonedSolidNodeList = wrapper.querySelectorAll(this.options.solidSelector);
+      const clonedSolidNodeList = wrapper.querySelectorAll(this.options.selectorSolid);
       this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
         const solidId = dataset.immerserSolid;
         if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
@@ -252,7 +227,7 @@ export default class Immerser {
       });
 
       const mask = document.createElement('div');
-      this.bindClassOrStyle(mask, immerserMaskClassname, maskAndWrapperStyles);
+      this.bindClassOrStyle(mask, classnameImmerserMask, maskAndWrapperStyles);
 
       if (stateIndex !== 0) {
         mask.setAttribute('aria-hidden', 'true');
@@ -270,12 +245,12 @@ export default class Immerser {
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       childNode.style.display = 'none';
       childNode.setAttribute('aria-hidden', 'true');
-    })
+    });
   }
 
   initPagerLinks() {
     if (!this.pagerNode) return;
-    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.pagerLinkClassname);
+    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnamePagerLink);
     for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
       const pagerLinkNode = pagerLinkHTMLCollection[index];
       const stateIndex = pagerLinkNode.dataset.stateIndex;
@@ -306,11 +281,11 @@ export default class Immerser {
           const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
           if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
             pagerLinkNodeArray.forEach(({ classList }) => {
-              classList.add(this.options.pagerLinkActiveClassname);
+              classList.add(this.options.classnamePagerLinkActive);
             });
           } else {
             pagerLinkNodeArray.forEach(({ classList }) => {
-              classList.remove(this.options.pagerLinkActiveClassname);
+              classList.remove(this.options.classnamePagerLinkActive);
             });
           }
         }
@@ -332,7 +307,7 @@ export default class Immerser {
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       childNode.style.display = null;
       childNode.removeAttribute('aria-hidden');
-    })
+    });
 
     this.immerserMaskNodeArray.forEach(immerserMaskNode => {
       this.immerserNode.removeChild(immerserMaskNode);

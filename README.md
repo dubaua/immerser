@@ -10,11 +10,11 @@ Immerser clone your nodes to recolor, I call them 'solids', wrap them with cropp
 
 ## Prepare your markup
 
-First, setup your fixed parent container as immerser parent container, and add `data-immerser` as default selector, or choose your own and pass it as value of `immerserSelector` option to immerser function.
+First, setup your fixed parent container as immerser parent container, and add `data-immerser` attribute.
 
-Next add `data-immerser-solid="solid-id"` attribute to each your fixed children to switch on scroll.
+Next place absolutely positioned children into immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` as default selector for your section and pass configuraton with `data-immerser-layer-config='{ "solid-id": "classname-modifier" }'`. Otherwise, you can pass configuration as `solidClassnameArray` option to the function. Config should contain JSON describing what class should be applied on solid element, when it over a section. Watch out JSON wants double quotes!
+Then add `data-immerser-layer` attribute for each your section and pass configuraton with `data-immerser-layer-config='{ "solid-id": "classname-modifier" }'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on solid element, when it over a section. Watch out JSON wants double quotes!
 
 Also feel free to add `data-immerser-pager` to create pager for your layers.
 
@@ -83,8 +83,8 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
 Just import immerser and run it.
 
 ```js
-import immerser from 'immerser';
-immerser();
+import Immerser from 'immerser';
+const myImmerser = new Immerser();
 ```
 
 # Options
@@ -93,17 +93,9 @@ You can pass options to immerser as data-attributes or as function parameters. D
 
 | option                   | type      | default                   | description                                                                                                                     |
 | ------------------------ | --------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| immerserSelector         | `string`  | `'[data-immerser]'`       | Selector for immerser solids parent container                                                                                   |
-| layerSelector            | `string`  | `'[data-immerser-layer]'` | Selector for immerser layers                                                                                                    |
-| solidSelector            | `string`  | `'[data-immerser-solid]'` | Selector for immerser solids                                                                                                    |
-| pagerSelector            | `string`  | `'[data-immerser-pager]'` | Selector for pager                                                                                                              |
 | solidClassnameArray      | `array`   | `[]`                      | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer            |
 | pagerTreshold            | `number`  | `0.5`                     | How much next layer should be in viewport to trigger pager                                                                      |
 | stylesInCSS              | `boolean` | `false`                   | Flag to controll attaching inline styles to created nodes. Set `true` and include `immerser.css` if you want keep your DOM neat |
-| immerserClassname        | `string`  | `'immerser'`              | Classname for immerser root. Applied when `stylesInCss` set to `true`.                                                          |
-| immerserWrapperClassname | `string`  | `'immerser__wrapper'`     | Classname for immerser wrapper. Applied when `stylesInCss` set to `true`.                                                       |
-| immerserMaskClassname    | `string`  | `'immerser__mask'`        | Classname for immerser mask. Applied when `stylesInCss` set to `true`.                                                          |
-| immerserSolidClassname   | `string`  | `'immerser__solid'`       | Classname for immerser solid. Applied when `stylesInCss` set to `true`.                                                         |
 | pagerClassname           | `string`  | `'pager'`                 | Classname for pager. Style it on your own.                                                                                      |
 | pagerLinkClassname       | `string`  | `'pager__link'`           | Classname for pager link. Style it on your own.                                                                                 |
 | pagerLinkActiveClassname | `string`  | `'pager__link--active'`   | Classname for active pager link. Style it on your own.                                                                          |
