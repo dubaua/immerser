@@ -73,16 +73,20 @@ export default class Immerser {
       },
     };
 
-    // state
+    this.initState();
+    this.init(options);
+  }
+
+  initState() {
     this.options = {};
     this.states = [];
     this.immerserNode = null;
     this.pagerNode = null;
+    this.immerserMaskNodeArray = [];
+    this.originalChildrenNodeList = [];
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
-
-    this.init(options);
   }
 
   init(options) {
@@ -224,18 +228,17 @@ export default class Immerser {
     };
 
     const { immerserClassname, immerserWrapperClassname, immerserMaskClassname, immerserSolidClassname } = this.options;
-    const originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
+    this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.solidSelector);
     this.bindClassOrStyle(this.immerserNode, immerserClassname, { pointerEvents: 'none' });
 
     this.states = this.states.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
       this.bindClassOrStyle(wrapper, immerserWrapperClassname, maskAndWrapperStyles);
 
-      this.forEachNode(originalChildrenNodeList, childNode => {
+      this.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
         this.bindClassOrStyle(clonnedChildNode, immerserSolidClassname, { pointerEvents: 'all' });
         wrapper.appendChild(clonnedChildNode);
-        // TODO remove original children. mess with DOM
       });
 
       // TODO achieve hovering with linking clonned elements
@@ -259,8 +262,15 @@ export default class Immerser {
 
       state.maskNode = mask;
       state.wrapperNode = wrapper;
+      this.immerserMaskNodeArray.push(mask);
+
       return state;
     });
+
+    this.forEachNode(this.originalChildrenNodeList, childNode => {
+      childNode.style.display = 'none';
+      childNode.setAttribute('aria-hidden', 'true');
+    })
   }
 
   initPagerLinks() {
@@ -316,6 +326,24 @@ export default class Immerser {
       this.setStates();
       this.draw();
     });
+  }
+
+  destroy() {
+    this.forEachNode(this.originalChildrenNodeList, childNode => {
+      childNode.style.display = null;
+      childNode.removeAttribute('aria-hidden');
+    })
+
+    this.immerserMaskNodeArray.forEach(immerserMaskNode => {
+      this.immerserNode.removeChild(immerserMaskNode);
+    });
+
+    this.pagerNode.innerHTML = '';
+
+    this.initState();
+
+    window.removeEventListener('scroll', this.draw, false);
+    window.removeEventListener('resize', this.onResize, false);
   }
 
   // utils
