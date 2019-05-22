@@ -1,0 +1,36 @@
+.grid {
+  display: flex;
+}
+
+$alpha-name: 'alpha';
+$beta-name: 'beta';
+$gamma-name: 'gamma';
+$alpha-width: 4;
+$beta-width: 7;
+$gamma-width: 13;
+$grid-width: $alpha-width + $beta-width + $gamma-width;
+$col-width: 1 / $grid-width * 100vw;
+
+.#{$alpha-name} {
+  flex-basis: #{$alpha-width / $grid-width * 100}vw;
+}
+
+.#{$alpha-name}-#{$beta-name} {
+  flex-basis: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
+}
+
+.#{$alpha-name}-#{$beta-name}-#{$gamma-name} {
+  flex-basis: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
+}
+
+.#{$beta-name} {
+  flex-basis: #{$beta-width / $grid-width * 100}vw;
+}
+
+.#{$beta-name}-#{$gamma-name} {
+  flex-basis: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
+}
+
+.#{$gamma-name} {
+  flex-basis: #{$gamma-width / $grid-width * 100}vw;
+}

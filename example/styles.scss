@@ -1,19 +1,36 @@
-html {
-  scroll-behavior: smooth;
-  font-family: 'Questrial', sans-serif;
-}
+@import './breakpoints.scss';
+@import './grid.scss';
 
 $color-background: white;
 $color-background--contrast: black;
 $color-text: black;
 $color-text--contrast: white;
 
+html {
+  scroll-behavior: smooth;
+  font-family: 'Questrial', sans-serif;
+  letter-spacing: 0.01em;
+}
+
 body {
   margin: 0;
 }
 
 .section {
-  height: 100vh;
+  min-height: 100vh;
+  &--long {
+    min-height: 150vh;
+  }
+}
+
+.content {
+  padding: 7em 0 6em $col-width;
+  h1 {
+    font-weight: normal;
+  }
+  p {
+    line-height: 1.5;
+  }
 }
 
 .background {
@@ -25,7 +42,7 @@ body {
 
 .fixed {
   position: fixed;
-  top: 3em;
+  top: 2em;
   bottom: 3em;
   left: 3em;
   right: 3em;
@@ -134,30 +151,4 @@ body {
   &--contrast {
     color: $color-text--contrast;
   }
-}
-
-.grid {
-  display: flex;
-  flex-wrap: nowrap;
-}
-.col {
-  height: 100vh;
-}
-.alpha {
-  flex-basis: 16.666666666666664vw;
-}
-.alpha-beta {
-  flex-basis: 45.83333333333333vw;
-}
-.alpha-beta-gamma {
-  flex-basis: 100vw;
-}
-.beta {
-  flex-basis: 29.166666666666668vw;
-}
-.beta-gamma {
-  flex-basis: 83.33333333333334vw;
-}
-.gamma {
-  flex-basis: 54.166666666666664vw;
 }
