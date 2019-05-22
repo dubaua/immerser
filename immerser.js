@@ -162,18 +162,18 @@ export default class Immerser {
   }
 
   setStates() {
+    const immerserHeight = this.immerserNode.offsetHeight;
+    const immerserTop = this.immerserNode.offsetTop;
+
     this.states = this.states.map((state, index) => {
       const isFirst = index === 0;
       const isLast = index === this.states.length - 1;
 
-      const immerserHeight = this.immerserNode.offsetHeight;
-      const immerserTop = this.immerserNode.offsetTop;
-
       // actually not 0 and this.documentHeight but start of first and end of last.
-      const startEnter = isFirst ? 0 : immerserTop + this.states[index - 1].top; // == previous start
-      const enter = isFirst ? 0 : startEnter + immerserHeight;
-      const startLeave = isLast ? this.documentHeight : immerserTop + this.states[index].top;
-      const leave = isLast ? this.documentHeight : startLeave + immerserHeight;
+      const enter = isFirst ? 0 : this.states[index - 1].bottom - immerserTop;
+      const startEnter = isFirst ? 0 : enter - immerserHeight;
+      const leave = isLast ? this.documentHeight : this.states[index].bottom - immerserTop;
+      const startLeave = isLast ? this.documentHeight : leave - immerserHeight;
 
       return {
         ...state,
