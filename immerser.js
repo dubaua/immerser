@@ -42,6 +42,11 @@ export default class Immerser {
         description: 'valid non empty classname string',
         validator: this.classnameValidator,
       },
+      onInit: {
+        defaultValue: null,
+        description: 'function',
+        validator: x => typeof x === 'function',
+      },
     };
 
     this.initState();
@@ -80,6 +85,10 @@ export default class Immerser {
 
     window.addEventListener('scroll', this.draw.bind(this), false);
     window.addEventListener('resize', this.onResize.bind(this), false);
+
+    if (typeof this.options.onInit === 'function') {
+      this.options.onInit(this);
+    }
   }
 
   mergeOptions(options = {}) {
@@ -350,9 +359,5 @@ export default class Immerser {
 
   classnameValidator(string) {
     return typeof string === 'string' && string !== '' && /^[a-z_-][a-z\d_-]*$/i.test(string);
-  }
-
-  selectorValidator(string) {
-    return typeof string === 'string' && string !== '' && /\.js\-[a-z-_]+|\[[a-z]+(\-[a-z]+)*\]/.test(string);
   }
 }
