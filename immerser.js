@@ -47,6 +47,11 @@ export default class Immerser {
         description: 'function',
         validator: x => typeof x === 'function',
       },
+      onActiveLayerChange: {
+        defaultValue: null,
+        description: 'function',
+        validator: x => typeof x === 'function',
+      },
     };
 
     this.initState();
@@ -63,6 +68,7 @@ export default class Immerser {
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
+    this.activeLayer = null;
   }
 
   init(options) {
@@ -78,6 +84,7 @@ export default class Immerser {
     this.setWindowSizes();
     this.setLayerSizes();
     this.setStates();
+    this.initPager();
     this.createPagerLinks();
     this.createDOMStructure();
     this.initPagerLinks();
@@ -174,8 +181,19 @@ export default class Immerser {
     });
   }
 
-  createPagerLinks() {
+  initPager() {
     this.pagerNode = document.querySelector(this.options.selectorPager);
+    if (!this.pagerNode) return;
+
+    this.activeLayer = createObservable(undefined, nextIndex => {
+      this.drawPagerLinks(nextIndex);
+      if (typeof this.options.onActiveLayerChange === 'function') {
+        this.options.onActiveLayerChange(nextIndex, this);
+      }
+    });
+  }
+
+  createPagerLinks() {
     if (!this.pagerNode) return;
 
     const { classnamePager, classnamePagerLink } = this.options;
@@ -270,7 +288,7 @@ export default class Immerser {
   draw() {
     const y = this.getLastScrollPositionY();
     this.states.forEach(
-      ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom, pagerLinkNodeArray }) => {
+      ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom }, index) => {
         let progress;
 
         if (startEnter > y) progress = height;
@@ -289,17 +307,23 @@ export default class Immerser {
         if (this.pagerNode) {
           const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
           if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-            pagerLinkNodeArray.forEach(({ classList }) => {
-              classList.add(this.options.classnamePagerLinkActive);
-            });
-          } else {
-            pagerLinkNodeArray.forEach(({ classList }) => {
-              classList.remove(this.options.classnamePagerLinkActive);
-            });
+            this.activeLayer.value = index;
           }
         }
       }
     );
+  }
+
+  drawPagerLinks() {
+    this.states.forEach(({ pagerLinkNodeArray }) => {
+      pagerLinkNodeArray.forEach(({ classList, dataset }) => {
+        if (parseInt(dataset.stateIndex, 10) === this.activeLayer.value) {
+          classList.add(this.options.classnamePagerLinkActive);
+        } else {
+          classList.remove(this.options.classnamePagerLinkActive);
+        }
+      });
+    });
   }
 
   onResize() {
@@ -360,4 +384,19 @@ export default class Immerser {
   classnameValidator(string) {
     return typeof string === 'string' && string !== '' && /^[a-z_-][a-z\d_-]*$/i.test(string);
   }
+}
+
+function createObservable(initial, didSet) {
+  return {
+    internal: initial,
+    get value() {
+      return this.internal;
+    },
+    set value(next) {
+      if (next !== this.internal) {
+        this.internal = next;
+        didSet(this.internal);
+      }
+    },
+  };
 }
