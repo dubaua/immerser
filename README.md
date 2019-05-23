@@ -91,14 +91,16 @@ const myImmerser = new Immerser();
 
 You can pass options to immerser as data-attributes or as function parameters. Data-attributes process last, so they will override options passed in function.
 
-| option                   | type      | default                   | description                                                                                                                     |
-| ------------------------ | --------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| solidClassnameArray      | `array`   | `[]`                      | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer            |
-| pagerTreshold            | `number`  | `0.5`                     | How much next layer should be in viewport to trigger pager                                                                      |
-| stylesInCSS              | `boolean` | `false`                   | Flag to controll attaching inline styles to created nodes. Set `true` and include `immerser.css` if you want keep your DOM neat |
-| pagerClassname           | `string`  | `'pager'`                 | Classname for pager. Style it on your own.                                                                                      |
-| pagerLinkClassname       | `string`  | `'pager__link'`           | Classname for pager link. Style it on your own.                                                                                 |
-| pagerLinkActiveClassname | `string`  | `'pager__link--active'`   | Classname for active pager link. Style it on your own.                                                                          |
+| option                   | type       | default                 | description                                                                                                                     |
+| ------------------------ | ---------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| solidClassnameArray      | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer            |
+| pagerTreshold            | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                                      |
+| stylesInCSS              | `boolean`  | `false`                 | Flag to controll attaching inline styles to created nodes. Set `true` and include `immerser.css` if you want keep your DOM neat |
+| pagerClassname           | `string`   | `'pager'`               | Classname for pager. Style it on your own.                                                                                      |
+| pagerLinkClassname       | `string`   | `'pager__link'`         | Classname for pager link. Style it on your own.                                                                                 |
+| pagerLinkActiveClassname | `string`   | `'pager__link--active'` | Classname for active pager link. Style it on your own.                                                                          |
+| onInit                   | `function` | `null`                  | Will be fired after initialization. Accept an immerser instance as the only parameter.                                          |
+| onActiveLayerChange      | `function` | `null`                  | Will be fired after active layer change. Accept active layer index as first parameter and an immerser instance as second.       |
 
 If passed option fails validation it falled back to default value.
 
