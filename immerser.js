@@ -270,8 +270,7 @@ export default class Immerser {
     });
 
     this.forEachNode(this.originalChildrenNodeList, childNode => {
-      childNode.style.display = 'none';
-      childNode.setAttribute('aria-hidden', 'true');
+      this.immerserNode.removeChild(childNode)
     });
   }
 
@@ -338,8 +337,7 @@ export default class Immerser {
 
   destroy() {
     this.forEachNode(this.originalChildrenNodeList, childNode => {
-      childNode.style.display = null;
-      childNode.removeAttribute('aria-hidden');
+      this.immerserNode.appendChild(childNode);
     });
 
     this.immerserMaskNodeArray.forEach(immerserMaskNode => {
