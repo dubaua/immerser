@@ -77,7 +77,7 @@ export default class Immerser {
 
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
-      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser');
+      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser#how-to-use');
       return;
     }
 
@@ -112,7 +112,7 @@ export default class Immerser {
             this.options[key] = value;
           } else {
             console.warn(
-              `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}.`
+              `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}. Check documentation https://github.com/dubaua/immerser#options`
             );
           }
         }
