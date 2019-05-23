@@ -6,8 +6,9 @@ export default class Immerser {
       selectorLayer: '[data-immerser-layer]',
       selectorSolid: '[data-immerser-solid]',
       selectorPager: '[data-immerser-pager]',
+      selectorMask: '[data-immerser-mask]',
+      selectorMaskInner: '[data-immerser-mask-inner]',
       classnameImmerser: 'immerser',
-      classnameImmerserWrapper: 'immerser__wrapper',
       classnameImmerserMask: 'immerser__mask',
       classnameImmerserSolid: 'immerser__solid',
 
@@ -86,7 +87,7 @@ export default class Immerser {
     this.setStatemap();
     this.initPager();
     this.createPagerLinks();
-    this.createDOMStructure();
+    this.initDOMStructure();
     this.initPagerLinks();
     this.draw();
 
@@ -219,8 +220,8 @@ export default class Immerser {
     });
   }
 
-  createDOMStructure() {
-    const maskAndWrapperStyles = {
+  initDOMStructure() {
+    const maskStyles = {
       position: 'absolute',
       top: 0,
       right: 0,
@@ -229,48 +230,60 @@ export default class Immerser {
       overflow: 'hidden',
     };
 
-    const { classnameImmerser, classnameImmerserWrapper, classnameImmerserMask, classnameImmerserSolid } = this.options;
+    const { classnameImmerser, classnameImmerserMask, classnameImmerserSolid } = this.options;
     this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.selectorSolid);
     this.bindClassOrStyle(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
 
-    this.statemap = this.statemap.map((state, stateIndex) => {
-      const wrapper = document.createElement('div');
-      this.bindClassOrStyle(wrapper, classnameImmerserWrapper, maskAndWrapperStyles);
+    const customMaskNodeList = this.immerserNode.querySelectorAll(this.options.selectorMask);
+    const isCustomMarkup = customMaskNodeList.length === this.statemap.length;
+    if (customMaskNodeList.length > 0 && customMaskNodeList.length !== this.statemap.length) {
+      // further possible to explicitly pass mask index
+      console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count.");
+    }
 
+    this.statemap = this.statemap.map((state, stateIndex) => {
+      // create or assign existing markup, bind styles or classes
+      const maskNode = isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
+      this.bindClassOrStyle(maskNode, classnameImmerserMask, maskStyles);
+      const maskInnerNode = isCustomMarkup
+        ? maskNode.querySelector(this.options.selectorMaskInner)
+        : document.createElement('div');
+      this.bindClassOrStyle(maskInnerNode, classnameImmerserMask, maskStyles);
+
+      // clone solids to innerMask
       this.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
         this.bindClassOrStyle(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
-        wrapper.appendChild(clonnedChildNode);
+        maskInnerNode.appendChild(clonnedChildNode);
       });
 
       // TODO achieve hovering with linking clonned elements
 
-      const clonedSolidNodeList = wrapper.querySelectorAll(this.options.selectorSolid);
-      this.forEachNode(clonedSolidNodeList, ({ dataset, classList }) => {
-        const solidId = dataset.immerserSolid;
+      // assing class modifiers to clonned solids
+      const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.options.selectorSolid);
+      this.forEachNode(clonedSolidNodeList, clonedSolidNode => {
+        const solidId = clonedSolidNode.dataset.immerserSolid;
         if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
-          classList.add(state.solidClassnames[solidId]);
+          clonedSolidNode.classList.add(state.solidClassnames[solidId]);
         }
       });
 
-      const mask = document.createElement('div');
-      this.bindClassOrStyle(mask, classnameImmerserMask, maskAndWrapperStyles);
-
+      // a11y
       if (stateIndex !== 0) {
-        mask.setAttribute('aria-hidden', 'true');
+        maskNode.setAttribute('aria-hidden', 'true');
       }
-      mask.appendChild(wrapper);
-      this.immerserNode.appendChild(mask);
 
-      state.maskNode = mask;
-      state.wrapperNode = wrapper;
-      this.immerserMaskNodeArray.push(mask);
+      maskNode.appendChild(maskInnerNode);
+      this.immerserNode.appendChild(maskNode);
 
-      return state;
+      this.immerserMaskNodeArray.push(maskNode);
+
+      return { ...state, maskNode, maskInnerNode };
     });
 
+    // remove original solid nodes
     this.forEachNode(this.originalChildrenNodeList, childNode => {
-      this.immerserNode.removeChild(childNode)
+      this.immerserNode.removeChild(childNode);
     });
   }
 
@@ -287,7 +300,7 @@ export default class Immerser {
   draw() {
     const y = this.getLastScrollPositionY();
     this.statemap.forEach(
-      ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom }, index) => {
+      ({ startEnter, enter, startLeave, leave, height, maskNode, maskInnerNode, top, bottom }, index) => {
         let progress;
 
         if (startEnter > y) progress = height;
@@ -301,7 +314,7 @@ export default class Immerser {
         if (y >= leave) progress = -height;
 
         maskNode.style.transform = `translateY(${progress}px)`;
-        wrapperNode.style.transform = `translateY(${-progress}px)`;
+        maskInnerNode.style.transform = `translateY(${-progress}px)`;
 
         if (this.pagerNode) {
           const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
