@@ -60,7 +60,7 @@ export default class Immerser {
 
   initState() {
     this.options = {};
-    this.states = [];
+    this.statemap = [];
     this.immerserNode = null;
     this.pagerNode = null;
     this.immerserMaskNodeArray = [];
@@ -80,10 +80,10 @@ export default class Immerser {
       return;
     }
 
-    this.initStates();
+    this.initStatemap();
     this.setWindowSizes();
     this.setLayerSizes();
-    this.setStates();
+    this.setStatemap();
     this.initPager();
     this.createPagerLinks();
     this.createDOMStructure();
@@ -119,7 +119,7 @@ export default class Immerser {
     }
   }
 
-  initStates() {
+  initStatemap() {
     const layerNodeList = document.querySelectorAll(this.options.selectorLayer);
     this.forEachNode(layerNodeList, (layerNode, layerIndex) => {
       let solidClassnames = this.options.solidClassnameArray[layerIndex];
@@ -130,7 +130,7 @@ export default class Immerser {
           console.error('Failed to parse JSON class configuration.', e);
         }
       }
-      this.states.push({
+      this.statemap.push({
         node: layerNode,
         solidClassnames,
         top: 0,
@@ -145,7 +145,7 @@ export default class Immerser {
   }
 
   setLayerSizes() {
-    this.states = this.states.map(state => {
+    this.statemap = this.statemap.map(state => {
       const top = state.node.offsetTop;
       const bottom = top + state.node.offsetHeight;
       return {
@@ -156,18 +156,18 @@ export default class Immerser {
     });
   }
 
-  setStates() {
+  setStatemap() {
     const immerserHeight = this.immerserNode.offsetHeight;
     const immerserTop = this.immerserNode.offsetTop;
 
-    this.states = this.states.map((state, index) => {
+    this.statemap = this.statemap.map((state, index) => {
       const isFirst = index === 0;
-      const isLast = index === this.states.length - 1;
+      const isLast = index === this.statemap.length - 1;
 
       // actually not 0 and this.documentHeight but start of first and end of last.
-      const enter = isFirst ? 0 : this.states[index - 1].bottom - immerserTop;
+      const enter = isFirst ? 0 : this.statemap[index - 1].bottom - immerserTop;
       const startEnter = isFirst ? 0 : enter - immerserHeight;
-      const leave = isLast ? this.documentHeight : this.states[index].bottom - immerserTop;
+      const leave = isLast ? this.documentHeight : this.statemap[index].bottom - immerserTop;
       const startLeave = isLast ? this.documentHeight : leave - immerserHeight;
 
       return {
@@ -199,7 +199,7 @@ export default class Immerser {
     const { classnamePager, classnamePagerLink } = this.options;
     this.pagerNode.classList.add(classnamePager);
 
-    this.states.forEach((state, index) => {
+    this.statemap.forEach((state, index) => {
       let layerId = state.node.id;
 
       // if no layerId create it, to point anchor to
@@ -233,7 +233,7 @@ export default class Immerser {
     this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.selectorSolid);
     this.bindClassOrStyle(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
 
-    this.states = this.states.map((state, stateIndex) => {
+    this.statemap = this.statemap.map((state, stateIndex) => {
       const wrapper = document.createElement('div');
       this.bindClassOrStyle(wrapper, classnameImmerserWrapper, maskAndWrapperStyles);
 
@@ -281,13 +281,13 @@ export default class Immerser {
     for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
       const pagerLinkNode = pagerLinkHTMLCollection[index];
       const stateIndex = pagerLinkNode.dataset.stateIndex;
-      this.states[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
+      this.statemap[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
     }
   }
 
   draw() {
     const y = this.getLastScrollPositionY();
-    this.states.forEach(
+    this.statemap.forEach(
       ({ startEnter, enter, startLeave, leave, height, maskNode, wrapperNode, top, bottom }, index) => {
         let progress;
 
@@ -315,7 +315,7 @@ export default class Immerser {
   }
 
   drawPagerLinks() {
-    this.states.forEach(({ pagerLinkNodeArray }) => {
+    this.statemap.forEach(({ pagerLinkNodeArray }) => {
       pagerLinkNodeArray.forEach(({ classList, dataset }) => {
         if (parseInt(dataset.stateIndex, 10) === this.activeLayer.value) {
           classList.add(this.options.classnamePagerLinkActive);
@@ -331,7 +331,7 @@ export default class Immerser {
     this.resizeTimerId = window.requestAnimationFrame(() => {
       this.setWindowSizes();
       this.setLayerSizes();
-      this.setStates();
+      this.setStatemap();
       this.draw();
     });
   }
