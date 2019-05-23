@@ -8,6 +8,7 @@ export default class Immerser {
       selectorPager: '[data-immerser-pager]',
       selectorMask: '[data-immerser-mask]',
       selectorMaskInner: '[data-immerser-mask-inner]',
+      selectorSynchroHover: '[data-immerser-synchro-hover]',
       classnameImmerser: 'immerser',
       classnameImmerserMask: 'immerser__mask',
       classnameImmerserSolid: 'immerser__solid',
@@ -24,6 +25,11 @@ export default class Immerser {
         validator: x => typeof x === 'number' && 0 <= x && x <= 1,
       },
       stylesInCSS: {
+        defaultValue: false,
+        description: 'boolean',
+        validator: x => typeof x === 'boolean',
+      },
+      synchroHoverPagerLinks: {
         defaultValue: false,
         description: 'boolean',
         validator: x => typeof x === 'boolean',
@@ -70,6 +76,8 @@ export default class Immerser {
     this.windowHeight = 0;
     this.resizeTimerId = null;
     this.activeLayer = null;
+    this.activeSynchroHoverId = null;
+    this.synchroHoverNodeArray = [];
   }
 
   init(options) {
@@ -89,6 +97,7 @@ export default class Immerser {
     this.createPagerLinks();
     this.initDOMStructure();
     this.initPagerLinks();
+    this.initHoverSynchro();
     this.draw();
 
     window.addEventListener('scroll', this.draw.bind(this), false);
@@ -214,6 +223,12 @@ export default class Immerser {
       pagerLinkNode.href = `#${layerId}`;
       // not the best way to store index for
       pagerLinkNode.dataset.stateIndex = index;
+
+      // if passed synchronize pager link hover bind attribute
+      if (this.options.synchroHoverPagerLinks) {
+        pagerLinkNode.dataset.immerserSynchroHover = `pager-link-${index}`;
+      }
+
       this.pagerNode.appendChild(pagerLinkNode);
 
       state.pagerLinkNodeArray = [];
@@ -257,8 +272,6 @@ export default class Immerser {
         maskInnerNode.appendChild(clonnedChildNode);
       });
 
-      // TODO achieve hovering with linking clonned elements
-
       // assing class modifiers to clonned solids
       const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.options.selectorSolid);
       this.forEachNode(clonedSolidNodeList, clonedSolidNode => {
@@ -295,6 +308,29 @@ export default class Immerser {
       const stateIndex = pagerLinkNode.dataset.stateIndex;
       this.statemap[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
     }
+  }
+
+  initHoverSynchro() {
+    const synchroHoverNodeList = document.querySelectorAll(this.options.selectorSynchroHover);
+    if (!synchroHoverNodeList.length) return;
+
+    this.activeSynchroHoverId = createObservable(undefined, nextId => {
+      this.drawSynchroHover(nextId);
+    });
+
+    this.forEachNode(synchroHoverNodeList, synchroHoverNode => {
+      const synchroHoverId = synchroHoverNode.dataset.immerserSynchroHover;
+
+      synchroHoverNode.addEventListener('mouseover', () => {
+        this.activeSynchroHoverId.value = synchroHoverId;
+      });
+
+      synchroHoverNode.addEventListener('mouseout', () => {
+        this.activeSynchroHoverId.value = undefined;
+      });
+
+      this.synchroHoverNodeArray.push(synchroHoverNode);
+    });
   }
 
   draw() {
@@ -335,6 +371,16 @@ export default class Immerser {
           classList.remove(this.options.classnamePagerLinkActive);
         }
       });
+    });
+  }
+
+  drawSynchroHover(synchroHoverId) {
+    this.synchroHoverNodeArray.forEach(synchroHoverNode => {
+      if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
+        synchroHoverNode.classList.add('_hover');
+      } else {
+        synchroHoverNode.classList.remove('_hover');
+      }
     });
   }
 
