@@ -364,11 +364,11 @@ export default class Immerser {
 
   drawPagerLinks() {
     this.statemap.forEach(({ pagerLinkNodeArray }) => {
-      pagerLinkNodeArray.forEach(({ classList, dataset }) => {
-        if (parseInt(dataset.stateIndex, 10) === this.activeLayer.value) {
-          classList.add(this.options.classnamePagerLinkActive);
+      pagerLinkNodeArray.forEach(pagerLinkNode => {
+        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.activeLayer.value) {
+          pagerLinkNode.classList.add(this.options.classnamePagerLinkActive);
         } else {
-          classList.remove(this.options.classnamePagerLinkActive);
+          pagerLinkNode.classList.remove(this.options.classnamePagerLinkActive);
         }
       });
     });
