@@ -1,0 +1,15 @@
+<h1>How it Works?</h1>
+<p>First, immerser gathers information about the layers, solids, window and document.</p>
+<p>
+  Then it creates a statemap for each layer, containing all necessary information, when the layer is partially and fully
+  in viewport.
+</p>
+<p>
+  After that immerser modifies DOM, cloning all solids into mask containers for each layer and appling the classnames
+  given in configuration. If you have added a pager, immerser also creates links for layers.
+</p>
+<p>
+  Finally, immerser binds listeners to scroll and resize events. On resize, it will meter layers, the window and
+  document heights again and recalculate the statemap. On scroll, immerser moves a mask of solids to show part of each
+  solid group according to the layer below.
+</p>

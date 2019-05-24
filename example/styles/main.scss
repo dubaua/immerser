@@ -5,6 +5,8 @@ $color-background: white;
 $color-background--contrast: black;
 $color-text: black;
 $color-text--contrast: white;
+$color-active: red;
+$color-highlight: rgba(lime, 0.5);
 
 html {
   scroll-behavior: smooth;
@@ -12,25 +14,45 @@ html {
   letter-spacing: 0.01em;
 }
 
-body {
-  margin: 0;
-}
-
 .section {
   min-height: 100vh;
+  & > .col {
+    min-height: 100vh;
+  }
   &--long {
     min-height: 150vh;
+    & > .col {
+      min-height: 150vh;
+    }
   }
 }
 
 .content {
-  padding: 7em 0 6em $col-width;
+  padding: 11em $col-width * 0.5 11em;
+
   h1 {
     font-weight: normal;
   }
+  h2 {
+    $pseudo-bold: 0.05em;
+    font-weight: normal;
+    font-size: 1em;
+    letter-spacing: $pseudo-bold * 0.5;
+    text-shadow: $pseudo-bold 0 0 currentColor;
+    margin-bottom: 0;
+  }
   p {
     line-height: 1.5;
+    margin-top: 0;
   }
+  strong {
+    font-weight: normal;
+    text-decoration: underline;
+  }
+}
+
+a:hover, a._hover {
+  color: $color-active !important;
 }
 
 .background {
@@ -46,6 +68,7 @@ body {
   bottom: 3em;
   left: 3em;
   right: 3em;
+  z-index: 1;
 
   &__pager {
     position: absolute;
@@ -76,6 +99,13 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
+  }
+
+  &__face {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }
 
@@ -120,17 +150,31 @@ body {
     border-radius: 50%;
     box-shadow: inset 0 0 0 1.5px $color-text;
     transition: 0.2s opacity ease-in-out;
-
+    &:hover,
+    &._hover {
+      box-shadow: inset 0 0 0 1.5px $color-active;
+    }
     &--active {
       box-shadow: inset 0 0 0 6px $color-text;
+      &:hover,
+      &._hover {
+        box-shadow: inset 0 0 0 6px $color-active;
+      }
     }
   }
 
   &--contrast #{$pager}__link {
     box-shadow: inset 0 0 0 1.5px $color-text--contrast;
-
+    &:hover,
+    &._hover {
+      box-shadow: inset 0 0 0 1.5px $color-active;
+    }
     &--active {
       box-shadow: inset 0 0 0 6px $color-text--contrast;
+      &:hover,
+      &._hover {
+        box-shadow: inset 0 0 0 6px $color-active;
+      }
     }
   }
 }
@@ -150,5 +194,44 @@ body {
   color: $color-text;
   &--contrast {
     color: $color-text--contrast;
+  }
+}
+
+.face {
+  line-height: 0;
+}
+
+.highlighter {
+  cursor: pointer;
+}
+
+.highlight {
+  animation: highlight 1.5s linear infinite;
+  &.section {
+    animation: none;
+    position: relative;
+    &:before {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      animation: highlight 1.5s linear infinite;;
+    }
+  }
+}
+
+@keyframes highlight {
+  25% {
+    background: $color-highlight;
+  }
+  50% {
+    background: transparent;
+  }
+  75% {
+    background: $color-highlight;
   }
 }

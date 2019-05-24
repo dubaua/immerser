@@ -10,9 +10,9 @@ Immerser clone your nodes to recolor, I call them 'solids', wrap them with cropp
 
 ## Prepare your markup
 
-First, setup your fixed parent container as immerser parent container, and add `data-immerser` attribute.
+First, setup your a fixed container as the immerser parent container, and add `data-immerser` attribute.
 
-Next place absolutely positioned children into immerser parent and add `data-immerser-solid="solid-id"` to each.
+Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
 Then add `data-immerser-layer` attribute for each your section and pass configuraton with `data-immerser-layer-config='{ "solid-id": "classname-modifier" }'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on solid element, when it over a section. Watch out JSON wants double quotes!
 
