@@ -1,62 +1,85 @@
-# Library for switching fixed elements on scroll
+# Library for Switching Fixed Elements on Scroll
 
 Look, you have fixed posh things on your page and contrast sections with same color. If you want smoothly recolor your fixeds on scroll use this.
 
-# How it works
+# How it Works
 
 Immerser clone your nodes to recolor, I call them 'solids', wrap them with cropper containers, and bind classes to clonned children, according to given configuration. On scroll immerser calculate position of solids relative to layers and mask solids as they enter or leave.
 
-# How to use
+# How to Use
 
-## Prepare your markup
+## Prepare Your Markup
 
-First, setup your a fixed container as the immerser parent container, and add `data-immerser` attribute.
+First, setup your a fixed container as the immerser root container, and add `data-immerser` attribute.
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute for each your section and pass configuraton with `data-immerser-layer-config='{ "solid-id": "classname-modifier" }'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on solid element, when it over a section. Watch out JSON wants double quotes!
+Then add `data-immerser-layer` attribute for each your section and pass configuraton with `data-immerser-layer-config='{ "solid-id": "classname-modifier" }'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on solid element, when it over a section.
 
 Also feel free to add `data-immerser-pager` to create pager for your layers.
 
 ```html
-<div class="fixed-parent" data-immerser>
-  <a href="/about" class="logo" data-immerser-solid="logo">
-    <img src="/images/logo.svg" alt="Immerser" />
-  </a>
-  <nav class="navigation" data-immerser-solid="navigation">
-    <a href="/about" class="link">About</a>
-  </nav>
-  <footer class="footer" data-immerser-solid="footer">
-    © 2019 Immerser
-  </footer>
-  <div class="pagination" data-immerser-pager></div>
+<div class="fixed" data-immerser>
+  <div class="fixed__logo logo" data-immerser-solid="logo">immerser</div>
+  <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
+  <div class="fixed__menu menu" data-immerser-solid="menu">
+    <a href="#reasoning" class="menu__link">Reasoning</a>
+    <!-- links... -->
+  </div>
+  <div class="fixed__footer footer" data-immerser-solid="footer">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
 </div>
 
-<section class="section" data-immerser-layer></section>
-<section
-  class="section section--contrast"
+<div
+  id="reasoning"
+  class="section"
   data-immerser-layer
-  data-immerser-layer-config='{
-    "logo": "logo--contrast",
-    "navigation": "navigation--contrast",
-    "footer": "footer--contrast"
-  }'
-></section>
-<section class="section" data-immerser-layer></section>
-<section
-  class="section section--contrast"
+  data-immerser-layer-config='{ "logo": "logo--contrast", "pager": "pager--contrast"}'
+>
+  <!-- layer content -->
+</div>
+<!-- another layers... -->
+<div
+  id="possibilities"
+  class="section"
   data-immerser-layer
-  data-immerser-layer-config='{
-    "logo": "logo--contrast",
-    "navigation": "navigation--contrast",
-    "footer": "footer--contrast"
-  }'
-></section>
+  data-immerser-layer-config='{ "menu": "menu--contrast", "footer": "footer--contrast" }'
+>
+  <!-- layer content -->
+</div>
 ```
 
-## Add style modifiers
+## Add Style Modifiers
 
 ```css
+.fixed {
+  position: fixed;
+  top: 2em;
+  bottom: 3em;
+  left: 3em;
+  right: 3em;
+  z-index: 1;
+}
+.fixed__pager {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(0, -50%);
+}
+.fixed__logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.fixed__menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.fixed__footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
 .section {
   min-height: 100vh;
   background: white;
@@ -67,18 +90,20 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
   color: white;
 }
 .logo,
-.navigation,
+.pager,
+.menu,
 .footer {
   color: black;
 }
 .logo--contrast,
-.navigation--contrast,
+.pager--contrast,
+.menu--contrast,
 .footer--contrast {
   color: white;
 }
 ```
 
-## Init immerser
+## Init Immerser
 
 Just import immerser and run it.
 

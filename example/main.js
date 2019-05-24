@@ -10,7 +10,7 @@ const my = new Immerser({
   },
   onActiveLayerChange(activeIndex, immerser) {
     console.log(activeIndex, immerser);
-  }
+  },
 });
 
 const highlighterNodeList = document.querySelectorAll('[data-highlighter]');
@@ -24,13 +24,17 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
       const targetNodeList = document.querySelectorAll(targetSelector);
       for (let j = 0; j < targetNodeList.length; j++) {
         const targetNode = targetNodeList[j];
-        targetNode.classList.add('highlight');
-        const timerId = setTimeout(() => {
-          targetNode.classList.remove('highlight');
-          clearTimeout(timerId);
-        }, 1500);
+        if (!targetNode.isHighlighting) {
+          targetNode.isHighlighting = true;
+          targetNode.classList.add('highlight');
+          const timerId = setTimeout(() => {
+            targetNode.classList.remove('highlight');
+            clearTimeout(timerId);
+            targetNode.isHighlighting = false;
+          }, 1500);
+        }
       }
-    }
+    };
   }
 }
 
