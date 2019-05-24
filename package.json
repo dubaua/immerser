@@ -21,6 +21,6 @@
   },
   "scripts": {
     "build": "parcel build immerser.js --out-file immerser.min.js",
-    "demo": "parcel build example/index.html --out-dir demo/ --public-url ./"
+    "docs": "parcel build example/index.html --out-dir docs/ --public-url ./"
   }
 }
