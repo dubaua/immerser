@@ -12,25 +12,37 @@ $grid-width: $alpha-width + $beta-width + $gamma-width;
 $col-width: 1 / $grid-width * 100vw;
 
 .#{$alpha-name} {
-  flex-basis: #{$alpha-width / $grid-width * 100}vw;
+  $width: #{$alpha-width / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }
 
 .#{$alpha-name}-#{$beta-name} {
-  flex-basis: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
+  $width: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }
 
 .#{$alpha-name}-#{$beta-name}-#{$gamma-name} {
-  flex-basis: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
+  $width: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }
 
 .#{$beta-name} {
-  flex-basis: #{$beta-width / $grid-width * 100}vw;
+  $width: #{$beta-width / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }
 
 .#{$beta-name}-#{$gamma-name} {
-  flex-basis: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
+  $width: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }
 
 .#{$gamma-name} {
-  flex-basis: #{$gamma-width / $grid-width * 100}vw;
+  $width: #{$gamma-width / $grid-width * 100}vw;
+  flex-basis: $width;
+  max-width: $width;
 }

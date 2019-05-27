@@ -1,0 +1,207 @@
+@import './globals.scss';
+
+$code-color-muted: #404040;
+$code-color-sintax: scale-color($color-accent, $lightness: -20%, $saturation: -62%);
+$code-color-name: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
+$code-color-punctuation: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-text: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-value: scale-color($color-highlight, $lightness: 62%, $saturation: -80%);
+$code-color-function: scale-color($color-accent, $lightness: 30%, $saturation: -38%);
+
+$theme-prolog: $code-color-muted;
+$theme-doctype: $code-color-muted;
+$theme-comment: $code-color-muted;
+$theme-cdata: $code-color-muted;
+
+$theme-attr-name: $code-color-name;
+$theme-property: $code-color-name;
+
+$theme-selector: $code-color-sintax;
+$theme-tag: $code-color-sintax;
+$theme-keyword: $code-color-sintax;
+
+$theme-attr-value: $code-color-value;
+$theme-boolean: $code-color-value;
+$theme-string: $code-color-value;
+$theme-class-name: $code-color-value;
+$theme-number: $code-color-value;
+
+$theme-punctuation: $code-color-punctuation;
+$theme-operator: $code-color-punctuation;
+
+$theme-function: $code-color-function;
+$theme-deleted: $code-color-function;
+$theme-important: $code-color-function;
+
+$theme-atrule: red;
+$theme-builtin: red;
+$theme-char: red;
+$theme-constant: red;
+$theme-entity: red;
+$theme-inserted: red;
+$theme-regex: red;
+$theme-symbol: red;
+$theme-url: red;
+$theme-variable: red;
+
+.code-highlight {
+  margin-top: $base * 3;
+  padding-bottom: $base * 1.5;
+  pre {
+    margin: 0;
+    font-size: $base;
+    line-height: $base * 1.5;
+  }
+  code {
+    font-size: $base !important;
+  }
+}
+
+code[class*='language-'],
+pre[class*='language-'] {
+  color: $code-color-text;
+  background: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 1em;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*='language-'] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+  border-radius: 0.3em;
+}
+
+:not(pre) > code[class*='language-'],
+pre[class*='language-'] {
+  background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*='language-'] {
+  padding: 0.1em;
+  border-radius: 0.3em;
+  white-space: normal;
+}
+
+.namespace {
+  opacity: 0.7;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.atrule {
+  color: $theme-atrule;
+}
+.token.attr-name {
+  color: $theme-attr-name;
+}
+.token.attr-value,
+.language-css.token.string .style.token.string {
+  color: $theme-attr-value;
+}
+.token.boolean {
+  color: $theme-boolean;
+}
+.token.builtin {
+  color: $theme-builtin;
+}
+.token.cdata {
+  color: $theme-cdata;
+}
+.token.char {
+  color: $theme-char;
+}
+.token.class-name {
+  color: $theme-class-name;
+}
+.token.comment {
+  color: $theme-comment;
+}
+.token.constant {
+  color: $theme-constant;
+}
+.token.deleted {
+  color: $theme-deleted;
+}
+.token.doctype {
+  color: $theme-doctype;
+}
+.token.entity {
+  color: $theme-entity;
+}
+.token.function {
+  color: $theme-function;
+}
+.token.important {
+  color: $theme-important;
+}
+.token.inserted {
+  color: $theme-inserted;
+}
+.token.keyword {
+  color: $theme-keyword;
+}
+.token.number {
+  color: $theme-number;
+}
+.token.operator {
+  color: $theme-operator;
+}
+.token.prolog {
+  color: $theme-prolog;
+}
+.token.property {
+  color: $theme-property;
+}
+.token.punctuation {
+  color: $theme-punctuation;
+}
+.token.regex {
+  color: $theme-regex;
+}
+.token.selector {
+  color: $theme-selector;
+}
+.token.string {
+  color: $theme-string;
+}
+.token.symbol {
+  color: $theme-symbol;
+}
+.token.tag {
+  color: $theme-tag;
+}
+.token.url {
+  color: $theme-url;
+}
+.token.variable {
+  color: $theme-variable;
+}

@@ -1,0 +1,13 @@
+$color-primary: white;
+$color-secondary: black;
+$color-accent: magenta;
+$color-highlight: cyan;
+$color-marker: yellow;
+$color-primary--muted: #999;
+$color-secondary--muted: #666;
+
+$color-background: $color-primary;
+$color-background--contrast: $color-secondary;
+$color-text: $color-secondary;
+$color-text--contrast: $color-primary;
+$color-active: $color-accent;

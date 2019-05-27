@@ -1,0 +1,28 @@
+.typography {
+  * {
+    margin-bottom: 0;
+  }
+  h1 {
+    font-size: $base * 2;
+    line-height: $base * 2;
+    margin-top: $base * 2.5;
+    font-weight: normal;
+  }
+  p {
+    line-height: 1.5;
+    margin-top: $base * 1.5;
+    margin-bottom: 0;
+  
+    code {
+      background-color: rgba($color-text, 0.05);
+      border-radius: 3px;
+      margin: 0;
+      padding: 0.2em 0.4em;
+      font-size: 0.85em;
+    }
+  }
+  strong {
+    font-weight: normal;
+    text-decoration: underline;
+  }
+}

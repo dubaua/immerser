@@ -1,6 +1,7 @@
 import Immerser from '../immerser.js';
 import 'normalize.css';
 import '../immerser.scss';
+// import Prism from 'prismjs';
 
 const my = new Immerser({
   stylesInCSS: true,
@@ -60,5 +61,11 @@ No bundlefobia
 Рассказать про возможности
 
 Рассказать про рецепты
+
+Справиться с горизонтальным скроллом
+
+Сделать разные фейсы
+
+Сделать прикол по клику на фейс
 */
 // finish readme

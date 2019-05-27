@@ -1,83 +1,77 @@
-@import './breakpoints.scss';
-@import './grid.scss';
-
-$base: 16px;
-$color-background: white;
-$color-background--contrast: black;
-$color-text: black;
-$color-text--contrast: white;
-$color-active: magenta;
-$color-highlight: rgba(cyan, 0.5);
+@import './globals.scss';
+@import './code-highlight.scss';
+@import './typography.scss';
 
 html {
   scroll-behavior: smooth;
   font-family: 'Questrial', sans-serif;
   letter-spacing: 0.01em;
 }
-.rulers {
-  $ruler-color: rgba(magenta, 0.2);
-  $ruler-gutter: $base * 1.5;
-  position: relative;
-  &:after {
-    content: '';
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    height: 100%;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      transparent $ruler-gutter - 1,
-      $ruler-color $ruler-gutter - 1,
-      $ruler-color
-    );
-    background-size: 100% $ruler-gutter;
-  }
+
+// body {
+//   $ruler-color: rgba(magenta, 0.2);
+//   $ruler-gutter: $base * 1.5;
+//   position: relative;
+//   &:after {
+//     content: '';
+//     position: fixed;
+//     z-index: 1;
+//     top: 0;
+//     height: 100%;
+//     left: 0;
+//     right: 0;
+//     pointer-events: none;
+//     background: linear-gradient(
+//       to bottom,
+//       transparent,
+//       transparent $ruler-gutter - 1,
+//       $ruler-color $ruler-gutter - 1,
+//       $ruler-color
+//     );
+//     background-size: 100% $ruler-gutter;
+//   }
+// }
+
+*::selection {
+  background: $color-highlight;
+  color: $color-secondary;
+}
+*::-moz-selection {
+  background: $color-highlight;
+  color: $color-secondary;
 }
 
 .section {
   min-height: 100vh;
-  & > .col {
+  & > .section__col {
     min-height: 100vh;
   }
   &--long {
     min-height: 150vh;
-    & > .col {
+    & > .section__col {
       min-height: 150vh;
     }
   }
 }
 
-.content {
-  padding: $base * 7.875 $col-width * 0.5 $base * 7.875; 
-  * {
-    margin-bottom: 0;
+.pt {
+  padding-top: $base * 7.875;
+  &--l {
+    padding-top: $base * 3;
   }
-  h1 {
-    font-size: $base * 2;
-    line-height: $base * 2;
-    margin-top: $base * 2.5;
-    font-weight: normal;
-  }
-  p {
-    line-height: 1.5;
-    margin-top: $base * 1.5;
-    margin-bottom: 0;
-  }
-  strong {
-    font-weight: normal;
-    text-decoration: underline;
-  }
-  code {
-    background-color: rgba($color-text, 0.05);
-    border-radius: 3px;
-    margin: 0;
-    padding: 0.2em 0.4em;
-    font-size: 0.85em;
-  }
+}
+
+.pb {
+  padding-bottom: $base * 7.875;
+}
+
+.plpr {
+  padding-left:  $col-width * 0.5;
+  padding-right:  $col-width * 0.5;
+}
+
+.scroller-x {
+  overflow-y: hidden;
 }
 
 a:hover,
@@ -257,12 +251,12 @@ a._hover {
 
 @keyframes highlight {
   25% {
-    background: $color-highlight;
+    background: rgba($color-highlight, 0.5);
   }
   50% {
     background: transparent;
   }
   75% {
-    background: $color-highlight;
+    background: rgba($color-highlight, 0.5);
   }
 }
