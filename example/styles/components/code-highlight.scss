@@ -1,25 +1,25 @@
 @import '../shared/globals.scss';
 
-$code-color-muted: #404040;
-$code-color-muted--light: #b0b0b0;
+$code-color-muted: #b0b0b0;
+$code-color-muted--contrast: #404040;
 
-$code-color-sintax: scale-color($color-accent, $lightness: -20%, $saturation: -62%);
-$code-color-sintax--light: scale-color($color-accent, $lightness: 20%, $saturation: -38%);
+$code-color-sintax: scale-color($color-accent, $lightness: 20%, $saturation: -38%);
+$code-color-sintax--contrast: scale-color($color-accent, $lightness: -20%, $saturation: -62%);
 
 $code-color-name: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
-$code-color-name--light: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
+$code-color-name--contrast: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
 
-$code-color-punctuation: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
-$code-color-punctuation--light: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-punctuation: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-punctuation--contrast: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
 
-$code-color-text: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
-$code-color-text--light: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-text: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-text--contrast: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
 
-$code-color-value: scale-color($color-highlight, $lightness: 62%, $saturation: -80%);
-$code-color-value--light: scale-color($color-highlight, $lightness: -75%, $saturation: -80%);
+$code-color-value: scale-color($color-highlight, $lightness: -75%, $saturation: -80%);
+$code-color-value--contrast: scale-color($color-highlight, $lightness: 62%, $saturation: -80%);
 
-$code-color-function: scale-color($color-accent, $lightness: 30%, $saturation: -38%);
-$code-color-function--light: scale-color($color-accent, $lightness: 0%, $saturation: 0%);
+$code-color-function: scale-color($color-accent, $lightness: 0%, $saturation: 0%);
+$code-color-function--contrast: scale-color($color-accent, $lightness: 30%, $saturation: -38%);
 
 
 $theme-prolog: $code-color-muted;
@@ -63,10 +63,11 @@ $theme-variable: red;
 .code-highlight {
   margin-top: $base * 6;
   padding-bottom: $base * 1.5;
+  color: $theme-text;
+
   &--inline {
     margin-top: 0;
     padding-bottom: 0;
-    color: $theme-text;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   }
   pre {
@@ -81,7 +82,6 @@ $theme-variable: red;
 
 code[class*='language-'],
 pre[class*='language-'] {
-  color: $theme-text;
   background: none;
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   font-size: 1em;
@@ -228,33 +228,35 @@ pre[class*='language-'] {
   color: $theme-variable;
 }
 
-.code-highlight--light {
-  $theme-prolog: $code-color-muted--light;
-  $theme-doctype: $code-color-muted--light;
-  $theme-comment: $code-color-muted--light;
-  $theme-cdata: $code-color-muted--light;
+.code-highlight--contrast {
+  $theme-prolog: $code-color-muted--contrast;
+  $theme-doctype: $code-color-muted--contrast;
+  $theme-comment: $code-color-muted--contrast;
+  $theme-cdata: $code-color-muted--contrast;
   
-  $theme-attr-name: $code-color-name--light;
-  $theme-property: $code-color-name--light;
+  $theme-attr-name: $code-color-name--contrast;
+  $theme-property: $code-color-name--contrast;
   
-  $theme-selector: $code-color-sintax--light;
-  $theme-tag: $code-color-sintax--light;
-  $theme-keyword: $code-color-sintax--light;
+  $theme-selector: $code-color-sintax--contrast;
+  $theme-tag: $code-color-sintax--contrast;
+  $theme-keyword: $code-color-sintax--contrast;
   
-  $theme-attr-value: $code-color-value--light;
-  $theme-boolean: $code-color-value--light;
-  $theme-string: $code-color-value--light;
-  $theme-class-name: $code-color-value--light;
-  $theme-number: $code-color-value--light;
+  $theme-attr-value: $code-color-value--contrast;
+  $theme-boolean: $code-color-value--contrast;
+  $theme-string: $code-color-value--contrast;
+  $theme-class-name: $code-color-value--contrast;
+  $theme-number: $code-color-value--contrast;
   
-  $theme-punctuation: $code-color-punctuation--light;
-  $theme-operator: $code-color-punctuation--light;
+  $theme-punctuation: $code-color-punctuation--contrast;
+  $theme-operator: $code-color-punctuation--contrast;
   
-  $theme-function: $code-color-function--light;
-  $theme-deleted: $code-color-function--light;
-  $theme-important: $code-color-function--light;
+  $theme-function: $code-color-function--contrast;
+  $theme-deleted: $code-color-function--contrast;
+  $theme-important: $code-color-function--contrast;
 
-  $theme-text: $code-color-text--light;
+  $theme-text: $code-color-text--contrast;
+
+  color: $theme-text;
 
   code[class*='language-'],
   pre[class*='language-'] {
