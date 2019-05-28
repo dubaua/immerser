@@ -1,5 +1,45 @@
-<h1>Possibilities</h1>
-<p>
-  Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will lost after init.
-  Fortunatelly, there is the way how to deal with it. If you need more, than switching classnames on different
-</p>
+<div class="grid">
+  <div class="beta typography background">
+    <div class="pt plpr">
+      <h1>Custom Markup</h1>
+      <p>
+        Since immerser cloning nested nodes by&nbsp;default, all event listeners and data bound on&nbsp;nodes will lost
+        after init. Fortunatelly, you can markup immmerser yourself. It&nbsp;can be&nbsp;useful when you have event
+        listeners on&nbsp;solids, reactive logic or&nbsp;more than classname switching. All you need
+        is&nbsp;to&nbsp;place the number of&nbsp;nested immerser masks equal to&nbsp;the number of&nbsp;the layers. Look
+        how do&nbsp;I change the smily face on&nbsp;the right in&nbsp;this page source.
+      </p>
+    </div>
+  </div>
+  <div class="gamma background scroller-x">
+    <div class="pt plpr">
+      <div class="code-highlight code-highlight--light">
+        <include src="./content/highlighted-custom-markup.html"></include>
+        <!-- <pre data-src="code/custom-markup.html"></pre> -->
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid">
+  <div class="beta typography background ">
+    <div class="pt--l plpr pb">
+      <h1>Hover Synchronizing</h1>
+      <p>
+        As&nbsp;mentioned above, immerser cloning nested nodes to&nbsp;achieve changing on&nbsp;scroll. Therefore
+        if&nbsp;you hover partially visible element, only visible part will recolor. If&nbsp;you want
+        to&nbsp;synchronize&nbsp;it, just pass
+        <code>data-immerser-synchro-hover="hoverId"</code> attribute. It&nbsp;will share <code>_hover</code> class
+        between all nodes with this hoverId when mouse is&nbsp;over one of&nbsp;them. Add <code>_hover</code> selector
+        alongside your <code>:hover</code> pseudoselector to&nbsp;style your interactive elements.
+      </p>
+    </div>
+  </div>
+  <div class="gamma background scroller-x">
+    <div class="pt--l plpr pb">
+      <div class="code-highlight code-highlight--light">
+        <include src="./content/highlighted-hover-synchronize.html"></include>
+        <!-- <pre data-src="code/hover-synchronize.css"></pre> -->
+      </div>
+    </div>
+  </div>
+</div>
