@@ -63,6 +63,12 @@ $theme-variable: red;
 .code-highlight {
   margin-top: $base * 6;
   padding-bottom: $base * 1.5;
+  &--inline {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: $theme-text;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  }
   pre {
     margin: 0;
     font-size: $base;
