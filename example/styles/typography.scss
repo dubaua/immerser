@@ -46,4 +46,7 @@
       white-space: nowrap;
     }
   }
+  abbr[title]{
+    text-decoration: none;
+  }
 }
