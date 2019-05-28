@@ -8,29 +8,29 @@ html {
   letter-spacing: 0.01em;
 }
 
-// body {
-//   $ruler-color: rgba(magenta, 0.2);
-//   $ruler-gutter: $base * 1.5;
-//   position: relative;
-//   &:after {
-//     content: '';
-//     position: fixed;
-//     z-index: 1;
-//     top: 0;
-//     height: 100%;
-//     left: 0;
-//     right: 0;
-//     pointer-events: none;
-//     background: linear-gradient(
-//       to bottom,
-//       transparent,
-//       transparent $ruler-gutter - 1,
-//       $ruler-color $ruler-gutter - 1,
-//       $ruler-color
-//     );
-//     background-size: 100% $ruler-gutter;
-//   }
-// }
+body.rulers {
+  $ruler-color: rgba(magenta, 0.2);
+  $ruler-gutter: $base * 1.5;
+  position: relative;
+  &:after {
+    content: '';
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    height: 100%;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      transparent $ruler-gutter - 1,
+      $ruler-color $ruler-gutter - 1,
+      $ruler-color
+    );
+    background-size: 100% $ruler-gutter;
+  }
+}
 
 *::selection {
   background: $color-highlight;
