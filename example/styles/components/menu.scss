@@ -1,0 +1,20 @@
+@import '../shared/globals.scss';
+
+.menu {
+  $menu: &;
+  display: flex;
+  margin: 0 $base * -1;
+
+  &__link {
+    color: black;
+    display: block;
+    font-size: $base;
+    line-height: 1;
+    text-decoration: none;
+    padding: $base * 1.62 $base;
+  }
+
+  &--contrast #{$menu}__link {
+    color: $color-text--contrast;
+  }
+}

@@ -1,0 +1,12 @@
+@import '../shared/globals.scss';
+
+.social {
+  a {
+    color: $color-text;
+    display: inline-block;
+    margin-right: 0.8em;
+  }
+  &--contrast a {
+    color: $color-text--contrast;
+  }
+}

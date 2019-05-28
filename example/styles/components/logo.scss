@@ -1,0 +1,10 @@
+@import '../shared/globals.scss';
+
+.logo {
+  font-size: $base * 3;
+  line-height: 1;
+  color: $color-text;
+  &--contrast {
+    color: $color-text--contrast;
+  }
+}

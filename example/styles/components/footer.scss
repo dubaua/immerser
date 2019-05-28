@@ -1,0 +1,8 @@
+@import '../shared/globals.scss';
+
+.footer {
+  color: $color-text;
+  &--contrast {
+    color: $color-text--contrast;
+  }
+}

@@ -1,0 +1,43 @@
+@import '../shared/globals.scss';
+
+.pager {
+  $pager: &;
+  $pager-size: $base * 0.75;
+  $shadow-width: 1.5px;
+  $shadow-width-full: $pager-size * 0.5;
+  &__link {
+    display: block;
+    margin: $pager-size 0;
+    width: $pager-size;
+    height: $pager-size;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 $shadow-width $color-text;
+    transition: 0.2s box-shadow ease-in-out;
+    &:hover,
+    &._hover {
+      box-shadow: inset 0 0 0 $shadow-width $color-active;
+    }
+    &--active {
+      box-shadow: inset 0 0 0 $shadow-width-full $color-text;
+      &:hover,
+      &._hover {
+        box-shadow: inset 0 0 0 $shadow-width-full $color-active;
+      }
+    }
+  }
+
+  &--contrast #{$pager}__link {
+    box-shadow: inset 0 0 0 $shadow-width $color-text--contrast;
+    &:hover,
+    &._hover {
+      box-shadow: inset 0 0 0 $shadow-width $color-active;
+    }
+    &--active {
+      box-shadow: inset 0 0 0 $shadow-width-full $color-text--contrast;
+      &:hover,
+      &._hover {
+        box-shadow: inset 0 0 0 $shadow-width-full $color-active;
+      }
+    }
+  }
+}

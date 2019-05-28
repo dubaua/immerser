@@ -1,0 +1,126 @@
+@import '../shared/globals.scss';
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Questrial', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+body.rulers {
+  $ruler-color: rgba(magenta, 0.2);
+  $ruler-gutter: $base * 1.5;
+  position: relative;
+  &:after {
+    content: '';
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    height: 100%;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      transparent $ruler-gutter - 1,
+      $ruler-color $ruler-gutter - 1,
+      $ruler-color
+    );
+    background-size: 100% $ruler-gutter;
+  }
+}
+
+*::selection {
+  background: $color-highlight;
+  color: $color-secondary;
+}
+*::-moz-selection {
+  background: $color-highlight;
+  color: $color-secondary;
+}
+
+.section {
+  min-height: 100vh;
+  & > .section__col {
+    min-height: 100vh;
+  }
+  &--long {
+    min-height: 150vh;
+    & > .section__col {
+      min-height: 150vh;
+    }
+  }
+}
+
+.pt {
+  padding-top: $base * 7.875;
+  &--l {
+    padding-top: $base * 3;
+  }
+}
+
+.pb {
+  padding-bottom: $base * 7.875;
+}
+
+.plpr {
+  padding-left:  $col-width * 0.5;
+  padding-right:  $col-width * 0.5;
+}
+
+.scroller-x {
+  overflow-y: hidden;
+}
+
+a:hover,
+a._hover {
+  color: $color-active !important;
+}
+
+.background {
+  background: $color-background;
+  color: $color-background--contrast;
+  &--contrast {
+    background: $color-background--contrast;
+    color: $color-text--contrast;
+  }
+}
+
+.face {
+  line-height: 0;
+}
+
+.highlighter {
+  cursor: pointer;
+}
+
+.highlight {
+  animation: highlight 1.5s linear infinite;
+  &.section {
+    animation: none;
+    position: relative;
+    &:before {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      animation: highlight 1.5s linear infinite;
+    }
+  }
+}
+
+@keyframes highlight {
+  25% {
+    background: rgba($color-highlight, 0.5);
+  }
+  50% {
+    background: transparent;
+  }
+  75% {
+    background: rgba($color-highlight, 0.5);
+  }
+}
