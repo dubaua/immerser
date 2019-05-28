@@ -1,12 +1,26 @@
 @import './globals.scss';
 
 $code-color-muted: #404040;
+$code-color-muted--light: #b0b0b0;
+
 $code-color-sintax: scale-color($color-accent, $lightness: -20%, $saturation: -62%);
+$code-color-sintax--light: scale-color($color-accent, $lightness: 20%, $saturation: -38%);
+
 $code-color-name: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
+$code-color-name--light: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
+
 $code-color-punctuation: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-punctuation--light: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+
 $code-color-text: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-text--light: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
+
 $code-color-value: scale-color($color-highlight, $lightness: 62%, $saturation: -80%);
+$code-color-value--light: scale-color($color-highlight, $lightness: -75%, $saturation: -80%);
+
 $code-color-function: scale-color($color-accent, $lightness: 30%, $saturation: -38%);
+$code-color-function--light: scale-color($color-accent, $lightness: 0%, $saturation: 0%);
+
 
 $theme-prolog: $code-color-muted;
 $theme-doctype: $code-color-muted;
@@ -33,6 +47,8 @@ $theme-function: $code-color-function;
 $theme-deleted: $code-color-function;
 $theme-important: $code-color-function;
 
+$theme-text: $code-color-text;
+
 $theme-atrule: red;
 $theme-builtin: red;
 $theme-char: red;
@@ -45,7 +61,7 @@ $theme-url: red;
 $theme-variable: red;
 
 .code-highlight {
-  margin-top: $base * 3;
+  margin-top: $base * 6;
   padding-bottom: $base * 1.5;
   pre {
     margin: 0;
@@ -59,7 +75,7 @@ $theme-variable: red;
 
 code[class*='language-'],
 pre[class*='language-'] {
-  color: $code-color-text;
+  color: $theme-text;
   background: none;
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   font-size: 1em;
@@ -204,4 +220,140 @@ pre[class*='language-'] {
 }
 .token.variable {
   color: $theme-variable;
+}
+
+.code-highlight--light {
+  $theme-prolog: $code-color-muted--light;
+  $theme-doctype: $code-color-muted--light;
+  $theme-comment: $code-color-muted--light;
+  $theme-cdata: $code-color-muted--light;
+  
+  $theme-attr-name: $code-color-name--light;
+  $theme-property: $code-color-name--light;
+  
+  $theme-selector: $code-color-sintax--light;
+  $theme-tag: $code-color-sintax--light;
+  $theme-keyword: $code-color-sintax--light;
+  
+  $theme-attr-value: $code-color-value--light;
+  $theme-boolean: $code-color-value--light;
+  $theme-string: $code-color-value--light;
+  $theme-class-name: $code-color-value--light;
+  $theme-number: $code-color-value--light;
+  
+  $theme-punctuation: $code-color-punctuation--light;
+  $theme-operator: $code-color-punctuation--light;
+  
+  $theme-function: $code-color-function--light;
+  $theme-deleted: $code-color-function--light;
+  $theme-important: $code-color-function--light;
+
+  $theme-text: $code-color-text--light;
+
+  code[class*='language-'],
+  pre[class*='language-'] {
+    color: $theme-text;
+  }
+
+  .token.important,
+  .token.bold {
+    font-weight: bold;
+  }
+  
+  .token.italic {
+    font-style: italic;
+  }
+  
+  .token.entity {
+    cursor: help;
+  }
+  
+  .token.atrule {
+    color: $theme-atrule;
+  }
+  .token.attr-name {
+    color: $theme-attr-name;
+  }
+  .token.attr-value,
+  .language-css.token.string .style.token.string {
+    color: $theme-attr-value;
+  }
+  .token.boolean {
+    color: $theme-boolean;
+  }
+  .token.builtin {
+    color: $theme-builtin;
+  }
+  .token.cdata {
+    color: $theme-cdata;
+  }
+  .token.char {
+    color: $theme-char;
+  }
+  .token.class-name {
+    color: $theme-class-name;
+  }
+  .token.comment {
+    color: $theme-comment;
+  }
+  .token.constant {
+    color: $theme-constant;
+  }
+  .token.deleted {
+    color: $theme-deleted;
+  }
+  .token.doctype {
+    color: $theme-doctype;
+  }
+  .token.entity {
+    color: $theme-entity;
+  }
+  .token.function {
+    color: $theme-function;
+  }
+  .token.important {
+    color: $theme-important;
+  }
+  .token.inserted {
+    color: $theme-inserted;
+  }
+  .token.keyword {
+    color: $theme-keyword;
+  }
+  .token.number {
+    color: $theme-number;
+  }
+  .token.operator {
+    color: $theme-operator;
+  }
+  .token.prolog {
+    color: $theme-prolog;
+  }
+  .token.property {
+    color: $theme-property;
+  }
+  .token.punctuation {
+    color: $theme-punctuation;
+  }
+  .token.regex {
+    color: $theme-regex;
+  }
+  .token.selector {
+    color: $theme-selector;
+  }
+  .token.string {
+    color: $theme-string;
+  }
+  .token.symbol {
+    color: $theme-symbol;
+  }
+  .token.tag {
+    color: $theme-tag;
+  }
+  .token.url {
+    color: $theme-url;
+  }
+  .token.variable {
+    color: $theme-variable;
+  }
 }
