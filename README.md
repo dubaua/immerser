@@ -1,6 +1,10 @@
 # Library for Switching Fixed Elements on Scroll
 
-Look, you have fixed posh things on your page and contrast sections with same color. If you want smoothly recolor your fixeds on scroll use this.
+Nowadays designers tends to create complex logic and fix parts of the interface. Also they colour page sections contrastly. How to deal with this mess? Immerser can help you.
+
+Immerser fast, because it calculates states once on init. Then it watchs the scroll position and schedules redraw DOM in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
+
+Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.57kb gzipped.
 
 # How to Use
 
