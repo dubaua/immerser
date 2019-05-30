@@ -61,8 +61,11 @@ $theme-url: red;
 $theme-variable: red;
 
 .code-highlight {
-  margin-top: $base * 6;
-  padding-bottom: $base * 1.5;
+  background-color: $color-code-background; 
+  @include from('md') {
+    background-color: transparent;
+  }
+  padding: $base * 1.5 0;
   color: $theme-text;
 
   &--inline {
@@ -257,6 +260,7 @@ pre[class*='language-'] {
   $theme-text: $code-color-text--contrast;
 
   color: $theme-text;
+  background-color: $color-background--contrast;
 
   code[class*='language-'],
   pre[class*='language-'] {

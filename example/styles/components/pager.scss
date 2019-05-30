@@ -3,41 +3,43 @@
 .pager {
   $pager: &;
   $pager-size: $base * 0.75;
-  $shadow-width: 1.5px;
-  $shadow-width-full: $pager-size * 0.5;
+  $border-width: 1.5px;
+  $border-width--active: $pager-size * 0.5;
+
   &__link {
     display: block;
     margin: $pager-size 0;
     width: $pager-size;
     height: $pager-size;
+    box-sizing: border-box;
     border-radius: 50%;
-    box-shadow: inset 0 0 0 $shadow-width $color-text;
-    transition: 0.2s box-shadow ease-in-out;
+    color: $color-text;
+    border: $border-width solid;
+    transition: 0.2s border-width ease-in-out;
+
     &:hover,
     &._hover {
-      box-shadow: inset 0 0 0 $shadow-width $color-active;
+      color: $color-active;
     }
+
     &--active {
-      box-shadow: inset 0 0 0 $shadow-width-full $color-text;
-      &:hover,
-      &._hover {
-        box-shadow: inset 0 0 0 $shadow-width-full $color-active;
-      }
+      border-width: $border-width--active;
     }
   }
 
   &--contrast #{$pager}__link {
-    box-shadow: inset 0 0 0 $shadow-width $color-text--contrast;
-    &:hover,
-    &._hover {
-      box-shadow: inset 0 0 0 $shadow-width $color-active;
+    color: $color-text--contrast;
+  }
+
+  @include from('lg') {
+    &--contrast-lg #{$pager}__link {
+      color: $color-text--contrast;
     }
-    &--active {
-      box-shadow: inset 0 0 0 $shadow-width-full $color-text--contrast;
-      &:hover,
-      &._hover {
-        box-shadow: inset 0 0 0 $shadow-width-full $color-active;
-      }
+  }
+
+  @include from-to('md', 'lg') {
+    &--contrast-only-md #{$pager}__link {
+      color: $color-text--contrast;
     }
   }
 }

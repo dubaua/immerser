@@ -15,6 +15,8 @@ const my = new Immerser({
 });
 
 const highlighterNodeList = document.querySelectorAll('[data-highlighter]');
+const highlighterAnimationClassname = 'highlighter-animation-active';
+
 for (let i = 0; i < highlighterNodeList.length; i++) {
   const highlighterNode = highlighterNodeList[i];
   highlighterNode.addEventListener('mouseover', highlight(highlighterNode));
@@ -27,9 +29,9 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
         const targetNode = targetNodeList[j];
         if (!targetNode.isHighlighting) {
           targetNode.isHighlighting = true;
-          targetNode.classList.add('highlight');
+          targetNode.classList.add(highlighterAnimationClassname);
           const timerId = setTimeout(() => {
-            targetNode.classList.remove('highlight');
+            targetNode.classList.remove(highlighterAnimationClassname);
             clearTimeout(timerId);
             targetNode.isHighlighting = false;
           }, 1500);

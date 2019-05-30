@@ -1,10 +1,24 @@
 @import '../shared/globals.scss';
 
 .logo {
+  padding-top: $base * 0.62;
   font-size: $base * 3;
-  line-height: 1;
+  line-height: $base * 2;
   color: $color-text;
+
   &--contrast {
     color: $color-text--contrast;
+  }
+
+  @include from('lg') {
+    &--contrast-lg {
+      color: $color-text--contrast;
+    }
+  }
+
+  @include from-to('md', 'lg') {
+    &--contrast-only-md {
+      color: $color-text--contrast;
+    }
   }
 }

@@ -1,50 +1,107 @@
-$alpha-name: 'alpha';
-$beta-name: 'beta';
-$gamma-name: 'gamma';
-$alpha-width: 4;
-$beta-width: 7;
-$gamma-width: 13;
+$alpha-width: 0;
+$alpha-width--xl: 4;
+
+$beta-width: 10;
+$beta-width--xl: 7;
+
+$gamma-width: 14;
+$gamma-width--xl: 13;
+
 $grid-width: $alpha-width + $beta-width + $gamma-width;
+
 $col-width: 1 / $grid-width * 100vw;
 
-@include from('md') {
-  .grid {
+.grid {
+  @include from('md') {
     display: flex;
   }
 
-  .#{$alpha-name} {
-    $width: #{$alpha-width / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
+  &__content {
+    padding-left: $col-width * 2;
+    padding-right: $col-width * 2;
+    @include from('sm') {
+      padding-left: $col-width;
+      padding-right: $col-width;
+    }
+    @include from('lg') {
+      padding-left: $col-width * 0.5;
+      padding-right: $col-width * 0.5;
+    }
   }
 
-  .#{$alpha-name}-#{$beta-name} {
-    $width: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
-  }
+  &__col {
+    &--alpha {
+      display: none;
+    }
 
-  .#{$alpha-name}-#{$beta-name}-#{$gamma-name} {
-    $width: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
-  }
+    @include from('md') {
+      &--alpha-beta {
+        $width: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
 
-  .#{$beta-name} {
-    $width: #{$beta-width / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
-  }
+      &--alpha-beta-gamma {
+        $width: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
 
-  .#{$beta-name}-#{$gamma-name} {
-    $width: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
-  }
+      &--beta {
+        $width: #{$beta-width / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
 
-  .#{$gamma-name} {
-    $width: #{$gamma-width / $grid-width * 100}vw;
-    flex-basis: $width;
-    max-width: $width;
+      &--beta-gamma {
+        $width: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--gamma {
+        $width: #{$gamma-width / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+    }
+    @include from('lg') {
+      &--alpha {
+        display: block;
+        $width: #{$alpha-width--xl / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--alpha-beta {
+        $width: #{($alpha-width--xl + $beta-width--xl) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--alpha-beta-gamma {
+        $width: #{($alpha-width--xl + $beta-width--xl + $gamma-width--xl) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--beta {
+        $width: #{$beta-width--xl / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--beta-gamma {
+        $width: #{($beta-width--xl + $gamma-width--xl) / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+
+      &--gamma {
+        $width: #{$gamma-width--xl / $grid-width * 100}vw;
+        flex-basis: $width;
+        max-width: $width;
+      }
+    }
   }
 }

@@ -1,11 +1,8 @@
 @import '../shared/globals.scss';
 
-.footer {
-  margin-top: $base * 1.5;
-  padding-top: $base * 1.5;
-  padding-bottom:  $base * 1.5;
-  line-height: $base * 1.5;
-  text-align: center;
+.header {
+  padding-top: $base * 2;
+  padding-bottom:  $base * 0.28;
   @include show-from-to('xs', 'md') {
     padding-left: $col-width * 2;
     padding-right: $col-width * 2;

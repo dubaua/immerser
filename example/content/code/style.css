@@ -22,29 +22,20 @@
   top: 0;
   right: 0;
 }
-.fixed__footer {
+.fixed__about {
   position: absolute;
   bottom: 0;
   right: 0;
 }
-.section {
-  min-height: 100vh;
-  background: white;
-  color: black;
-}
-.section--contrast {
-  background: black;
-  color: white;
-}
 .logo,
 .pager,
 .menu,
-.footer {
+.about {
   color: black;
 }
 .logo--contrast,
 .pager--contrast,
 .menu--contrast,
-.footer--contrast {
+.about--contrast {
   color: white;
 }

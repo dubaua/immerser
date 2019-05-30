@@ -1,18 +1,63 @@
 $breakpoints: (
-	xs: 0,
-	sm: 576px,
-	md: 768px,
-	lg: 992px,
-	xl: 1200px,
+  xs: 0,
+  sm: 586px,
+  md: 1024px,
+  lg: 1600px,
 );
 
 @mixin from($breakpoint) {
-	$size: map-get($breakpoints, $breakpoint);
-	@if ($size == 0) {
-		@content;
-	} @else {
-		@media screen and (min-width: $size) {
-			@content;
-		}
-	}
+  $size: map-get($breakpoints, $breakpoint);
+  @if ($size == 0) {
+    @content;
+  } @else {
+    @media screen and (min-width: $size) {
+      @content;
+    }
+  }
+}
+
+@mixin from-to($from, $to) {
+  $min: map-get($breakpoints, $from);
+  $max: map-get($breakpoints, $to) - 1px;
+
+  @if ($min == 0) {
+    @media screen and (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @media screen and (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  }
+}
+
+@mixin show-from($breakpoint) {
+  $size: map-get($breakpoints, $breakpoint);
+  @if ($size != 0) {
+    display: none;
+    @media screen and (min-width: $size) {
+      display: inherit;
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin show-from-to($from, $to) {
+  $min: map-get($breakpoints, $from);
+  $max: map-get($breakpoints, $to) - 1px;
+
+  display: none;
+  @if ($min == 0) {
+    @media screen and (max-width: $max) {
+      display: inherit;
+      @content;
+    }
+  } @else {
+    @media screen and (min-width: $min) and (max-width: $max) {
+      display: inherit;
+      @content;
+    }
+  }
 }

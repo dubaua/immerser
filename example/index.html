@@ -23,7 +23,7 @@
         <a href="https://github.com/dubaua/immerser">github</a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
-      <div class="fixed__footer footer" data-immerser-solid="footer">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+      <div class="fixed__about about" data-immerser-solid="about">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
       <div data-immerser-mask>
         <div data-immerser-mask-inner>
           <div class="fixed__face face">
@@ -61,73 +61,166 @@
       </div>
     </div>
 
+    <header class="header">
+      <div class="logo">immerser</div>
+    </header>
+
     <div
       id="reasoning"
-      class="section grid"
+      class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
+      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "social": "social--contrast-lg"}'
     >
-      <div class="section__col alpha background--contrast"></div>
-      <div class="section__col beta background">
-        <div class="pt plpr pb typography">
+      <div class="grid__col grid__col--alpha background--contrast"></div>
+      <div class="grid__col grid__col--beta tall tall--start tall--end background">
+        <div class="grid__content typography">
           <include src="./content/why-immerser.html"></include>
           <include src="./content/terms.html"></include>
         </div>
       </div>
-      <div class="section__col gamma background"></div>
+      <div class="grid__col--gamma background"></div>
     </div>
 
     <div
       id="how-to-use"
-      class="section grid"
+      class="grid underlay"
       data-immerser-layer
-      data-immerser-layer-config='{"menu": "menu--contrast", "footer": "footer--contrast"}'
+      data-immerser-layer-config='{"pager": "pager--contrast-only-md", "menu": "menu--contrast", "about": "about--contrast"}'
     >
-      <div class="section__col alpha background"></div>
-      <div class="section__col beta-gamma">
-        <include src="./content/how-to-use.html"></include>
+      <div class="grid__col grid__col--alpha"></div>
+      <div class="grid__col grid__col--beta-gamma tall">
+        <div class="grid">
+          <div class="grid__col grid__col--beta tall--start">
+            <div class="grid__content typography">
+              <include src="./content/prepare-your-markup.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma tall--start background--contrast scroller-x">
+            <div class="grid__content code-highlight code-highlight--contrast">
+              <div class="as-if-title" aria-hidden="true"></div>
+              <include src="./content/highlighted-markup.html"></include>
+              <!-- <pre data-src="code/markup.html"></pre> -->
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <include src="./content/apply-styles.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma background--contrast scroller-x">
+            <div class="grid__content code-highlight code-highlight--contrast">
+              <div class="as-if-title" aria-hidden="true"></div>
+              <include src="./content/highlighted-styles.html"></include>
+              <!-- <pre data-src="code/style.css"></pre> -->
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta tall--end">
+            <div class="grid__content typography">
+              <include src="./content/init-immerser.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma tall--end background--contrast scroller-x">
+            <div class="grid__content code-highlight code-highlight--contrast">
+              <div class="as-if-title" aria-hidden="true"></div>
+              <include src="./content/highlighted-code.html"></include>
+              <!-- <pre data-src="code/code.js"></pre> -->
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div
       id="how-it-works"
-      class="section grid"
+      class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
+      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "social": "social--contrast-lg"}'
     >
-      <div class="section__col alpha background--contrast"></div>
-      <div class="section__col beta background">
-        <div class="pt plpr pb typography">
+      <div class="grid__col grid__col--alpha background--contrast"></div>
+      <div class="tall tall--start tall--end grid__col grid__col--beta">
+        <div class="grid__content typography">
           <include src="./content/how-it-works.html"></include>
         </div>
       </div>
-      <div class="section__col gamma background"></div>
+      <div class="grid__col grid__col--gamma"></div>
     </div>
 
     <div
       id="options"
-      class="section grid"
+      class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"menu": "menu--contrast", "footer": "footer--contrast"}'
+      data-immerser-layer-config='{"logo": "logo--contrast-only-md", "pager": "pager--contrast-only-md", "social": "social--contrast-only-md", "menu": "menu--contrast", "about": "about--contrast"}'
     >
-      <div class="section__col alpha background"></div>
-      <div class="section__col beta-gamma background--contrast">
-        <include src="./content/options.html"></include>
+      <div class="grid__col grid__col--alpha"></div>
+      <div class="grid__col grid__col--beta-gamma tall tall--start tall--end background--contrast scroller-x">
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <include src="./content/options.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma"></div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta-gamma">
+            <div class="grid__content typography code-highlight code-highlight--contrast code-highlight--inline">
+              <include src="./content/options-table.html"></include>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div
       id="possibilities"
-      class="section grid"
+      class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
+      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "social": "social--contrast-lg"}'
     >
-      <div class="section__col alpha background--contrast"></div>
-      <div class="section__col beta-gamma">
-        <include src="./content/possibilities.html"></include>
+      <div class="grid__col grid__col--alpha background--contrast"></div>
+      <div class="grid__col grid__col--beta-gamma tall tall--start tall--end">
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <include src="./content/custom-markup.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma scroller-x">
+            <div class="grid__content code-highlight">
+              <div class="as-if-title" aria-hidden="true"></div>
+              <include src="./content/highlighted-custom-markup.html"></include>
+              <!-- <pre data-src="code/custom-markup.html"></pre> -->
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <include src="./content/hover-synchronize.html"></include>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma scroller-x">
+            <div class="grid__content code-highlight">
+              <div class="as-if-title" aria-hidden="true"></div>
+              <include src="./content/highlighted-hover-synchronize.html"></include>
+              <!-- <pre data-src="code/hover-synchronize.css"></pre> -->
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <footer class="footer">
+      <div class="social">
+        <a href="https://github.com/dubaua/immerser">github</a>
+        <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
+      </div>
+      <div class="about">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+    </footer>
     <script src="main.js"></script>
   </body>
 </html>

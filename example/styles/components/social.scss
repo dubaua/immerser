@@ -1,12 +1,23 @@
 @import '../shared/globals.scss';
 
 .social {
-  a {
-    color: $color-text;
-    display: inline-block;
-    margin-right: 0.8em;
-  }
+  color: $color-text;
   &--contrast a {
     color: $color-text--contrast;
+  }
+  @include from('lg') {
+    &--contrast-lg {
+      color: $color-text--contrast;
+    }
+  }
+  @include from-to('md', 'lg') {
+    &--contrast-only-md {
+      color: $color-text--contrast;
+    }
+  }
+  a {
+    color: inherit;
+    display: inline-block;
+    margin-right: 0.8em;
   }
 }

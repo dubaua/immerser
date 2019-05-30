@@ -33,11 +33,12 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
     <a href="https://github.com/dubaua/immerser">github</a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
-  <div class="fixed__footer footer" data-immerser-solid="footer">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+  <div class="fixed__about about" data-immerser-solid="about">
+    © 2019 — Vladimir Lysov, Chelyabinsk, Russia
+  </div>
 </div>
 
 <div
-  class="section"
   data-immerser-layer
   data-immerser-layer-config='{
   "logo": "logo--contrast", 
@@ -47,16 +48,14 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
   id="reasoning"
 ></div>
 <div
-  class="section"
   data-immerser-layer
   data-immerser-layer-config='{
   "menu": "menu--contrast", 
-  "footer": "footer--contrast"
+  "about": "about--contrast"
 }'
   id="how-to-use"
 ></div>
 <div
-  class="section"
   data-immerser-layer
   data-immerser-layer-config='{
   "logo": "logo--contrast", 
@@ -66,16 +65,14 @@ Also feel free to add `data-immerser-pager` to create pager for your layers.
   id="how-it-works"
 ></div>
 <div
-  class="section"
   data-immerser-layer
   data-immerser-layer-config='{
   "menu": "menu--contrast", 
-  "footer": "footer--contrast"
+  "about": "about--contrast"
 }'
   id="options"
 ></div>
 <div
-  class="section"
   data-immerser-layer
   data-immerser-layer-config='{
   "logo": "logo--contrast", 
@@ -115,7 +112,7 @@ Apply color and background styles to your layers and solids according to your 
   top: 0;
   right: 0;
 }
-.fixed__footer {
+.fixed__about {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -132,13 +129,13 @@ Apply color and background styles to your layers and solids according to your 
 .logo,
 .pager,
 .menu,
-.footer {
+.about {
   color: black;
 }
 .logo--contrast,
 .pager--contrast,
 .menu--contrast,
-.footer--contrast {
+.about--contrast {
   color: white;
 }
 ```
@@ -180,6 +177,7 @@ You can pass options to immerser as data-attributes on layers or as function par
 | option                                     | type       | default                 | description                                                                                                                     |
 | ------------------------------------------ | ---------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | solidClassnameArray                        | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer            |
+| fromViewportWidth                          | `number`   | `1024`                  | A viewport width, from which immerser will init                                                                                 |
 | pagerTreshold                              | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                                      |
 | stylesInCSS                                | `boolean`  | `false`                 | Flag to controll attaching inline styles to created nodes. Set `true` and include `immerser.css` if you want keep your DOM neat |
 | synchroHoverPagerLinks                     | `boolean`  | `false`                 | Flag to controll hover synchronize on pager links. More about hover synchronization                                             |

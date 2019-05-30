@@ -1,0 +1,8 @@
+@import '../shared/globals.scss';
+
+.about {
+  color: $color-text;
+  &--contrast {
+    color: $color-text--contrast;
+  }
+}

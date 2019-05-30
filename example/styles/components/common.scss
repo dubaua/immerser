@@ -39,33 +39,24 @@ body.rulers {
   color: $color-secondary;
 }
 
-.section {
-  min-height: 100vh;
-  & > .section__col {
+@include from('md') {
+  .tall {
+    box-sizing: border-box;
     min-height: 100vh;
-  }
-  &--long {
-    min-height: 150vh;
-    & > .section__col {
-      min-height: 150vh;
+    &--start {
+      padding-top: $base * 4.875;
+      @include from('lg') {
+        padding-top: $base * 6.375;
+      }
+    }
+    &--end {
+      padding-bottom: $base * 5;
     }
   }
-}
 
-.pt {
-  padding-top: $base * 7.875;
-  &--l {
-    padding-top: $base * 3;
+  .as-if-title {
+    height: $base * 6;
   }
-}
-
-.pb {
-  padding-bottom: $base * 7.875;
-}
-
-.plpr {
-  padding-left:  $col-width * 0.5;
-  padding-right:  $col-width * 0.5;
 }
 
 .scroller-x {
@@ -77,50 +68,17 @@ a._hover {
   color: $color-active !important;
 }
 
+.face {
+  @include show-from('lg') {
+    line-height: 0;
+  }
+}
+
 .background {
   background: $color-background;
   color: $color-background--contrast;
   &--contrast {
     background: $color-background--contrast;
     color: $color-text--contrast;
-  }
-}
-
-.face {
-  line-height: 0;
-}
-
-.highlighter {
-  cursor: pointer;
-}
-
-.highlight {
-  animation: highlight 1.5s linear infinite;
-  &.section {
-    animation: none;
-    position: relative;
-    &:before {
-      content: '';
-      position: absolute;
-      z-index: 1;
-      pointer-events: none;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      animation: highlight 1.5s linear infinite;
-    }
-  }
-}
-
-@keyframes highlight {
-  25% {
-    background: rgba($color-highlight, 0.5);
-  }
-  50% {
-    background: transparent;
-  }
-  75% {
-    background: rgba($color-highlight, 0.5);
   }
 }

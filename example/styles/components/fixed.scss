@@ -1,48 +1,56 @@
 @import '../shared/globals.scss';
 
 .fixed {
-  position: fixed;
-  top: $base * 2;
-  bottom: $base * 3;
-  left: $base * 3;
-  right: $base * 3;
-  z-index: 1;
+  display: none;
+  @include from('md') {
+    position: fixed;
+    display: block;
+    top: $base * 2;
+    bottom: $base * 3;
+    left: $col-width * 0.5;
+    right: $col-width * 0.5;
+    z-index: 1;
 
-  &__pager {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translate(0, -50%);
-  }
+    &__pager {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      @include from('lg') {
+        right: auto;
+        left: 0;
+      }
+      transform: translate(0, -50%);
+    }
 
-  &__logo {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+    &__logo {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
-  &__menu {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
+    &__menu {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
 
-  &__footer {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-  }
+    &__about {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
 
-  &__social {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-  }
+    &__social {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
 
-  &__face {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translate(0, -50%);
+    &__face {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
   }
 }

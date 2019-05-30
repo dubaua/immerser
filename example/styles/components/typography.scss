@@ -7,16 +7,15 @@
   h1 {
     font-size: $base * 2;
     line-height: $base * 2;
-    margin-top: $base * 2.5;
+    margin-top: $base * 4;
     font-weight: normal;
   }
   p {
     line-height: 1.5;
-    margin-top: $base * 1.5;
-    margin-bottom: 0;
+    margin: $base * 1.5 0;
 
     code {
-      background-color: rgba($color-text, 0.05);
+      background-color: $color-code-background;
       border-radius: 3px;
       margin: 0;
       padding: 0.2em 0.4em;
@@ -44,8 +43,12 @@
     text-align: left;
     line-height: $base * 1.5;
     padding: 0 $base * 2 $base * 1.5 0;
-    &.nowrap {
-      white-space: nowrap;
+    white-space: nowrap;
+    @include from('md') {
+      white-space: normal;
+      &.nowrap {
+        white-space: nowrap;
+      }
     }
   }
   abbr[title]{
