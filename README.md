@@ -10,13 +10,13 @@ Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.57
 
 ## Prepare Your Markup
 
-First, setup your a fixed container as the immerser root container, and add `data-immerser` attribute.
+First, setup fixed container as the immerser root container, and add the `data-immerser` attribute.
 
-Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
+Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute for each your section and pass configuraton with `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on solid element, when it over a section.
+Then add `data-immerser-layer` attribute to each section and pass configuraton in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
 
-Also feel free to add `data-immerser-pager` to create pager for your layers.
+Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
 ```html
 <div class="fixed" data-immerser>
@@ -193,7 +193,7 @@ If passed option fails validation it falled back to default value.
 
 ## Custom Markup
 
-Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will lost after init. Fortunatelly, you can markup immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how do I change the smily face on the right in this page source.
+Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunatelly, you can markup the immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smily face on the right in this page source.
 
 ```html
 <div class="fixed" data-immerser>
@@ -212,7 +212,7 @@ Since immerser cloning nested nodes by default, all event listeners and data bou
 
 ## Hover Synchronizing
 
-As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover partially visible element, only visible part will recolor. If you want to synchronize it, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this hoverId when mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
+As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover a partially visible element, the only visible part will recolor. If you want to synchronize it, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this `hoverId` when the mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
 
 ```css
 a:hover,
