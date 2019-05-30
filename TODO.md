@@ -8,4 +8,4 @@ Deal with horizontal scroll
 
 Draw smily faces
 
-Add easter egg on click on smily face
+~~Add easter egg on click on smily face~~
