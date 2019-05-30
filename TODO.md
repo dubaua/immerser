@@ -6,6 +6,6 @@ Switch hashes on activeLayer change
 
 Deal with horizontal scroll
 
-Draw smily faces
+~~Draw smily faces~~
 
 ~~Add easter egg on click on smily face~~
