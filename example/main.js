@@ -40,3 +40,16 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
     };
   }
 }
+
+const faceNodeList = document.querySelectorAll('[data-face-spinning]');
+for (let i = 0; i < faceNodeList.length; i++) {
+  const faceNode = faceNodeList[i];
+  faceNode.addEventListener('click', function() {
+    if (faceNode.dataset.faceSpinning === 'false') {
+      faceNode.dataset.faceSpinning = 'true';
+      setTimeout(() => {
+        faceNode.dataset.faceSpinning = 'false';
+      }, 620);
+    }
+  });
+}
