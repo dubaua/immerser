@@ -1,6 +1,6 @@
 # TODO
 
-Switch hashes on activeLayer change
+~~Switch hashes on activeLayer change~~
 
 ~~Responsive styles~~
 

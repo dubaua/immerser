@@ -6,6 +6,7 @@ import '../immerser.scss';
 const my = new Immerser({
   stylesInCSS: true,
   synchroHoverPagerLinks: true,
+  updateHash: true,
   onInit(immerser) {
     console.log(immerser);
   },

@@ -39,6 +39,11 @@ export default class Immerser {
         description: 'boolean',
         validator: x => typeof x === 'boolean',
       },
+      updateHash: {
+        defaultValue: false,
+        description: 'boolean',
+        validator: x => typeof x === 'boolean',
+      },
       classnamePager: {
         defaultValue: 'pager',
         description: 'valid non empty classname string',
@@ -148,8 +153,10 @@ export default class Immerser {
           console.error('Failed to parse JSON class configuration.', e);
         }
       }
+      const id = layerNode.id || `immerser-section-${layerIndex}`;
       this.statemap.push({
         node: layerNode,
+        id,
         solidClassnames,
         top: 0,
         bottom: 0,
@@ -205,6 +212,9 @@ export default class Immerser {
 
     this.activeLayer = createObservable(undefined, nextIndex => {
       this.drawPagerLinks(nextIndex);
+      if (this.options.updateHash) {
+        this.updateHash(nextIndex);
+      }
       if (typeof this.options.onActiveLayerChange === 'function') {
         this.options.onActiveLayerChange(nextIndex, this);
       }
@@ -390,6 +400,15 @@ export default class Immerser {
         synchroHoverNode.classList.remove('_hover');
       }
     });
+  }
+
+  updateHash(stateIndex) {
+    const currentState = this.statemap[stateIndex];
+    const nextHash = currentState.id;
+    // this prevent move to anchor
+    currentState.node.removeAttribute('id');
+    window.location.hash = nextHash;
+    currentState.node.setAttribute('id', nextHash);
   }
 
   onResize() {
