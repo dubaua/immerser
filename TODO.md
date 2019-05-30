@@ -2,7 +2,7 @@
 
 Switch hashes on activeLayer change
 
-Responsive styles
+~~Responsive styles~~
 
 Deal with horizontal scroll
 
