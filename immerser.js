@@ -19,6 +19,11 @@ export default class Immerser {
         description: 'non empty array of objects',
         validator: x => Array.isArray(x) && x.length !== 0,
       },
+      fromViewportWidth: {
+        defaultValue: 1024,
+        description: 'a natural number',
+        validator: x => typeof x === 'number' && 0 <= x && x % 1 === 0,
+      },
       pagerTreshold: {
         defaultValue: 0.5,
         description: 'a number between 0 and 1',
@@ -82,6 +87,9 @@ export default class Immerser {
 
   init(options) {
     this.mergeOptions(options);
+    if (window.innerWidth < this.options.fromViewportWidth) {
+      return;
+    }
 
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
