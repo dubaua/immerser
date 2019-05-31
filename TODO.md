@@ -14,4 +14,8 @@
 
 ~~Fix Edge no changes on scroll~~
 
-Listen to resize and init/destroy immerser
+Unique animations on smily faces
+
+Inline svg sprites
+
+Listen to resize and bound/unbound immerser
