@@ -1,7 +1,15 @@
 import Immerser from '../immerser.js';
+import SimpleBar from 'simplebar';
+import 'simplebar/dist/simplebar.css';
 import 'normalize.css';
 import '../immerser.scss';
 // import Prism from 'prismjs';
+
+const scrollbarNodeList = document.querySelectorAll('.scroller-x');
+for (let i = 0; i < scrollbarNodeList.length; i++) {
+  const scrollbarNode = scrollbarNodeList[i];
+  new SimpleBar(scrollbarNode, { autoHide: false });
+}
 
 const my = new Immerser({
   stylesInCSS: true,

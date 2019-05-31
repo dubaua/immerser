@@ -61,10 +61,6 @@ $theme-url: red;
 $theme-variable: red;
 
 .code-highlight {
-  background-color: $color-code-background; 
-  @include from('md') {
-    background-color: transparent;
-  }
   padding: $base * 1.5 0;
   color: $theme-text;
 

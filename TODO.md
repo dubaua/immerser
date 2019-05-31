@@ -4,10 +4,12 @@
 
 ~~Responsive styles~~
 
-Deal with horizontal scroll
+~~Deal with horizontal scroll~~
 
 ~~Draw smily faces~~
 
 ~~Add easter egg on click on smily face~~
 
 ~~Add favicon~~
+
+Listen to resize and init/destroy immerser

@@ -59,8 +59,47 @@ body.rulers {
   }
 }
 
+.background {
+  background: $color-background;
+  color: $color-background--contrast;
+  &--contrast {
+    background: $color-background--contrast;
+    color: $color-text--contrast;
+  }
+}
+
+.code-background {
+  background-color: $color-code-background; 
+  @include from('md') {
+    background-color: transparent;
+  }
+}
+
 .scroller-x {
   overflow-y: hidden;
+
+  &.background .simplebar-scrollbar:before {
+    background: scale-color($color-accent, $lightness: 62%, $saturation: -62%);
+  }
+
+  &.background--contrast .simplebar-scrollbar:before {
+    background: scale-color($color-highlight, $lightness: -62%, $saturation: -62%);
+  }
+
+  .simplebar-track.simplebar-horizontal {
+    height: $base;
+    .simplebar-scrollbar {
+      height: $base;
+      top: 0;
+      &.simplebar-visible:before {
+        border-radius: 0;
+        height: $base;
+        left: 0;
+        right: 0;
+        opacity: 1;
+      }
+    }
+  }
 }
 
 a:hover,
@@ -72,7 +111,7 @@ a._hover {
   @include show-from('lg') {
     line-height: 0;
   }
-  &[data-face-spinning="true"] img {
+  &[data-face-spinning='true'] img {
     animation: spinning 0.62s ease-in-out;
   }
 }
@@ -80,14 +119,5 @@ a._hover {
 @keyframes spinning {
   100% {
     transform: rotate(360deg);
-  }
-}
-
-.background {
-  background: $color-background;
-  color: $color-background--contrast;
-  &--contrast {
-    background: $color-background--contrast;
-    color: $color-text--contrast;
   }
 }
