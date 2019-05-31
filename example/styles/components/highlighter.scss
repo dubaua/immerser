@@ -2,6 +2,10 @@
 
 .highlighter {
   cursor: pointer;
+  text-decoration: underline;
+  text-decoration-line: underline;
+  text-decoration-style: double;
+  text-decoration-color: $color-highlight;
 }
 
 .highlighter-animation-active {
