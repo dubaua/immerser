@@ -81,9 +81,15 @@ body.rulers {
   &.background .simplebar-scrollbar:before {
     background: scale-color($color-accent, $lightness: 62%, $saturation: -62%);
   }
+  &.background .simplebar-scrollbar.simplebar-hover:before {
+    background: scale-color($color-accent, $lightness: 62%+5%, $saturation: -62%+5%);
+  }
 
   &.background--contrast .simplebar-scrollbar:before {
     background: scale-color($color-highlight, $lightness: -62%, $saturation: -62%);
+  }
+  &.background--contrast .simplebar-scrollbar.simplebar-hover:before {
+    background: scale-color($color-highlight, $lightness: -62%+5%, $saturation: -62%+5%);
   }
 
   .simplebar-track.simplebar-horizontal {
