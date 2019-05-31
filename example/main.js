@@ -54,3 +54,9 @@ for (let i = 0; i < faceNodeList.length; i++) {
     }
   });
 }
+
+window.toggleRulers = function() {
+  document.body.classList.toggle('rulers');
+}
+
+console.log('welcome here, fella. invoke toggleRulers() to see vertical rhythm');
