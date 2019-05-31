@@ -1,0 +1,31 @@
+.emoji {
+  $emoji: &;
+  position: relative;
+  &__face {
+    display: block;
+  }
+  &__hand {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  &[data-emoji-animating='true'] #{$emoji}__face {
+    animation: spinning 0.62s ease-in-out;
+  }
+  &[data-emoji-animating='true'] #{$emoji}__hand {
+    transform-origin: left bottom;
+    animation: hang 0.62s ease-in-out;
+  }
+}
+
+@keyframes spinning {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hang {
+  50% {
+    transform: rotate(-3deg);
+  }
+}

@@ -112,18 +112,3 @@ a:hover,
 a._hover {
   color: $color-active !important;
 }
-
-.face {
-  @include show-from('lg') {
-    line-height: 0;
-  }
-  &[data-face-spinning='true'] img {
-    animation: spinning 0.62s ease-in-out;
-  }
-}
-
-@keyframes spinning {
-  100% {
-    transform: rotate(360deg);
-  }
-}

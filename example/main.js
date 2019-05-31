@@ -50,14 +50,14 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
   }
 }
 
-const faceNodeList = document.querySelectorAll('[data-face-spinning]');
-for (let i = 0; i < faceNodeList.length; i++) {
-  const faceNode = faceNodeList[i];
-  faceNode.addEventListener('click', function() {
-    if (faceNode.dataset.faceSpinning === 'false') {
-      faceNode.dataset.faceSpinning = 'true';
+const emojiNodeList = document.querySelectorAll('[data-emoji-animating]');
+for (let i = 0; i < emojiNodeList.length; i++) {
+  const emojiNode = emojiNodeList[i];
+  emojiNode.addEventListener('click', function() {
+    if (emojiNode.dataset.emojiAnimating === 'false') {
+      emojiNode.dataset.emojiAnimating = 'true';
       setTimeout(() => {
-        faceNode.dataset.faceSpinning = 'false';
+        emojiNode.dataset.emojiAnimating = 'false';
       }, 620);
     }
   });
