@@ -5,6 +5,8 @@
   font-size: $base * 3;
   line-height: $base * 2;
   color: $color-text;
+  display: block;
+  text-decoration: none;
 
   &--contrast {
     color: $color-text--contrast;
