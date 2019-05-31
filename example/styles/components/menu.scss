@@ -12,6 +12,7 @@
     line-height: 1;
     text-decoration: none;
     padding: $base * 1.62 $base;
+    @include transition('color');
   }
 
   &--contrast #{$menu}__link {

@@ -7,6 +7,7 @@
   color: $color-text;
   display: block;
   text-decoration: none;
+  @include transition('color');
 
   &--contrast {
     color: $color-text--contrast;

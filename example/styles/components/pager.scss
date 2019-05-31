@@ -15,7 +15,7 @@
     border-radius: 50%;
     color: $color-text;
     border: $border-width solid;
-    transition: 0.2s border-width ease-in-out;
+    @include transition('color, border-width');
 
     &:hover,
     &._hover {

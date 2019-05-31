@@ -17,6 +17,7 @@
   }
   a {
     color: inherit;
+    @include transition('color');
     display: inline-block;
     margin-right: 0.8em;
   }
