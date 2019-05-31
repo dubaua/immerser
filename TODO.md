@@ -12,4 +12,6 @@
 
 ~~Add favicon~~
 
+~~Fix Edge no changes on scroll~~
+
 Listen to resize and init/destroy immerser

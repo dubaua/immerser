@@ -440,8 +440,9 @@ export default class Immerser {
 
   // utils
   getLastScrollPositionY() {
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
     // limit scroll position between 0 and document height in case of iOS overflow scroll
-    return Math.min(Math.max(document.documentElement.scrollTop, 0), this.documentHeight);
+    return Math.min(Math.max(scrollY, 0), this.documentHeight);
   }
 
   applyStyles({ style }, styles) {
