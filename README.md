@@ -14,7 +14,7 @@ First, setup fixed container as the immerser root container, and add the `data-i
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute to each section and pass configuraton in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
+Then add the `data-immerser-layer` attribute to each section and pass configuraton in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
 
 Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
