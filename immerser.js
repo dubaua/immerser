@@ -64,6 +64,21 @@ export default class Immerser {
         description: 'function',
         validator: x => typeof x === 'function',
       },
+      onBind: {
+        defaultValue: null,
+        description: 'function',
+        validator: x => typeof x === 'function',
+      },
+      onUnbind: {
+        defaultValue: null,
+        description: 'function',
+        validator: x => typeof x === 'function',
+      },
+      onDestroy: {
+        defaultValue: null,
+        description: 'function',
+        validator: x => typeof x === 'function',
+      },
       onActiveLayerChange: {
         defaultValue: null,
         description: 'function',
@@ -86,9 +101,9 @@ export default class Immerser {
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
-    this.reactiveActiveLayer = null;
-    this.activeSynchroHoverId = null;
     this.synchroHoverNodeArray = [];
+    this.reactiveSynchroHoverId = null;
+    this.reactiveActiveLayer = null;
     this.onResize = null;
     this.onScroll = null;
   }
@@ -111,7 +126,7 @@ export default class Immerser {
     this.setStatemap();
     this.initPager();
     this.createPagerLinks();
-    this.initDOMStructure();
+    this.bindDOM();
     this.initPagerLinks();
     this.initHoverSynchro();
     this.draw();
@@ -259,7 +274,7 @@ export default class Immerser {
     });
   }
 
-  initDOMStructure() {
+  bindDOM() {
     const maskStyles = {
       position: 'absolute',
       top: 0,
@@ -319,10 +334,14 @@ export default class Immerser {
       return { ...state, maskNode, maskInnerNode };
     });
 
-    // remove original solid nodes
+    // detach original solid nodes
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.removeChild(childNode);
     });
+
+    if (typeof this.options.onBind === 'function') {
+      this.options.onBind(this);
+    }
   }
 
   initPagerLinks() {
@@ -339,7 +358,7 @@ export default class Immerser {
     const synchroHoverNodeList = document.querySelectorAll(this.options.selectorSynchroHover);
     if (!synchroHoverNodeList.length) return;
 
-    this.activeSynchroHoverId = createObservable(nextId => {
+    this.reactiveSynchroHoverId = createObservable(nextId => {
       this.drawSynchroHover(nextId);
     });
 
@@ -347,11 +366,11 @@ export default class Immerser {
       const synchroHoverId = synchroHoverNode.dataset.immerserSynchroHover;
 
       synchroHoverNode.addEventListener('mouseover', () => {
-        this.activeSynchroHoverId.value = synchroHoverId;
+        this.reactiveSynchroHoverId.value = synchroHoverId;
       });
 
       synchroHoverNode.addEventListener('mouseout', () => {
-        this.activeSynchroHoverId.value = undefined;
+        this.reactiveSynchroHoverId.value = undefined;
       });
 
       this.synchroHoverNodeArray.push(synchroHoverNode);
@@ -432,7 +451,7 @@ export default class Immerser {
     });
   }
 
-  unbind() {
+  unbindDOM() {
     // restore original children
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.appendChild(childNode);
@@ -463,13 +482,21 @@ export default class Immerser {
     });
 
     this.pagerNode.innerHTML = '';
+
+    if (typeof this.options.onUnbind === 'function') {
+      this.options.onUnbind(this);
+    }
   }
 
   destroy() {
-    this.unbind();
+    this.unbindDOM();
 
     window.removeEventListener('scroll', this.onScroll, false);
     window.removeEventListener('resize', this.onResize, false);
+    
+    if (typeof this.options.onDestroy === 'function') {
+      this.options.onDestroy(this);
+    }
 
     this.initState();
   }

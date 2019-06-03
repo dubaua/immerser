@@ -16,10 +16,20 @@ const my = new Immerser({
   synchroHoverPagerLinks: true,
   updateHash: true,
   onInit(immerser) {
-    console.log(immerser);
+    window.imm = immerser;
+    console.log('onInit', immerser);
   },
   onActiveLayerChange(activeIndex, immerser) {
-    console.log(activeIndex, immerser);
+    console.log('onActiveLayerChange', activeIndex, immerser);
+  },
+  onBind(immerser) {
+    console.log('onBind', immerser);
+  },
+  onUnbind(immerser) {
+    console.log('onUnbind', immerser);
+  },
+  onDestroy(immerser) {
+    console.log('onDestroy', immerser);
   },
 });
 

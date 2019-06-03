@@ -186,6 +186,9 @@ You can pass options to immerser as data-attributes on layers or as function par
 | classnamePagerLink                         | `string`   | `'pager__link'`         | Classname for pager link. Style it on your own.                                                                                            |
 | classnamePagerLinkActive                   | `string`   | `'pager__link--active'` | Classname for active pager link. Style it on your own.                                                                                     |
 | onInit(immerser)                           | `function` | `null`                  | Will be fired after initialization. Accept an immerser instance as the only parameter.                                                     |
+| onBind(immerser)                           | `function` | `null`                  | Will be fired after binding DOM. Accept an immerser instance as the only parameter.                                                     |
+| onUnbind(immerser)                         | `function` | `null`                  | Will be fired after unbinding DOM. Accept an immerser instance as the only parameter.                                                     |
+| onDestroy(immerser)                        | `function` | `null`                  | Will be fired after destroy. Accept an immerser instance as the only parameter.                                                     |
 | onActiveLayerChange(activeIndex, immerser) | `function` | `null`                  | Will be fired after active layer change. Accept active layer index as first parameter and an immerser instance as second.                  |
 
 If passed option fails validation it falled back to default value.
