@@ -383,15 +383,17 @@ export default class Immerser {
       ({ startEnter, enter, startLeave, leave, height, maskNode, maskInnerNode, top, bottom }, index) => {
         let progress;
 
-        if (startEnter > y) progress = height;
-
-        if (startEnter <= y && y < enter) progress = enter - y;
-
-        if (enter <= y && y < startLeave) progress = 0;
-
-        if (startLeave <= y && y < leave) progress = startLeave - y;
-
-        if (y >= leave) progress = -height;
+        if (startEnter > y) {
+          progress = height;
+        } else if (startEnter <= y && y < enter) {
+          progress = enter - y;
+        } else if (enter <= y && y < startLeave) {
+          progress = 0;
+        } else if (startLeave <= y && y < leave) {
+          progress = startLeave - y;
+        } else if (y >= leave) {
+          progress = -height;
+        }
 
         maskNode.style.transform = `translateY(${progress}px)`;
         maskInnerNode.style.transform = `translateY(${-progress}px)`;
