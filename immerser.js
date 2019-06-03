@@ -81,11 +81,12 @@ export default class Immerser {
     this.immerserNode = null;
     this.pagerNode = null;
     this.immerserMaskNodeArray = [];
-    this.originalChildrenNodeList = [];
+    this.originalChildrenNodeList = null;
+    this.isCustomMarkup = false;
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.resizeTimerId = null;
-    this.activeLayer = null;
+    this.reactiveActiveLayer = null;
     this.activeSynchroHoverId = null;
     this.synchroHoverNodeArray = [];
   }
@@ -210,7 +211,7 @@ export default class Immerser {
     this.pagerNode = document.querySelector(this.options.selectorPager);
     if (!this.pagerNode) return;
 
-    this.activeLayer = createObservable(undefined, nextIndex => {
+    this.reactiveActiveLayer = createObservable(undefined, nextIndex => {
       this.drawPagerLinks(nextIndex);
       if (this.options.updateHash) {
         this.updateHash(nextIndex);
@@ -268,7 +269,7 @@ export default class Immerser {
     this.bindClassOrStyle(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
 
     const customMaskNodeList = this.immerserNode.querySelectorAll(this.options.selectorMask);
-    const isCustomMarkup = customMaskNodeList.length === this.statemap.length;
+    this.isCustomMarkup = customMaskNodeList.length === this.statemap.length;
     if (customMaskNodeList.length > 0 && customMaskNodeList.length !== this.statemap.length) {
       // further possible to explicitly pass mask index
       console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count.");
@@ -276,9 +277,9 @@ export default class Immerser {
 
     this.statemap = this.statemap.map((state, stateIndex) => {
       // create or assign existing markup, bind styles or classes
-      const maskNode = isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
+      const maskNode = this.isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
       this.bindClassOrStyle(maskNode, classnameImmerserMask, maskStyles);
-      const maskInnerNode = isCustomMarkup
+      const maskInnerNode = this.isCustomMarkup
         ? maskNode.querySelector(this.options.selectorMaskInner)
         : document.createElement('div');
       this.bindClassOrStyle(maskInnerNode, classnameImmerserMask, maskStyles);
@@ -287,6 +288,7 @@ export default class Immerser {
       this.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
         this.bindClassOrStyle(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
+        clonnedChildNode.immerserClonned = true;
         maskInnerNode.appendChild(clonnedChildNode);
       });
 
@@ -373,7 +375,7 @@ export default class Immerser {
         if (this.pagerNode) {
           const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
           if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-            this.activeLayer.value = index;
+            this.reactiveActiveLayer.value = index;
           }
         }
       }
@@ -383,7 +385,7 @@ export default class Immerser {
   drawPagerLinks() {
     this.statemap.forEach(({ pagerLinkNodeArray }) => {
       pagerLinkNodeArray.forEach(pagerLinkNode => {
-        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.activeLayer.value) {
+        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.reactiveActiveLayer.value) {
           pagerLinkNode.classList.add(this.options.classnamePagerLinkActive);
         } else {
           pagerLinkNode.classList.remove(this.options.classnamePagerLinkActive);
@@ -426,16 +428,36 @@ export default class Immerser {
       this.immerserNode.appendChild(childNode);
     });
 
+    // remove all but custom elements, remove attributes
     this.immerserMaskNodeArray.forEach(immerserMaskNode => {
-      this.immerserNode.removeChild(immerserMaskNode);
+      // if mask was created
+      if (this.isCustomMarkup) {
+        // clear mask attributes
+        immerserMaskNode.removeAttribute('style');
+        immerserMaskNode.removeAttribute('aria-hidden');
+        immerserMaskNode.classList.remove(this.options.classnameImmerserMask);
+        // clear innerMask
+        const immerserMaskInnerNode = immerserMaskNode.querySelector(this.options.selectorMaskInner);
+        immerserMaskInnerNode.removeAttribute('style');
+        immerserMaskInnerNode.classList.remove(this.options.classnameImmerserMask);
+        // clear clonned solids
+        const clonnedSolidNodeList = immerserMaskInnerNode.querySelectorAll(this.options.selectorSolid);
+        this.forEachNode(clonnedSolidNodeList, clonnedSolideNode => {
+          if (clonnedSolideNode.immerserClonned) {
+            immerserMaskInnerNode.removeChild(clonnedSolideNode);
+          }
+        });
+      } else {
+        this.immerserNode.removeChild(immerserMaskNode);
+      }
     });
 
     this.pagerNode.innerHTML = '';
 
-    this.initState();
-
-    window.removeEventListener('scroll', this.draw, false);
+    window.removeEventListener('scroll', this.onScroll, false);
     window.removeEventListener('resize', this.onResize, false);
+
+    this.initState();
   }
 
   // utils
