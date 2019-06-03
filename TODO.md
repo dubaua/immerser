@@ -19,3 +19,7 @@ Unique animations on smily faces
 Inline svg sprites
 
 Listen to resize and bound/unbound immerser
+
+~~name onresize and onscroll functions with binded context~~
+
+fix less 100vh layer height

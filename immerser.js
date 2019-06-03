@@ -89,6 +89,8 @@ export default class Immerser {
     this.reactiveActiveLayer = null;
     this.activeSynchroHoverId = null;
     this.synchroHoverNodeArray = [];
+    this.onResize = null;
+    this.onScroll = null;
   }
 
   init(options) {
@@ -114,8 +116,11 @@ export default class Immerser {
     this.initHoverSynchro();
     this.draw();
 
-    window.addEventListener('scroll', this.draw.bind(this), false);
-    window.addEventListener('resize', this.onResize.bind(this), false);
+    this.onScroll = this.handleScroll.bind(this);
+    this.onResize = this.handleResize.bind(this);
+
+    window.addEventListener('scroll', this.onScroll, false);
+    window.addEventListener('resize', this.onResize, false);
 
     if (typeof this.options.onInit === 'function') {
       this.options.onInit(this);
@@ -413,7 +418,11 @@ export default class Immerser {
     currentState.node.setAttribute('id', nextHash);
   }
 
-  onResize() {
+  handleScroll() {
+    this.draw();
+  }
+
+  handleResize() {
     if (this.resizeTimerId) window.cancelAnimationFrame(this.resizeTimerId);
     this.resizeTimerId = window.requestAnimationFrame(() => {
       this.setWindowSizes();
@@ -423,7 +432,8 @@ export default class Immerser {
     });
   }
 
-  destroy() {
+  unbind() {
+    // restore original children
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.appendChild(childNode);
     });
@@ -453,6 +463,10 @@ export default class Immerser {
     });
 
     this.pagerNode.innerHTML = '';
+  }
+
+  destroy() {
+    this.unbind();
 
     window.removeEventListener('scroll', this.onScroll, false);
     window.removeEventListener('resize', this.onResize, false);
