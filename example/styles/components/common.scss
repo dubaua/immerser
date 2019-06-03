@@ -42,7 +42,7 @@ body.rulers {
 @include from('md') {
   .tall {
     box-sizing: border-box;
-    min-height: 100vh;
+    // min-height: 100vh;
     &--start {
       padding-top: $base * 4.875;
       @include from('lg') {
