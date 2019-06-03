@@ -42,16 +42,18 @@ body.rulers {
 @include from('md') {
   .tall {
     box-sizing: border-box;
-    // min-height: 100vh;
-    &--start {
-      padding-top: $base * 4.875;
-      @include from('lg') {
-        padding-top: $base * 6.375;
-      }
+    min-height: 100vh;
+  }
+
+  .start {
+    padding-top: $base * 4.875;
+    @include from('lg') {
+      padding-top: $base * 6.375;
     }
-    &--end {
-      padding-bottom: $base * 5;
-    }
+  }
+
+  .end {
+    padding-bottom: $base * 5;
   }
 
   .as-if-title {
@@ -69,7 +71,7 @@ body.rulers {
 }
 
 .code-background {
-  background-color: $color-code-background; 
+  background-color: $color-code-background;
   @include from('md') {
     background-color: transparent;
   }
