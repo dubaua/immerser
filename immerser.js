@@ -211,7 +211,7 @@ export default class Immerser {
     this.pagerNode = document.querySelector(this.options.selectorPager);
     if (!this.pagerNode) return;
 
-    this.reactiveActiveLayer = createObservable(undefined, nextIndex => {
+    this.reactiveActiveLayer = createObservable(nextIndex => {
       this.drawPagerLinks(nextIndex);
       if (this.options.updateHash) {
         this.updateHash(nextIndex);
@@ -334,7 +334,7 @@ export default class Immerser {
     const synchroHoverNodeList = document.querySelectorAll(this.options.selectorSynchroHover);
     if (!synchroHoverNodeList.length) return;
 
-    this.activeSynchroHoverId = createObservable(undefined, nextId => {
+    this.activeSynchroHoverId = createObservable(nextId => {
       this.drawSynchroHover(nextId);
     });
 
@@ -493,7 +493,7 @@ export default class Immerser {
   }
 }
 
-function createObservable(initial, didSet) {
+function createObservable(didSet, initial) {
   return {
     internal: initial,
     get value() {
