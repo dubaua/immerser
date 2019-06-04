@@ -20,7 +20,7 @@ export function getLastScrollPositionY() {
 export function createObservable(didSet, initial) {
   return {
     internal: initial,
-    callbacks: didSet ? [didSet] : [],
+    callbacks: typeof didSet === 'function' ? [didSet] : [],
     get onChange() {
       return this.callbacks;
     },
