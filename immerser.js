@@ -85,7 +85,14 @@ export default class Immerser {
           console.error('Failed to parse JSON class configuration.', e);
         }
       }
-      const id = layerNode.id || `immerser-section-${layerIndex}`;
+
+      let id = layerNode.id;
+      if (!id) {
+        id = `immerser-section-${layerIndex}`;
+        layerNode.id = id;
+        layerNode.__immerserCustomId = true;
+      }
+
       this.statemap.push({
         node: layerNode,
         id,
@@ -170,19 +177,11 @@ export default class Immerser {
     this.pagerNode.classList.add(classnamePager);
 
     this.statemap.forEach((state, index) => {
-      let layerId = state.node.id;
-
-      // if no layerId create it, to point anchor to
-      if (layerId === '') {
-        layerId = `immerser-section-${index}`;
-        state.node.id = layerId;
-        state.node.__immerserCustomId = true;
-      }
-
       const pagerLinkNode = document.createElement('a');
       pagerLinkNode.classList.add(classnamePagerLink);
-      pagerLinkNode.href = `#${layerId}`;
-      // not the best way to store index for
+      pagerLinkNode.href = `#${state.id}`;
+
+      // storing stateIndex in data attribute because it cloned properly
       pagerLinkNode.dataset.stateIndex = index;
 
       // if passed synchronize pager link hover bind attribute
