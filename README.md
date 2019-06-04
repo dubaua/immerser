@@ -8,6 +8,25 @@ Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.1k
 
 # How to Use
 
+## Install
+
+Using npm
+
+```shell
+npm install immerser
+```
+
+or yarn
+
+```shell
+yarn add immerser
+```
+
+or if you want to use immerser as UMD
+```HTML
+<script src="https://unpkg.com/immerser@1.0.0/dist/immerser.min.umd.js"></script>
+```
+
 ## Prepare Your Markup
 
 First, setup fixed container as the immerser root container, and add the `data-immerser` attribute.
@@ -145,7 +164,8 @@ Apply color and background styles to your layers and solids according to your 
 Include immerser in your code and create immerser instance with options.
 
 ```js
-import Immerser from '../immerser.js';
+// if using package manager
+import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
