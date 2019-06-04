@@ -1,5 +1,5 @@
-import defaults from './src/defaults.js';
-import * as utils from './src/utils.js';
+import defaults from './defaults.js';
+import * as utils from './utils.js';
 
 export default class Immerser {
   constructor(options) {

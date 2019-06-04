@@ -1,4 +1,4 @@
-import Immerser from '../immerser.js';
+import Immerser from '../src/immerser.js';
 import SimpleBar from 'simplebar';
 import 'simplebar/dist/simplebar.css';
 import 'normalize.css';
