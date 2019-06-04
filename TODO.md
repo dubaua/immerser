@@ -33,3 +33,5 @@ Unique animations on smily faces
 Inline svg sprites
 
 Add scroll adjust parameter
+
+Support mangling internal properties

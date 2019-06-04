@@ -4,7 +4,7 @@ Nowadays designers tends to create complex logic and fix parts of the interface.
 
 Immerser fast, because it calculates states once on init. Then it watchs the scroll position and schedules redraw DOM in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.57kb gzipped.
+Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.1kb gzipped.
 
 # How to Use
 
