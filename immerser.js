@@ -93,6 +93,7 @@ export default class Immerser {
   initState() {
     this.options = {};
     this.statemap = [];
+    this.isBound = false;
     this.immerserNode = null;
     this.pagerNode = null;
     this.immerserMaskNodeArray = [];
@@ -100,19 +101,19 @@ export default class Immerser {
     this.isCustomMarkup = false;
     this.documentHeight = 0;
     this.windowHeight = 0;
+    this.immerserTop = 0;
+    this.immerserHeight = 0;
     this.resizeTimerId = null;
     this.synchroHoverNodeArray = [];
-    this.reactiveSynchroHoverId = null;
-    this.reactiveActiveLayer = null;
+    this.reactiveSynchroHoverId = createObservable();
+    this.reactiveActiveLayer = createObservable();
+    this.reactiveWindowWidth = createObservable();
     this.onResize = null;
     this.onScroll = null;
   }
 
   init(options) {
     this.mergeOptions(options);
-    if (window.innerWidth < this.options.fromViewportWidth) {
-      return;
-    }
 
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
@@ -121,15 +122,7 @@ export default class Immerser {
     }
 
     this.initStatemap();
-    this.setWindowSizes();
-    this.setLayerSizes();
-    this.setStatemap();
-    this.initPager();
-    this.createPagerLinks();
-    this.bindDOM();
-    this.initPagerLinks();
-    this.initHoverSynchro();
-    this.draw();
+    this.setSizes();
 
     this.onScroll = this.handleScroll.bind(this);
     this.onResize = this.handleResize.bind(this);
@@ -185,12 +178,16 @@ export default class Immerser {
     });
   }
 
-  setWindowSizes() {
+  setSizes() {
+    // set window sizes
     this.documentHeight = document.documentElement.offsetHeight;
     this.windowHeight = window.innerHeight;
-  }
 
-  setLayerSizes() {
+    // set immerserSizes
+    this.immerserTop = this.immerserNode.offsetTop;
+    this.immerserHeight = this.immerserNode.offsetHeight;
+
+    // set layer sizes
     this.statemap = this.statemap.map(state => {
       const top = state.node.offsetTop;
       const bottom = top + state.node.offsetHeight;
@@ -200,21 +197,17 @@ export default class Immerser {
         bottom,
       };
     });
-  }
 
-  setStatemap() {
-    const immerserHeight = this.immerserNode.offsetHeight;
-    const immerserTop = this.immerserNode.offsetTop;
-
+    // set statemap
     this.statemap = this.statemap.map((state, index) => {
       const isFirst = index === 0;
       const isLast = index === this.statemap.length - 1;
 
       // actually not 0 and this.documentHeight but start of first and end of last.
-      const enter = isFirst ? 0 : this.statemap[index - 1].bottom - immerserTop;
-      const startEnter = isFirst ? 0 : enter - immerserHeight;
-      const leave = isLast ? this.documentHeight : this.statemap[index].bottom - immerserTop;
-      const startLeave = isLast ? this.documentHeight : leave - immerserHeight;
+      const enter = isFirst ? 0 : this.statemap[index - 1].bottom - this.immerserTop;
+      const startEnter = isFirst ? 0 : enter - this.immerserHeight;
+      const leave = isLast ? this.documentHeight : this.statemap[index].bottom - this.immerserTop;
+      const startLeave = isLast ? this.documentHeight : leave - this.immerserHeight;
 
       return {
         ...state,
@@ -222,29 +215,39 @@ export default class Immerser {
         enter,
         startLeave,
         leave,
-        height: immerserHeight,
       };
     });
+
+    this.reactiveWindowWidth.onChange = nextWindowWidth => {
+      if (nextWindowWidth >= this.options.fromViewportWidth) {
+        if (!this.isBound) {
+          this.bind();
+        }
+      } else if (this.isBound) {
+        this.unbind();
+      }
+    };
+    this.reactiveWindowWidth.value = window.innerWidth;
   }
 
   initPager() {
-    this.pagerNode = document.querySelector(this.options.selectorPager);
-    if (!this.pagerNode) return;
-
-    this.reactiveActiveLayer = createObservable(nextIndex => {
+    this.reactiveActiveLayer.onChange = nextIndex => {
+      // draw active pager link
       this.drawPagerLinks(nextIndex);
+
+      // update hash if the option passed
       if (this.options.updateHash) {
         this.updateHash(nextIndex);
       }
+
+      // fire callback function if the option passed
       if (typeof this.options.onActiveLayerChange === 'function') {
         this.options.onActiveLayerChange(nextIndex, this);
       }
-    });
+    }
   }
 
   createPagerLinks() {
-    if (!this.pagerNode) return;
-
     const { classnamePager, classnamePagerLink } = this.options;
     this.pagerNode.classList.add(classnamePager);
 
@@ -255,6 +258,7 @@ export default class Immerser {
       if (layerId === '') {
         layerId = `immerser-section-${index}`;
         state.node.id = layerId;
+        state.node.__immerserCustomId = true;
       }
 
       const pagerLinkNode = document.createElement('a');
@@ -274,7 +278,39 @@ export default class Immerser {
     });
   }
 
-  bindDOM() {
+  initPagerLinks() {
+    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnamePagerLink);
+    for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
+      const pagerLinkNode = pagerLinkHTMLCollection[index];
+      const stateIndex = pagerLinkNode.dataset.stateIndex;
+      this.statemap[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
+    }
+  }
+
+  initHoverSynchro(synchroHoverNodeList) {
+    this.reactiveSynchroHoverId.onChange = nextId => {
+      this.drawSynchroHover(nextId);
+    };
+
+    this.forEachNode(synchroHoverNodeList, synchroHoverNode => {
+      const handleMouseOver = e => {
+        const synchroHoverId = e.target.dataset.immerserSynchroHover;
+        this.reactiveSynchroHoverId.value = synchroHoverId;
+      };
+      synchroHoverNode.addEventListener('mouseover', handleMouseOver);
+      synchroHoverNode.__immerserHandleMouseOver = handleMouseOver;
+      
+      const handleMouseOut = () => {
+        this.reactiveSynchroHoverId.value = undefined;
+      };
+      synchroHoverNode.addEventListener('mouseout', handleMouseOut);
+      synchroHoverNode.__immerserHandleMouseOut = handleMouseOut;
+
+      this.synchroHoverNodeArray.push(synchroHoverNode);
+    });
+  }
+
+  createMasks() {
     const maskStyles = {
       position: 'absolute',
       top: 0,
@@ -286,7 +322,7 @@ export default class Immerser {
 
     const { classnameImmerser, classnameImmerserMask, classnameImmerserSolid } = this.options;
     this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.selectorSolid);
-    this.bindClassOrStyle(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
+    this.bindClassOrStyles(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
 
     const customMaskNodeList = this.immerserNode.querySelectorAll(this.options.selectorMask);
     this.isCustomMarkup = customMaskNodeList.length === this.statemap.length;
@@ -298,16 +334,16 @@ export default class Immerser {
     this.statemap = this.statemap.map((state, stateIndex) => {
       // create or assign existing markup, bind styles or classes
       const maskNode = this.isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
-      this.bindClassOrStyle(maskNode, classnameImmerserMask, maskStyles);
+      this.bindClassOrStyles(maskNode, classnameImmerserMask, maskStyles);
       const maskInnerNode = this.isCustomMarkup
         ? maskNode.querySelector(this.options.selectorMaskInner)
         : document.createElement('div');
-      this.bindClassOrStyle(maskInnerNode, classnameImmerserMask, maskStyles);
+      this.bindClassOrStyles(maskInnerNode, classnameImmerserMask, maskStyles);
 
       // clone solids to innerMask
       this.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
-        this.bindClassOrStyle(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
+        this.bindClassOrStyles(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
         clonnedChildNode.immerserClonned = true;
         maskInnerNode.appendChild(clonnedChildNode);
       });
@@ -338,122 +374,53 @@ export default class Immerser {
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.removeChild(childNode);
     });
+  }
+
+  bind() {
+    // check if pager, init pager, create links
+    this.pagerNode = document.querySelector(this.options.selectorPager);
+    if (this.pagerNode) {
+      this.initPager();
+      this.createPagerLinks();
+    }
+
+    this.createMasks();
+
+    if (this.pagerNode) {
+      this.initPagerLinks();
+    }
+
+    const synchroHoverNodeList = document.querySelectorAll(this.options.selectorSynchroHover);
+    if (synchroHoverNodeList.length) {
+      this.initHoverSynchro(synchroHoverNodeList);
+    }
 
     if (typeof this.options.onBind === 'function') {
       this.options.onBind(this);
     }
-  }
 
-  initPagerLinks() {
-    if (!this.pagerNode) return;
-    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnamePagerLink);
-    for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
-      const pagerLinkNode = pagerLinkHTMLCollection[index];
-      const stateIndex = pagerLinkNode.dataset.stateIndex;
-      this.statemap[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
-    }
-  }
+    this.isBound = true;
 
-  initHoverSynchro() {
-    const synchroHoverNodeList = document.querySelectorAll(this.options.selectorSynchroHover);
-    if (!synchroHoverNodeList.length) return;
-
-    this.reactiveSynchroHoverId = createObservable(nextId => {
-      this.drawSynchroHover(nextId);
-    });
-
-    this.forEachNode(synchroHoverNodeList, synchroHoverNode => {
-      const synchroHoverId = synchroHoverNode.dataset.immerserSynchroHover;
-
-      synchroHoverNode.addEventListener('mouseover', () => {
-        this.reactiveSynchroHoverId.value = synchroHoverId;
-      });
-
-      synchroHoverNode.addEventListener('mouseout', () => {
-        this.reactiveSynchroHoverId.value = undefined;
-      });
-
-      this.synchroHoverNodeArray.push(synchroHoverNode);
-    });
-  }
-
-  draw() {
-    const y = this.getLastScrollPositionY();
-    this.statemap.forEach(
-      ({ startEnter, enter, startLeave, leave, height, maskNode, maskInnerNode, top, bottom }, index) => {
-        let progress;
-
-        if (startEnter > y) {
-          progress = height;
-        } else if (startEnter <= y && y < enter) {
-          progress = enter - y;
-        } else if (enter <= y && y < startLeave) {
-          progress = 0;
-        } else if (startLeave <= y && y < leave) {
-          progress = startLeave - y;
-        } else if (y >= leave) {
-          progress = -height;
-        }
-
-        maskNode.style.transform = `translateY(${progress}px)`;
-        maskInnerNode.style.transform = `translateY(${-progress}px)`;
-
-        if (this.pagerNode) {
-          const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
-          if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-            this.reactiveActiveLayer.value = index;
-          }
-        }
-      }
-    );
-  }
-
-  drawPagerLinks() {
-    this.statemap.forEach(({ pagerLinkNodeArray }) => {
-      pagerLinkNodeArray.forEach(pagerLinkNode => {
-        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.reactiveActiveLayer.value) {
-          pagerLinkNode.classList.add(this.options.classnamePagerLinkActive);
-        } else {
-          pagerLinkNode.classList.remove(this.options.classnamePagerLinkActive);
-        }
-      });
-    });
-  }
-
-  drawSynchroHover(synchroHoverId) {
-    this.synchroHoverNodeArray.forEach(synchroHoverNode => {
-      if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
-        synchroHoverNode.classList.add('_hover');
-      } else {
-        synchroHoverNode.classList.remove('_hover');
-      }
-    });
-  }
-
-  updateHash(stateIndex) {
-    const currentState = this.statemap[stateIndex];
-    const nextHash = currentState.id;
-    // this prevent move to anchor
-    currentState.node.removeAttribute('id');
-    window.location.hash = nextHash;
-    currentState.node.setAttribute('id', nextHash);
-  }
-
-  handleScroll() {
     this.draw();
+    this.drawPagerLinks(this.reactiveActiveLayer.value);
   }
 
-  handleResize() {
-    if (this.resizeTimerId) window.cancelAnimationFrame(this.resizeTimerId);
-    this.resizeTimerId = window.requestAnimationFrame(() => {
-      this.setWindowSizes();
-      this.setLayerSizes();
-      this.setStatemap();
-      this.draw();
+  unbind() {
+    // detach hover syncro
+    this.synchroHoverNodeArray.forEach(synchroHoverNode => {
+      synchroHoverNode.removeEventListener('mouseover', synchroHoverNode.__immerserHandleMouseOver);
+      synchroHoverNode.removeEventListener('mouseout', synchroHoverNode.__immerserHandleMouseOut);
     });
-  }
 
-  unbindDOM() {
+    this.statemap.forEach(state => {
+      // clear pagerLinkNodeArray
+      state.pagerLinkNodeArray = [];
+      // clear custom id on layers
+      if (state.node.__immerserCustomId) {
+        state.node.removeAttribute('id');
+      }
+    })
+
     // restore original children
     this.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.appendChild(childNode);
@@ -488,19 +455,97 @@ export default class Immerser {
     if (typeof this.options.onUnbind === 'function') {
       this.options.onUnbind(this);
     }
+
+    this.isBound = false;
   }
 
   destroy() {
-    this.unbindDOM();
+    this.unbind();
 
     window.removeEventListener('scroll', this.onScroll, false);
     window.removeEventListener('resize', this.onResize, false);
-    
+
     if (typeof this.options.onDestroy === 'function') {
       this.options.onDestroy(this);
     }
 
     this.initState();
+  }
+
+  draw() {
+    if (!this.isBound) return;
+    const y = this.getLastScrollPositionY();
+    this.statemap.forEach(({ startEnter, enter, startLeave, leave, maskNode, maskInnerNode, top, bottom }, index) => {
+      let progress;
+
+      if (startEnter > y) {
+        progress = this.immerserHeight;
+      } else if (startEnter <= y && y < enter) {
+        progress = enter - y;
+      } else if (enter <= y && y < startLeave) {
+        progress = 0;
+      } else if (startLeave <= y && y < leave) {
+        progress = startLeave - y;
+      } else if (y >= leave) {
+        progress = -this.immerserHeight;
+      }
+
+      maskNode.style.transform = `translateY(${progress}px)`;
+      maskInnerNode.style.transform = `translateY(${-progress}px)`;
+
+      if (this.pagerNode) {
+        const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
+        if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
+          this.reactiveActiveLayer.value = index;
+        }
+      }
+    });
+  }
+
+  drawPagerLinks() {
+    if (!this.isBound) return;
+    this.statemap.forEach(({ pagerLinkNodeArray }) => {
+      pagerLinkNodeArray.forEach(pagerLinkNode => {
+        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.reactiveActiveLayer.value) {
+          pagerLinkNode.classList.add(this.options.classnamePagerLinkActive);
+        } else {
+          pagerLinkNode.classList.remove(this.options.classnamePagerLinkActive);
+        }
+      });
+    });
+  }
+
+  drawSynchroHover(synchroHoverId) {
+    if (!this.isBound) return;
+    this.synchroHoverNodeArray.forEach(synchroHoverNode => {
+      if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
+        synchroHoverNode.classList.add('_hover');
+      } else {
+        synchroHoverNode.classList.remove('_hover');
+      }
+    });
+  }
+
+  updateHash(stateIndex) {
+    if (!this.isBound) return;
+    const currentState = this.statemap[stateIndex];
+    const nextHash = currentState.id;
+    // this prevent move to anchor
+    currentState.node.removeAttribute('id');
+    window.location.hash = nextHash;
+    currentState.node.setAttribute('id', nextHash);
+  }
+
+  handleScroll() {
+    this.draw();
+  }
+
+  handleResize() {
+    if (this.resizeTimerId) window.cancelAnimationFrame(this.resizeTimerId);
+    this.resizeTimerId = window.requestAnimationFrame(() => {
+      this.setSizes();
+      this.draw();
+    });
   }
 
   // utils
@@ -510,17 +555,13 @@ export default class Immerser {
     return Math.min(Math.max(scrollY, 0), this.documentHeight);
   }
 
-  applyStyles({ style }, styles) {
-    for (const rule in styles) {
-      style[rule] = styles[rule];
-    }
-  }
-
-  bindClassOrStyle(node, classname, styles) {
+  bindClassOrStyles(node, classname, styles) {
     if (this.options.stylesInCSS) {
       node.classList.add(classname);
     } else {
-      this.applyStyles(node, styles);
+      for (const rule in styles) {
+        node.style[rule] = styles[rule];
+      }
     }
   }
 
@@ -539,13 +580,24 @@ export default class Immerser {
 function createObservable(didSet, initial) {
   return {
     internal: initial,
+    callbacks: didSet ? [didSet] : [],
+    get onChange() {
+      return this.callbacks;
+    },
+    set onChange(didSet) {
+      if (typeof didSet === 'function') {
+        this.callbacks.push(didSet)
+      }
+    },
     get value() {
       return this.internal;
     },
     set value(next) {
       if (next !== this.internal) {
         this.internal = next;
-        didSet(this.internal);
+        for (let i = 0; i < this.callbacks.length; i++) {
+          this.callbacks[i](this.internal);
+        }
       }
     },
   };
