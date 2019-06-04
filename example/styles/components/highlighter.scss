@@ -1,39 +1,41 @@
 @import '../shared/globals.scss';
 
-.highlighter {
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-line: underline;
-  text-decoration-style: double;
-  text-decoration-color: $color-highlight;
-}
+@include from('md') {
+  .highlighter {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-line: underline;
+    text-decoration-style: double;
+    text-decoration-color: $color-highlight;
+  }
 
-.highlighter-animation-active {
-  animation: highlight 1.5s linear infinite;
-  &[data-immerser-layer] {
-    position: relative;
-    animation: none;
-    &:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      pointer-events: none;
-      animation: highlight 1.5s linear infinite;
+  .highlighter-animation-active {
+    animation: highlight 1.5s linear infinite;
+    &[data-immerser-layer] {
+      position: relative;
+      animation: none;
+      &:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        pointer-events: none;
+        animation: highlight 1.5s linear infinite;
+      }
     }
   }
-}
 
-@keyframes highlight {
-  25% {
-    background: rgba($color-highlight, 0.5);
-  }
-  50% {
-    background: transparent;
-  }
-  75% {
-    background: rgba($color-highlight, 0.5);
+  @keyframes highlight {
+    25% {
+      background: rgba($color-highlight, 0.5);
+    }
+    50% {
+      background: transparent;
+    }
+    75% {
+      background: rgba($color-highlight, 0.5);
+    }
   }
 }

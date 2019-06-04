@@ -31,12 +31,7 @@ export default {
     description: 'a number between 0 and 1',
     validator: x => typeof x === 'number' && 0 <= x && x <= 1,
   },
-  synchroHoverPagerLinks: {
-    defaultValue: false,
-    description: 'boolean',
-    validator: x => typeof x === 'boolean',
-  },
-  updateHash: {
+  hasToUpdateHash: {
     defaultValue: false,
     description: 'boolean',
     validator: x => typeof x === 'boolean',

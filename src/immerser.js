@@ -12,17 +12,17 @@ export default class Immerser {
     this.options = {};
     this.statemap = [];
     this.isBound = false;
+    this.isCustomMarkup = false;
     this.immerserNode = null;
     this.pagerNode = null;
-    this.immerserMaskNodeArray = [];
     this.originalChildrenNodeList = null;
-    this.isCustomMarkup = false;
+    this.immerserMaskNodeArray = [];
+    this.synchroHoverNodeArray = [];
     this.documentHeight = 0;
     this.windowHeight = 0;
     this.immerserTop = 0;
     this.immerserHeight = 0;
     this.resizeTimerId = null;
-    this.synchroHoverNodeArray = [];
     this.reactiveSynchroHoverId = utils.createObservable();
     this.reactiveActiveLayer = utils.createObservable();
     this.reactiveWindowWidth = utils.createObservable();
@@ -35,7 +35,7 @@ export default class Immerser {
 
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
-      console.warn('Immerser element not found. Check documentation https://github.com/dubaua/immerser#how-to-use');
+      console.warn('Immerser element not found. Check out documentation https://github.com/dubaua/immerser#how-to-use');
       return;
     }
 
@@ -157,11 +157,13 @@ export default class Immerser {
 
   initPager() {
     this.reactiveActiveLayer.onChange = nextIndex => {
+      if (!this.isBound) return;
+
       // draw active pager link
       this.drawPagerLinks(nextIndex);
 
       // update hash if the option passed
-      if (this.options.updateHash) {
+      if (this.options.hasToUpdateHash) {
         this.updateHash(nextIndex);
       }
 
@@ -181,13 +183,11 @@ export default class Immerser {
       pagerLinkNode.classList.add(classnamePagerLink);
       pagerLinkNode.href = `#${state.id}`;
 
-      // storing stateIndex in data attribute because it cloned properly
+      // store stateIndex in data attribute because it cloned properly
       pagerLinkNode.dataset.immerserStateIndex = index;
 
-      // if passed synchronize pager link hover bind attribute
-      if (this.options.synchroHoverPagerLinks) {
-        pagerLinkNode.dataset.immerserSynchroHover = `pager-link-${index}`;
-      }
+      // bind attribute to synchronize pager link hover
+      pagerLinkNode.dataset.immerserSynchroHover = `pager-link-${index}`;
 
       this.pagerNode.appendChild(pagerLinkNode);
 
@@ -248,14 +248,14 @@ export default class Immerser {
 
     // since custom child wrapped in ignoring pointer and touch events immerser mask, we should explicitly set them on
     utils.forEachNode(customMaskNodeList, customMaskNode => {
-      const customChildren = customMaskNode.querySelector(this.options.selectorMaskInner).children;
-      for (let i = 0; i < customChildren.length; i++) {
-        utils.bindStyles(customChildren[i], { pointerEvents: 'all', touchAction: 'auto' });
+      const customChildrenHTMLCollection = customMaskNode.querySelector(this.options.selectorMaskInner).children;
+      for (let i = 0; i < customChildrenHTMLCollection.length; i++) {
+        utils.bindStyles(customChildrenHTMLCollection[i], { pointerEvents: 'all', touchAction: 'auto' });
       }
     });
 
     this.statemap = this.statemap.map((state, stateIndex) => {
-      // create or assign existing markup, bind styles or classes
+      // create or assign existing markup, bind styles
       const maskNode = this.isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
       utils.bindStyles(maskNode, maskStyles);
       const maskInnerNode = this.isCustomMarkup
@@ -378,6 +378,8 @@ export default class Immerser {
     }
 
     this.isBound = false;
+
+    this.reactiveActiveLayer.value = undefined;
   }
 
   destroy() {
@@ -394,7 +396,6 @@ export default class Immerser {
   }
 
   draw() {
-    if (!this.isBound) return;
     const y = utils.getLastScrollPositionY();
     this.statemap.forEach(({ startEnter, enter, startLeave, leave, maskNode, maskInnerNode, top, bottom }, index) => {
       let progress;
@@ -424,7 +425,6 @@ export default class Immerser {
   }
 
   drawPagerLinks() {
-    if (!this.isBound) return;
     this.statemap.forEach(({ pagerLinkNodeArray }) => {
       pagerLinkNodeArray.forEach(pagerLinkNode => {
         if (parseInt(pagerLinkNode.dataset.immerserStateIndex, 10) === this.reactiveActiveLayer.value) {
@@ -437,7 +437,6 @@ export default class Immerser {
   }
 
   drawSynchroHover(synchroHoverId) {
-    if (!this.isBound) return;
     this.synchroHoverNodeArray.forEach(synchroHoverNode => {
       if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
         synchroHoverNode.classList.add('_hover');
@@ -448,7 +447,6 @@ export default class Immerser {
   }
 
   updateHash(stateIndex) {
-    if (!this.isBound) return;
     const currentState = this.statemap[stateIndex];
     const nextHash = currentState.id;
     // this prevent move to anchor
@@ -458,7 +456,9 @@ export default class Immerser {
   }
 
   handleScroll() {
-    this.draw();
+    if (this.isBound) {
+      this.draw();
+    }
   }
 
   handleResize() {

@@ -10,15 +10,11 @@ for (let i = 0; i < scrollbarNodeList.length; i++) {
   new SimpleBar(scrollbarNode, { autoHide: false });
 }
 
-const my = new Immerser({
-  synchroHoverPagerLinks: true,
-  updateHash: true,
+const immerserInstance = new Immerser({
+  hasToUpdateHash: true,
   onInit(immerser) {
     window.imm = immerser;
     console.log('onInit', immerser);
-  },
-  onActiveLayerChange(activeIndex, immerser) {
-    console.log('onActiveLayerChange', activeIndex, immerser);
   },
   onBind(immerser) {
     console.log('onBind', immerser);
@@ -29,6 +25,9 @@ const my = new Immerser({
   onDestroy(immerser) {
     console.log('onDestroy', immerser);
   },
+  onActiveLayerChange(activeIndex, immerser) {
+    console.log('onActiveLayerChange', activeIndex, immerser);
+  },
 });
 
 const highlighterNodeList = document.querySelectorAll('[data-highlighter]');
@@ -38,8 +37,10 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
   const highlighterNode = highlighterNodeList[i];
   highlighterNode.addEventListener('mouseover', highlight(highlighterNode));
   highlighterNode.addEventListener('click', highlight(highlighterNode));
+
   function highlight(highlighterNode) {
     return function() {
+      if (!immerserInstance.isBound) return;
       const targetSelector = highlighterNode.dataset.highlighter;
       const targetNodeList = document.querySelectorAll(targetSelector);
       for (let j = 0; j < targetNodeList.length; j++) {

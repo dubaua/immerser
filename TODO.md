@@ -14,10 +14,6 @@
 
 ~~Fix Edge no changes on scroll~~
 
-Unique animations on smily faces
-
-Inline svg sprites
-
 ~~Listen to resize and bound/unbound immerser~~
 
 ~~name onresize and onscroll functions with binded context~~
@@ -31,3 +27,9 @@ Inline svg sprites
 ~~extract defaults~~
 
 Ask for and make code review
+
+Unique animations on smily faces
+
+Inline svg sprites
+
+Add scroll adjust parameter
