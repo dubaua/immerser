@@ -247,6 +247,14 @@ export default class Immerser {
       console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count.");
     }
 
+    // since custom child wrapped in ignoring pointer and touch events immerser mask, we should explicitly set them on
+    utils.forEachNode(customMaskNodeList, customMaskNode => {
+      const customChildren = customMaskNode.querySelector(this.options.selectorMaskInner).children;
+      for (let i = 0; i < customChildren.length; i++) {
+        utils.bindStyles(customChildren[i], { pointerEvents: 'all', touchAction: 'auto' });
+      }
+    });
+
     this.statemap = this.statemap.map((state, stateIndex) => {
       // create or assign existing markup, bind styles or classes
       const maskNode = this.isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
