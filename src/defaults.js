@@ -10,6 +10,7 @@ export default {
   selectorLayer: '[data-immerser-layer]',
   selectorSolid: '[data-immerser-solid]',
   selectorPager: '[data-immerser-pager]',
+  selectorPagerLink: '[data-immerser-state-index]',
   selectorMask: '[data-immerser-mask]',
   selectorMaskInner: '[data-immerser-mask-inner]',
   selectorSynchroHover: '[data-immerser-synchro-hover]',

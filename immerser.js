@@ -182,7 +182,7 @@ export default class Immerser {
       pagerLinkNode.href = `#${state.id}`;
 
       // storing stateIndex in data attribute because it cloned properly
-      pagerLinkNode.dataset.stateIndex = index;
+      pagerLinkNode.dataset.immerserStateIndex = index;
 
       // if passed synchronize pager link hover bind attribute
       if (this.options.synchroHoverPagerLinks) {
@@ -196,12 +196,11 @@ export default class Immerser {
   }
 
   initPagerLinks() {
-    const pagerLinkHTMLCollection = this.immerserNode.getElementsByClassName(this.options.classnamePagerLink);
-    for (let index = 0; index < pagerLinkHTMLCollection.length; index++) {
-      const pagerLinkNode = pagerLinkHTMLCollection[index];
-      const stateIndex = pagerLinkNode.dataset.stateIndex;
+    const pagerLinkNodelist = this.immerserNode.querySelectorAll(this.options.selectorPagerLink);
+    utils.forEachNode(pagerLinkNodelist, pagerLinkNode => {
+      const stateIndex = pagerLinkNode.dataset.immerserStateIndex;
       this.statemap[stateIndex].pagerLinkNodeArray.push(pagerLinkNode);
-    }
+    });
   }
 
   initHoverSynchro(synchroHoverNodeList) {
@@ -428,7 +427,7 @@ export default class Immerser {
     if (!this.isBound) return;
     this.statemap.forEach(({ pagerLinkNodeArray }) => {
       pagerLinkNodeArray.forEach(pagerLinkNode => {
-        if (parseInt(pagerLinkNode.dataset.stateIndex, 10) === this.reactiveActiveLayer.value) {
+        if (parseInt(pagerLinkNode.dataset.immerserStateIndex, 10) === this.reactiveActiveLayer.value) {
           pagerLinkNode.classList.add(this.options.classnamePagerLinkActive);
         } else {
           pagerLinkNode.classList.remove(this.options.classnamePagerLinkActive);
