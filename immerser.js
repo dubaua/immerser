@@ -1,91 +1,9 @@
+import defaults from './src/defaults.js';
+import * as utils from './src/utils.js';
+
 export default class Immerser {
   constructor(options) {
-    this.defaults = {
-      // not redefineable defaults
-      selectorImmerser: '[data-immerser]',
-      selectorLayer: '[data-immerser-layer]',
-      selectorSolid: '[data-immerser-solid]',
-      selectorPager: '[data-immerser-pager]',
-      selectorMask: '[data-immerser-mask]',
-      selectorMaskInner: '[data-immerser-mask-inner]',
-      selectorSynchroHover: '[data-immerser-synchro-hover]',
-      classnameImmerser: 'immerser',
-      classnameImmerserMask: 'immerser__mask',
-      classnameImmerserSolid: 'immerser__solid',
-
-      // redefineable defaults
-      solidClassnameArray: {
-        defaultValue: [],
-        description: 'non empty array of objects',
-        validator: x => Array.isArray(x) && x.length !== 0,
-      },
-      fromViewportWidth: {
-        defaultValue: 1024,
-        description: 'a natural number',
-        validator: x => typeof x === 'number' && 0 <= x && x % 1 === 0,
-      },
-      pagerTreshold: {
-        defaultValue: 0.5,
-        description: 'a number between 0 and 1',
-        validator: x => typeof x === 'number' && 0 <= x && x <= 1,
-      },
-      stylesInCSS: {
-        defaultValue: false,
-        description: 'boolean',
-        validator: x => typeof x === 'boolean',
-      },
-      synchroHoverPagerLinks: {
-        defaultValue: false,
-        description: 'boolean',
-        validator: x => typeof x === 'boolean',
-      },
-      updateHash: {
-        defaultValue: false,
-        description: 'boolean',
-        validator: x => typeof x === 'boolean',
-      },
-      classnamePager: {
-        defaultValue: 'pager',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      classnamePagerLink: {
-        defaultValue: 'pager__link',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      classnamePagerLinkActive: {
-        defaultValue: 'pager__link--active',
-        description: 'valid non empty classname string',
-        validator: this.classnameValidator,
-      },
-      onInit: {
-        defaultValue: null,
-        description: 'function',
-        validator: x => typeof x === 'function',
-      },
-      onBind: {
-        defaultValue: null,
-        description: 'function',
-        validator: x => typeof x === 'function',
-      },
-      onUnbind: {
-        defaultValue: null,
-        description: 'function',
-        validator: x => typeof x === 'function',
-      },
-      onDestroy: {
-        defaultValue: null,
-        description: 'function',
-        validator: x => typeof x === 'function',
-      },
-      onActiveLayerChange: {
-        defaultValue: null,
-        description: 'function',
-        validator: x => typeof x === 'function',
-      },
-    };
-
+    this.defaults = defaults;
     this.initState();
     this.init(options);
   }
@@ -105,9 +23,9 @@ export default class Immerser {
     this.immerserHeight = 0;
     this.resizeTimerId = null;
     this.synchroHoverNodeArray = [];
-    this.reactiveSynchroHoverId = createObservable();
-    this.reactiveActiveLayer = createObservable();
-    this.reactiveWindowWidth = createObservable();
+    this.reactiveSynchroHoverId = utils.createObservable();
+    this.reactiveActiveLayer = utils.createObservable();
+    this.reactiveWindowWidth = utils.createObservable();
     this.onResize = null;
     this.onScroll = null;
   }
@@ -158,7 +76,7 @@ export default class Immerser {
 
   initStatemap() {
     const layerNodeList = document.querySelectorAll(this.options.selectorLayer);
-    this.forEachNode(layerNodeList, (layerNode, layerIndex) => {
+    utils.forEachNode(layerNodeList, (layerNode, layerIndex) => {
       let solidClassnames = this.options.solidClassnameArray[layerIndex];
       if (layerNode.dataset.immerserLayerConfig) {
         try {
@@ -244,7 +162,7 @@ export default class Immerser {
       if (typeof this.options.onActiveLayerChange === 'function') {
         this.options.onActiveLayerChange(nextIndex, this);
       }
-    }
+    };
   }
 
   createPagerLinks() {
@@ -292,14 +210,14 @@ export default class Immerser {
       this.drawSynchroHover(nextId);
     };
 
-    this.forEachNode(synchroHoverNodeList, synchroHoverNode => {
+    utils.forEachNode(synchroHoverNodeList, synchroHoverNode => {
       const handleMouseOver = e => {
         const synchroHoverId = e.target.dataset.immerserSynchroHover;
         this.reactiveSynchroHoverId.value = synchroHoverId;
       };
       synchroHoverNode.addEventListener('mouseover', handleMouseOver);
       synchroHoverNode.__immerserHandleMouseOver = handleMouseOver;
-      
+
       const handleMouseOut = () => {
         this.reactiveSynchroHoverId.value = undefined;
       };
@@ -320,9 +238,8 @@ export default class Immerser {
       overflow: 'hidden',
     };
 
-    const { classnameImmerser, classnameImmerserMask, classnameImmerserSolid } = this.options;
     this.originalChildrenNodeList = this.immerserNode.querySelectorAll(this.options.selectorSolid);
-    this.bindClassOrStyles(this.immerserNode, classnameImmerser, { pointerEvents: 'none' });
+    utils.bindStyles(this.immerserNode, { pointerEvents: 'none', touchAction: 'none' });
 
     const customMaskNodeList = this.immerserNode.querySelectorAll(this.options.selectorMask);
     this.isCustomMarkup = customMaskNodeList.length === this.statemap.length;
@@ -334,23 +251,23 @@ export default class Immerser {
     this.statemap = this.statemap.map((state, stateIndex) => {
       // create or assign existing markup, bind styles or classes
       const maskNode = this.isCustomMarkup ? customMaskNodeList[stateIndex] : document.createElement('div');
-      this.bindClassOrStyles(maskNode, classnameImmerserMask, maskStyles);
+      utils.bindStyles(maskNode, maskStyles);
       const maskInnerNode = this.isCustomMarkup
         ? maskNode.querySelector(this.options.selectorMaskInner)
         : document.createElement('div');
-      this.bindClassOrStyles(maskInnerNode, classnameImmerserMask, maskStyles);
+      utils.bindStyles(maskInnerNode, maskStyles);
 
       // clone solids to innerMask
-      this.forEachNode(this.originalChildrenNodeList, childNode => {
+      utils.forEachNode(this.originalChildrenNodeList, childNode => {
         const clonnedChildNode = childNode.cloneNode(true);
-        this.bindClassOrStyles(clonnedChildNode, classnameImmerserSolid, { pointerEvents: 'all' });
+        utils.bindStyles(clonnedChildNode, { pointerEvents: 'all', touchAction: 'auto' });
         clonnedChildNode.immerserClonned = true;
         maskInnerNode.appendChild(clonnedChildNode);
       });
 
       // assing class modifiers to clonned solids
       const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.options.selectorSolid);
-      this.forEachNode(clonedSolidNodeList, clonedSolidNode => {
+      utils.forEachNode(clonedSolidNodeList, clonedSolidNode => {
         const solidId = clonedSolidNode.dataset.immerserSolid;
         if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
           clonedSolidNode.classList.add(state.solidClassnames[solidId]);
@@ -371,7 +288,7 @@ export default class Immerser {
     });
 
     // detach original solid nodes
-    this.forEachNode(this.originalChildrenNodeList, childNode => {
+    utils.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.removeChild(childNode);
     });
   }
@@ -419,10 +336,10 @@ export default class Immerser {
       if (state.node.__immerserCustomId) {
         state.node.removeAttribute('id');
       }
-    })
+    });
 
     // restore original children
-    this.forEachNode(this.originalChildrenNodeList, childNode => {
+    utils.forEachNode(this.originalChildrenNodeList, childNode => {
       this.immerserNode.appendChild(childNode);
     });
 
@@ -433,14 +350,12 @@ export default class Immerser {
         // clear mask attributes
         immerserMaskNode.removeAttribute('style');
         immerserMaskNode.removeAttribute('aria-hidden');
-        immerserMaskNode.classList.remove(this.options.classnameImmerserMask);
         // clear innerMask
         const immerserMaskInnerNode = immerserMaskNode.querySelector(this.options.selectorMaskInner);
         immerserMaskInnerNode.removeAttribute('style');
-        immerserMaskInnerNode.classList.remove(this.options.classnameImmerserMask);
         // clear clonned solids
         const clonnedSolidNodeList = immerserMaskInnerNode.querySelectorAll(this.options.selectorSolid);
-        this.forEachNode(clonnedSolidNodeList, clonnedSolideNode => {
+        utils.forEachNode(clonnedSolidNodeList, clonnedSolideNode => {
           if (clonnedSolideNode.immerserClonned) {
             immerserMaskInnerNode.removeChild(clonnedSolideNode);
           }
@@ -474,7 +389,7 @@ export default class Immerser {
 
   draw() {
     if (!this.isBound) return;
-    const y = this.getLastScrollPositionY();
+    const y = utils.getLastScrollPositionY();
     this.statemap.forEach(({ startEnter, enter, startLeave, leave, maskNode, maskInnerNode, top, bottom }, index) => {
       let progress;
 
@@ -547,58 +462,4 @@ export default class Immerser {
       this.draw();
     });
   }
-
-  // utils
-  getLastScrollPositionY() {
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
-    // limit scroll position between 0 and document height in case of iOS overflow scroll
-    return Math.min(Math.max(scrollY, 0), this.documentHeight);
-  }
-
-  bindClassOrStyles(node, classname, styles) {
-    if (this.options.stylesInCSS) {
-      node.classList.add(classname);
-    } else {
-      for (const rule in styles) {
-        node.style[rule] = styles[rule];
-      }
-    }
-  }
-
-  forEachNode(nodeList, callback) {
-    for (let index = 0; index < nodeList.length; index++) {
-      const node = nodeList[index];
-      callback(node, index, nodeList);
-    }
-  }
-
-  classnameValidator(string) {
-    return typeof string === 'string' && string !== '' && /^[a-z_-][a-z\d_-]*$/i.test(string);
-  }
-}
-
-function createObservable(didSet, initial) {
-  return {
-    internal: initial,
-    callbacks: didSet ? [didSet] : [],
-    get onChange() {
-      return this.callbacks;
-    },
-    set onChange(didSet) {
-      if (typeof didSet === 'function') {
-        this.callbacks.push(didSet)
-      }
-    },
-    get value() {
-      return this.internal;
-    },
-    set value(next) {
-      if (next !== this.internal) {
-        this.internal = next;
-        for (let i = 0; i < this.callbacks.length; i++) {
-          this.callbacks[i](this.internal);
-        }
-      }
-    },
-  };
 }

@@ -26,4 +26,8 @@ Inline svg sprites
 
 ~~add onBind, onUnbind, onDestroy callbacks~~
 
+~~extract utils~~
+
+~~extract defaults~~
+
 Ask for and make code review

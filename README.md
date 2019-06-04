@@ -146,10 +146,8 @@ Include immerser in your code and create immerser instance with options.
 
 ```js
 import Immerser from '../immerser.js';
-import '../immerser.scss';
 
 const my = new Immerser({
-  stylesInCSS: true,
   synchroHoverPagerLinks: true,
   onInit(immerser) {
     // callback on init
@@ -179,7 +177,6 @@ You can pass options to immerser as data-attributes on layers or as function par
 | solidClassnameArray                        | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer                       |
 | fromViewportWidth                          | `number`   | `1024`                  | A viewport width, from which immerser will init                                                                                            |
 | pagerTreshold                              | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                                                 |
-| stylesInCSS                                | `boolean`  | `false`                 | Flag to controll attaching inline styles to created nodes. Set `true` and include `immerser.css` if you want keep your DOM neat            |
 | synchroHoverPagerLinks                     | `boolean`  | `false`                 | Flag to controll hover synchronizing on pager links. [About hover synchronization](https://github.com/dubaua/immerser#hover-synchronizing) |
 | updateHash                                 | `boolean`  | `false`                 | Flag to controll changing hash on pager active state change.                                                                               |
 | classnamePager                             | `string`   | `'pager'`               | Classname for pager. Style it on your own.                                                                                                 |
