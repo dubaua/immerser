@@ -1,6 +1,6 @@
 {
   "name": "immerser",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Javascript library for switching fixed elements on scroll through sections. Like Midnight.js, but without jQuery",
   "source": "src/immerser.js",
   "main": "dist/immerser.min.js",
@@ -17,6 +17,8 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/preset-env": "^7.4.4",
+    "commitizen": "^3.1.1",
+    "cz-conventional-changelog": "^2.1.0",
     "microbundle": "^0.11.0",
     "normalize.css": "^8.0.1",
     "parcel-bundler": "^1.12.3",
@@ -24,11 +26,19 @@
     "prismjs": "^1.16.0",
     "rimraf": "^2.6.3",
     "sass": "^1.20.1",
+    "semantic-release": "^15.13.12",
     "simplebar": "^4.0.0"
   },
   "scripts": {
     "build": "rimraf dist && microbundle --name Immerser --strict",
     "docs": "rimraf docs && parcel build --no-content-hash example/index.html -d docs/ --public-url ./",
-    "dev": "parcel example/index.html --open"
+    "dev": "parcel example/index.html --open",
+    "semantic-release": "semantic-release",
+    "commit": "git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
