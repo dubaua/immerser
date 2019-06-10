@@ -12,8 +12,10 @@
     "sticky"
   ],
   "repository": "git@github.com:dubaua/immerser.git",
-  "author": "dubaua <dubaua@gmail.com>",
+  "author": "Vladimir Lysov",
+  "email": "dubaua@gmail.com",
   "license": "MIT",
+  "homepage": "https://dubaua.github.io/immerser/",
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/preset-env": "^7.4.4",
