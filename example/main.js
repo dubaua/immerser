@@ -12,6 +12,9 @@ for (let i = 0; i < scrollbarNodeList.length; i++) {
 
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
+  hasToAdjustScroll: true,
+  scrollAdjustThreshold: 200,
+  scrollAdjustDelay: 300,
   onInit(immerser) {
     window.imm = immerser;
     console.log('onInit', immerser);
@@ -72,8 +75,10 @@ for (let i = 0; i < emojiNodeList.length; i++) {
   });
 }
 
-window.toggleRulers = function() {
+document.addEventListener('keydown', ({ altKey, key }) => {
+  if (altKey && key.toLowerCase() === 'r') {
   document.body.classList.toggle('rulers');
-};
+  }
+});
 
-console.log('welcome here, fella. invoke toggleRulers() to see vertical rhythm');
+console.log('welcome here, fella. Press Alt+R to see vertical rhythm');

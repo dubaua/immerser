@@ -2,6 +2,9 @@ import Immerser from '../immerser.js';
 
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
+  hasToAdjustScroll: true,
+  scrollAdjustThreshold: 200,
+  scrollAdjustDelay: 300,
   onInit(immerser) {
     // callback on init
   },

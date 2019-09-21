@@ -30,8 +30,18 @@ Ask for and make code review
 
 Unique animations on smily faces
 
+batch animation on all faces
+
 Inline svg sprites
 
 Add scroll adjust parameter
 
 Support mangling internal properties
+
+autoupdate version in readme and docs
+
+autoupdate gzipped size
+
+add adjustable scroll animation
+
+add russian translation and language switcher
