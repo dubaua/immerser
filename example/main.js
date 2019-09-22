@@ -1,7 +1,8 @@
 import Immerser from '../src/immerser.js';
 import SimpleBar from 'simplebar';
-import 'simplebar/dist/simplebar.css';
-import 'normalize.css';
+// import 'simplebar/dist/simplebar.css';
+// import 'normalize.css';
+import './/styles/main.scss';
 // import Prism from 'prismjs';
 
 const scrollbarNodeList = document.querySelectorAll('.scroller-x');
