@@ -40,6 +40,18 @@ const webpackConfig = {
         test: /\.(ttf|eot|woff|woff2)$/,
         use: [{ loader: 'file-loader', options: { name: 'fonts/[name].[ext]' } }],
       },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/,
+        exclude: /svg[\/\\]/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'images/[name].[ext]',
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
