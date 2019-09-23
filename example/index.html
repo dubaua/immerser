@@ -4,29 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Immerser — Javascript Library to Switch Fixed Blocks on Scroll</title>
+    <title><%= __('document-title') %></title>
     <link href="https://fonts.googleapis.com/css?family=Questrial&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="favicon/favicon.png">
-    <link rel="icon" type="image/gif" href="favicon/favicon.gif">
-    <link rel="icon" type="image/jpeg" href="favicon/favicon.jpg">
-    <link rel="icon" type="image/vnd.microsoft.icon" href="favicon/favicon.ico">
+    <link rel="icon" type="image/png" href="./favicon/favicon.png">
+    <link rel="icon" type="image/gif" href="./favicon/favicon.gif">
+    <link rel="icon" type="image/jpeg" href="./favicon/favicon.jpg">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="./favicon/favicon.ico">
   </head>
   <body>
     <div class="fixed" data-immerser>
       <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
-      <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo">immerser</a>
+      <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo"><%= __('immerser') %></a>
       <div class="fixed__menu menu" data-immerser-solid="menu">
-        <a href="#reasoning" data-immerser-synchro-hover="reasoning" class="menu__link">Reasoning</a>
-        <a href="#how-to-use" data-immerser-synchro-hover="how-to-use" class="menu__link">How to Use</a>
-        <a href="#how-it-works" data-immerser-synchro-hover="how-it-works" class="menu__link">How it Works</a>
-        <a href="#options" data-immerser-synchro-hover="options" class="menu__link">Options</a>
-        <a href="#possibilities" data-immerser-synchro-hover="possibilities" class="menu__link">Possibilities</a>
+        <a href="#reasoning" data-immerser-synchro-hover="reasoning" class="menu__link"><%= __('menu-link-reasoning') %></a>
+        <a href="#how-to-use" data-immerser-synchro-hover="how-to-use" class="menu__link"><%= __('menu-link-how-to-use') %></a>
+        <a href="#how-it-works" data-immerser-synchro-hover="how-it-works" class="menu__link"><%= __('menu-link-how-it-works') %></a>
+        <a href="#options" data-immerser-synchro-hover="options" class="menu__link"><%= __('menu-link-options') %></a>
+        <a href="#possibilities" data-immerser-synchro-hover="possibilities" class="menu__link"><%= __('menu-link-possibilities') %></a>
       </div>
       <div class="fixed__social social" data-immerser-solid="social">
-        <a href="https://github.com/dubaua/immerser">github</a>
+        <a href="https://github.com/dubaua/immerser"><%= __('github') %></a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
-      <div class="fixed__about about" data-immerser-solid="about">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+      <div class="fixed__about about" data-immerser-solid="about"><%= __('copyright') %></div>
       <div data-immerser-mask>
         <div data-immerser-mask-inner>
           <div class="fixed__emoji emoji" data-emoji-animating="false">
@@ -96,7 +96,7 @@
     </div>
 
     <header class="header">
-      <a href="#reasoning" class="logo">immerser</a>
+      <a href="#reasoning" class="logo"><%= __('immerser') %></a>
     </header>
 
     <div
@@ -108,8 +108,12 @@
       <div class="grid__col grid__col--alpha background--contrast"></div>
       <div class="grid__col grid__col--beta tall start end background">
         <div class="grid__content typography">
-          <include src="./content/why-immerser.html"></include>
-          <include src="./content/terms.html"></include>
+          <%= __('section-why-immerser') %>
+          <h1>Why Immerser?</h1>
+          <p>Sometimes designers create complex logic and fix parts of&nbsp;the interface. Also they colour page sections contrastly. How to&nbsp;deal with this mess? </p>
+          <p>Immerser comes to&nbsp;help you. It&rsquo;s a&nbsp;javascript library to&nbsp;change fixed elements on&nbsp;scroll.</p>
+          <p>Immerser fast, because it&nbsp;calculates states once on&nbsp;init. Then it&nbsp;watches the scroll position and schedules redraw document in&nbsp;the next event loop tick with requestAnimationFrame. Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.</p>
+          <p>Immerser doesn&rsquo;t have any dependencies and is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;3.1kb gzipped.</p>
         </div>
       </div>
       <div class="grid__col--gamma background"></div>
@@ -271,10 +275,10 @@ yarn add immerser
 
     <footer class="footer">
       <div class="social">
-        <a href="https://github.com/dubaua/immerser">github</a>
+        <a href="https://github.com/dubaua/immerser"><%= __('github') %></a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
-      <div class="about">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
+      <div class="about"><%= __('copyright') %></div>
     </footer>
   </body>
 </html>
