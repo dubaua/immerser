@@ -12,7 +12,7 @@ for (let i = 0; i < scrollbarNodeList.length; i++) {
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
   hasToAdjustScroll: true,
-  scrollAdjustThreshold: 200,
+  scrollAdjustThreshold: 50,
   scrollAdjustDelay: 300,
   onInit(immerser) {
     window.imm = immerser;
@@ -76,7 +76,8 @@ for (let i = 0; i < emojiNodeList.length; i++) {
 
 const rulersNode = document.getElementById('rulers');
 document.addEventListener('keydown', ({ altKey, key }) => {
-  if (altKey && key.toLowerCase() === '1') {
+  const isOne = key.toLowerCase() === '1' || key.toLowerCase() === '!';
+  if (altKey && isOne) {
     rulersNode.classList.toggle('rulers--active');
   }
 });

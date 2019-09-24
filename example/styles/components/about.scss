@@ -2,6 +2,8 @@
 
 .about {
   padding-bottom: $base - 2px;
+  margin: 0 $base * -1;
+
   @at-root #{$cyrillic-modifier} & {
     padding-bottom: $base - 1px;
     font-size: 14px;
@@ -11,10 +13,13 @@
   &--contrast {
     color: $color-text--contrast;
   }
-  a {
+  span, a {
+    display: inline-block;
+    padding-left: $base;
     color: inherit;
     @include transition('color');
-    display: inline-block;
-    margin-left: 0.8em;
+    @include from('lg') {
+      padding-right: $base;
+    }
   }
 }

@@ -5,7 +5,6 @@
   padding-top: $base * 1.5;
   padding-bottom:  $base * 1.5;
   line-height: $base * 1.5;
-  text-align: center;
   @include show-from-to('xs', 'md') {
     padding-left: $col-width * 2;
     padding-right: $col-width * 2;

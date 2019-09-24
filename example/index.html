@@ -24,7 +24,7 @@
         <%= getTranslation('language-switcher') %>
       </div>
       <div class="fixed__about about" data-immerser-solid="about">
-        <%= getTranslation('copyright') %>
+        <span><%= getTranslation('copyright') %></span>
         <a href="https://github.com/dubaua/immerser"><%= getTranslation('github') %></a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
@@ -551,10 +551,13 @@ yarn add immerser
 
     <footer class="footer">
       <div class="language">
+          <%= getTranslation('language-switcher') %>
+        </div>
+      <div class="about">
+        <!-- <span><%= getTranslation('copyright') %></span> -->
         <a href="https://github.com/dubaua/immerser"><%= getTranslation('github') %></a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
-      <div class="about"><%= getTranslation('copyright') %></div>
     </footer>
 
     <div class="rulers" id="rulers"></div>
