@@ -1,0 +1,91 @@
+// Это наш общий стайлгайд. Он будет дополняться
+
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "sourceType": "module",
+    "ecmaVersion": 2018
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/base",
+    "plugin:vue/essential",
+    "plugin:vue/strongly-recommended",
+    "plugin:vue/recommended"
+  ],
+  "rules": {
+    // пробелы внутри квадратных скобок массива
+    "array-bracket-spacing": ["error", "never"],
+
+    // стрелка арроу функции обрамляется пробелами с обеих сторон
+    "arrow-spacing": ["error", { "before": true, "after": true }],
+
+    // Хотим, чтобы в конце строки многострочного массива или объека всегда была запятая
+    // Чтобы при мультивыделении был единообразный конец строк
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+      }
+    ],
+    "constructor-super": "error",
+    "curly": "error",
+    // явно указывать расширения файлов при импорте, еще не разобрался с настройкой
+    // "import/extensions": [
+    //   "error",
+    //   {
+    //     ".js": "always",
+    //     ".vue": "always"
+    //   }
+    // ],
+    // "import/group-exports": "error",
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "keyword-spacing": "error",
+    "no-console": 0,
+    "no-const-assign": "error",
+    "no-debugger": 0,
+    "no-duplicate-imports": "error",
+    "no-multiple-empty-lines": [2, { "max": 2, "maxEOF": 1 }],
+    "no-this-before-super": "error",
+    "no-unreachable": "error",
+    "no-unused-vars": 0,
+    "no-useless-escape": 0,
+    "no-var": "error",
+    "object-curly-spacing": ["error", "always"],
+    "one-var": ["error", { "var": "never", "let": "never", "const": "never" }],
+    "prefer-arrow-callback": "error",
+    "prefer-const": "error",
+
+    // кавычки одинарные
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    "semi": ["error", "always"],
+    "sort-imports": ["error", { "ignoreDeclarationSort": true }],
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "valid-typeof": "error",
+    "vue/component-name-in-template-casing": [
+      "error",
+      "kebab-case",
+      {
+        "ignores": ["router-link", "router-view", "transition"]
+      }
+    ]
+  },
+  "plugins": ["vue"]
+}

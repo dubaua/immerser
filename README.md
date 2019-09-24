@@ -23,6 +23,7 @@ yarn add immerser
 ```
 
 or if you want to use immerser as UMD
+
 ```HTML
 <script src="https://unpkg.com/immerser@1.0.0/dist/immerser.min.umd.js"></script>
 ```
@@ -201,20 +202,22 @@ Finally, immerser binds listeners to scroll and resize events. On resize, it wil
 
 You can pass options to immerser as data-attributes on layers or as function parameters. Data-attributes process last, so they will override options passed in function.
 
-| option                                     | type       | default                 | description                                                                                                          |
-| ------------------------------------------ | ---------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| solidClassnameArray                        | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer |
-| fromViewportWidth                          | `number`   | `1024`                  | A viewport width, from which immerser will init                                                                      |
-| pagerTreshold                              | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                           |
-| hasToUpdateHash                            | `boolean`  | `false`                 | Flag to controll changing hash on pager active state change.                                                         |
-| classnamePager                             | `string`   | `'pager'`               | Classname for pager. Style it on your own.                                                                           |
-| classnamePagerLink                         | `string`   | `'pager__link'`         | Classname for pager link. Style it on your own.                                                                      |
-| classnamePagerLinkActive                   | `string`   | `'pager__link--active'` | Classname for active pager link. Style it on your own.                                                               |
-| onInit(immerser)                           | `function` | `null`                  | Fired after initialization. Accept an immerser instance as the only parameter.                                       |
-| onBind(immerser)                           | `function` | `null`                  | Fired after binding DOM. Accept an immerser instance as the only parameter.                                          |
-| onUnbind(immerser)                         | `function` | `null`                  | Fired after unbinding DOM. Accept an immerser instance as the only parameter.                                        |
-| onDestroy(immerser)                        | `function` | `null`                  | Fired after destroy. Accept an immerser instance as the only parameter.                                              |
-| onActiveLayerChange(activeIndex, immerser) | `function` | `null`                  | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second.    |
+| option                                     | type       | default                 | description                                                                                                                                                                                                     |
+| ------------------------------------------ | ---------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| solidClassnameArray                        | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer                                                                                            |
+| fromViewportWidth                          | `number`   | `1024`                  | A viewport width, from which immerser will init                                                                                                                                                                 |
+| pagerThreshold                             | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                                                                                                                      |
+| hasToUpdateHash                            | `boolean`  | `false`                 | Flag to controll changing hash on pager active state change.                                                                                                                                                    |
+| scrollAdjustThreshold                      | `number`   | `0`                     | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed. |
+| scrollAdjustDelay                          | `number`   | `600`                   | Delay after user interaction and before scroll adjust.                                                                                                                                                          |
+| classnamePager                             | `string`   | `'pager'`               | Classname for pager. Style it on your own.                                                                                                                                                                      |
+| classnamePagerLink                         | `string`   | `'pager__link'`         | Classname for pager link. Style it on your own.                                                                                                                                                                 |
+| classnamePagerLinkActive                   | `string`   | `'pager__link--active'` | Classname for active pager link. Style it on your own.                                                                                                                                                          |
+| onInit(immerser)                           | `function` | `null`                  | Fired after initialization. Accept an immerser instance as the only parameter.                                                                                                                                  |
+| onBind(immerser)                           | `function` | `null`                  | Fired after binding DOM. Accept an immerser instance as the only parameter.                                                                                                                                     |
+| onUnbind(immerser)                         | `function` | `null`                  | Fired after unbinding DOM. Accept an immerser instance as the only parameter.                                                                                                                                   |
+| onDestroy(immerser)                        | `function` | `null`                  | Fired after destroy. Accept an immerser instance as the only parameter.                                                                                                                                         |
+| onActiveLayerChange(activeIndex, immerser) | `function` | `null`                  | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second.                                                                                               |
 
 If passed option fails validation it falled back to default value.
 

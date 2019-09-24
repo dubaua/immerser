@@ -1,3 +1,5 @@
+@import '~normalize.css';
+@import '~simplebar/dist/simplebar.css';
 @import './components/about.scss';
 @import './components/code-highlight.scss';
 @import './components/common.scss';
@@ -6,8 +8,8 @@
 @import './components/footer.scss';
 @import './components/header.scss';
 @import './components/highlighter.scss';
+@import './components/language.scss';
 @import './components/logo.scss';
 @import './components/menu.scss';
 @import './components/pager.scss';
-@import './components/social.scss';
 @import './components/typography.scss';

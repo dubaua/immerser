@@ -3,6 +3,11 @@
 .logo {
   padding-top: $base * 0.62;
   font-size: $base * 3;
+  @at-root #{$cyrillic-modifier} & {
+    font-size: $base * 2.75;
+    transform: translate(0px, -3px);
+    letter-spacing: -0.03em;
+  }
   line-height: $base * 2;
   color: $color-text;
   display: block;

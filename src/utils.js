@@ -11,34 +11,33 @@ export function forEachNode(nodeList, callback) {
   }
 }
 
-export function getLastScrollPositionY() {
-  const scrollY = window.scrollY || document.documentElement.scrollTop;
-  // limit scroll position between 0 and document height in case of iOS overflow scroll
-  return Math.min(Math.max(scrollY, 0), document.documentElement.offsetHeight);
+export function limit(number, min, max) {
+  return Math.max(Math.min(number, max), min);
 }
 
-export function createObservable(didSet, initial) {
+export function getLastScrollPosition() {
+  const scrollX = window.scrollX || document.documentElement.scrollLeft;
+  const scrollY = window.scrollY || document.documentElement.scrollTop;
+  // limit scroll position between 0 and document height in case of iOS overflow scroll
   return {
-    internal: initial,
-    callbacks: typeof didSet === 'function' ? [didSet] : [],
-    get onChange() {
-      return this.callbacks;
-    },
-    set onChange(didSet) {
-      if (typeof didSet === 'function') {
-        this.callbacks.push(didSet);
-      }
-    },
-    get value() {
-      return this.internal;
-    },
-    set value(next) {
-      if (next !== this.internal) {
-        this.internal = next;
-        for (let i = 0; i < this.callbacks.length; i++) {
-          this.callbacks[i](this.internal);
-        }
-      }
-    },
+    x: limit(scrollX, 0, document.documentElement.offsetWidth),
+    y: limit(scrollY, 0, document.documentElement.offsetHeight),
   };
+}
+
+export function mergeAndValidateOptions(options = {}, defaults, context) {
+  for (const key in defaults) {
+    const { initial, description, validator } = defaults[key];
+    context[key] = initial;
+    if (options.hasOwnProperty(key)) {
+      const value = options[key];
+      if (validator(value)) {
+        context[key] = value;
+      } else {
+        console.warn(
+          `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${initial}. Check documentation https://github.com/dubaua/immerser#options`
+        );
+      }
+    }
+  }
 }

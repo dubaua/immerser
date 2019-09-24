@@ -1,7 +1,6 @@
 import Immerser from '../src/immerser.js';
 import SimpleBar from 'simplebar';
-import 'simplebar/dist/simplebar.css';
-import 'normalize.css';
+import './styles/main.scss';
 // import Prism from 'prismjs';
 
 const scrollbarNodeList = document.querySelectorAll('.scroller-x');
@@ -12,6 +11,9 @@ for (let i = 0; i < scrollbarNodeList.length; i++) {
 
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
+  hasToAdjustScroll: true,
+  scrollAdjustThreshold: 200,
+  scrollAdjustDelay: 300,
   onInit(immerser) {
     window.imm = immerser;
     console.log('onInit', immerser);
@@ -72,8 +74,11 @@ for (let i = 0; i < emojiNodeList.length; i++) {
   });
 }
 
-window.toggleRulers = function() {
-  document.body.classList.toggle('rulers');
-};
+const rulersNode = document.getElementById('rulers');
+document.addEventListener('keydown', ({ altKey, key }) => {
+  if (altKey && key.toLowerCase() === '1') {
+    rulersNode.classList.toggle('rulers--active');
+  }
+});
 
-console.log('welcome here, fella. invoke toggleRulers() to see vertical rhythm');
+console.log('welcome here, fella. Press Alt+1 to see vertical rhythm');

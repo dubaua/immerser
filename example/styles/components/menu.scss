@@ -11,8 +11,13 @@
     font-size: $base;
     line-height: 1;
     text-decoration: none;
-    padding: $base * 1.62 $base;
+    padding: 26px $base;
     @include transition('color');
+    @at-root #{$cyrillic-modifier} & {
+      font-size: 14px;
+      letter-spacing: -0.03em;
+      padding-top: 28px;
+    }
   }
 
   &--contrast #{$menu}__link {

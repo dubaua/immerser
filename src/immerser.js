@@ -1,15 +1,15 @@
-import defaults from './defaults.js';
+import { DEFAULTS, DEFAULT_OPTIONS } from './defaults.js';
+import createObservable from 'create-observable';
 import * as utils from './utils.js';
 
 export default class Immerser {
   constructor(options) {
-    this.defaults = defaults;
     this.initState();
     this.init(options);
   }
 
   initState() {
-    this.options = {};
+    this.options = { ...DEFAULTS };
     this.statemap = [];
     this.isBound = false;
     this.isCustomMarkup = false;
@@ -23,16 +23,16 @@ export default class Immerser {
     this.immerserTop = 0;
     this.immerserHeight = 0;
     this.resizeTimerId = null;
-    this.reactiveSynchroHoverId = utils.createObservable();
-    this.reactiveActiveLayer = utils.createObservable();
-    this.reactiveWindowWidth = utils.createObservable();
+    this.scrollTimerId = null;
+    this.reactiveSynchroHoverId = createObservable();
+    this.reactiveActiveLayer = createObservable();
+    this.reactiveWindowWidth = createObservable();
     this.onResize = null;
     this.onScroll = null;
   }
 
   init(options) {
-    this.mergeOptions(options);
-
+    utils.mergeAndValidateOptions(options, DEFAULT_OPTIONS, this.options);
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
       console.warn('Immerser element not found. Check out documentation https://github.com/dubaua/immerser#how-to-use');
@@ -50,27 +50,6 @@ export default class Immerser {
 
     if (typeof this.options.onInit === 'function') {
       this.options.onInit(this);
-    }
-  }
-
-  mergeOptions(options = {}) {
-    for (const key in this.defaults) {
-      if (typeof this.defaults[key].validator !== 'function') {
-        this.options[key] = this.defaults[key];
-      } else {
-        const { defaultValue, description, validator } = this.defaults[key];
-        this.options[key] = defaultValue;
-        if (options.hasOwnProperty(key)) {
-          const value = options[key];
-          if (validator(value)) {
-            this.options[key] = value;
-          } else {
-            console.warn(
-              `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${defaultValue}. Check documentation https://github.com/dubaua/immerser#options`
-            );
-          }
-        }
-      }
     }
   }
 
@@ -396,7 +375,7 @@ export default class Immerser {
   }
 
   draw() {
-    const y = utils.getLastScrollPositionY();
+    const { y } = utils.getLastScrollPosition();
     this.statemap.forEach(({ startEnter, enter, startLeave, leave, maskNode, maskInnerNode, top, bottom }, index) => {
       let progress;
 
@@ -416,7 +395,7 @@ export default class Immerser {
       maskInnerNode.style.transform = `translateY(${-progress}px)`;
 
       if (this.pagerNode) {
-        const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerTreshold);
+        const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerThreshold);
         if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
           this.reactiveActiveLayer.value = index;
         }
@@ -455,9 +434,30 @@ export default class Immerser {
     currentState.node.setAttribute('id', nextHash);
   }
 
+  adjustScroll() {
+    const { top, bottom } = this.statemap[this.reactiveActiveLayer.value];
+    const { x, y } = utils.getLastScrollPosition();
+    const topThreshold = Math.abs(y - top);
+    const bottomThreshold = Math.abs(y + this.windowHeight - bottom);
+
+    if (topThreshold !== 0 && bottomThreshold !== 0) {
+      if (topThreshold <= bottomThreshold && topThreshold <= this.options.scrollAdjustThreshold) {
+        window.scrollTo(x, top);
+      } else if (bottomThreshold <= topThreshold && bottomThreshold <= this.options.scrollAdjustThreshold) {
+        window.scrollTo(x, bottom - this.windowHeight);
+      }
+    }
+  }
+
   handleScroll() {
     if (this.isBound) {
       this.draw();
+      if (this.options.scrollAdjustThreshold > 0) {
+        if (this.scrollTimerId) clearTimeout(this.scrollTimerId);
+        this.scrollTimerId = setTimeout(() => {
+          this.adjustScroll();
+        }, this.options.scrollAdjustDelay);
+      }
     }
   }
 
