@@ -1,0 +1,39 @@
+@import '../shared/globals.scss';
+
+.language {
+  padding-bottom: $base - 2px;
+  @at-root #{$cyrillic-modifier} & {
+    padding-bottom: $base - 1px;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  color: $color-text;
+  &--contrast a {
+    color: $color-text--contrast;
+  }
+  @include from('lg') {
+    &--contrast-lg {
+      color: $color-text--contrast;
+    }
+  }
+  @include from-to('md', 'lg') {
+    &--contrast-only-md {
+      color: $color-text--contrast;
+    }
+  }
+  &__link {
+    color: inherit;
+    @include transition('color');
+    display: inline-block;
+    margin-right: 0.8em;
+    font-size: 14px;
+
+    &--active {
+      font-size: 16px;
+      @at-root #{$cyrillic-modifier} & {
+        font-size: 14px;
+      }
+    }
+  }
+}

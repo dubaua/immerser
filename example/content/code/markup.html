@@ -1,18 +1,22 @@
 <div class="fixed" data-immerser>
   <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
-  <div class="fixed__logo logo" data-immerser-solid="logo">immerser</div>
+  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo"><%= getTranslation('immerser') %></a>
   <div class="fixed__menu menu" data-immerser-solid="menu">
-    <a href="#reasoning" class="menu__link">Reasoning</a>
-    <a href="#how-to-use" class="menu__link">How to Use</a>
-    <a href="#how-it-works" class="menu__link">How it Works</a>
-    <a href="#options" class="menu__link">Options</a>
-    <a href="#possibilities" class="menu__link">Possibilities</a>
+    <a href="#reasoning" class="menu__link"><%= getTranslation('menu-link-reasoning') %></a>
+    <a href="#how-to-use" class="menu__link"><%= getTranslation('menu-link-how-to-use') %></a>
+    <a href="#how-it-works" class="menu__link"><%= getTranslation('menu-link-how-it-works') %></a>
+    <a href="#options" class="menu__link"><%= getTranslation('menu-link-options') %></a>
+    <a href="#possibilities" class="menu__link"><%= getTranslation('menu-link-possibilities') %></a>
   </div>
-  <div class="fixed__social social" data-immerser-solid="social">
-    <a href="https://github.com/dubaua/immerser">github</a>
+  <div class="fixed__language language" data-immerser-solid="language">
+    <a href="/" class="language__link">english</a>
+    <a href="/ru.html" class="language__link">по-русски</a>
+  </div>
+  <div class="fixed__about about" data-immerser-solid="about">
+    <%= getTranslation('copyright') %>
+    <a href="https://github.com/dubaua/immerser"><%= getTranslation('github') %></a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
-  <div class="fixed__about about" data-immerser-solid="about">© 2019 — Vladimir Lysov, Chelyabinsk, Russia</div>
 </div>
 
 <div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="reasoning"></div>

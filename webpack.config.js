@@ -5,8 +5,8 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const I18nPlugin = require('i18n-webpack-plugin');
 const languages = {
-  en: require('./i18n/en.json'),
-  ru: require('./i18n/ru.json'),
+  en: require('./i18n/en.js'),
+  ru: require('./i18n/ru.js'),
 };
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -62,7 +62,9 @@ module.exports = Object.keys(languages).map(function(language) {
         filename: isDev ? '[name].css' : '[name].[hash].css',
         chunkFilename: isDev ? '[id].css' : '[id].[hash].css',
       }),
-      new I18nPlugin(languages[language]),
+      new I18nPlugin(languages[language], {
+        functionName: 'getTranslation'
+      }),
     ],
   };
 });

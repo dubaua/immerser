@@ -6,7 +6,7 @@
     position: fixed;
     display: block;
     top: $base * 2;
-    bottom: $base * 3;
+    bottom: $base * 2;
     left: $col-width * 0.5;
     right: $col-width * 0.5;
     z-index: 2;
@@ -40,7 +40,7 @@
       right: 0;
     }
 
-    &__social {
+    &__language {
       position: absolute;
       bottom: 0;
       left: 0;

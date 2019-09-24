@@ -6,18 +6,18 @@ const immerserInstance = new Immerser({
   scrollAdjustThreshold: 200,
   scrollAdjustDelay: 300,
   onInit(immerser) {
-    // callback on init
+    // <%= getTranslation('callback-on-init') %>
   },
   onBind(immerser) {
-    // callback on bind
+    // <%= getTranslation('callback-on-bind') %>
   },
   onUnbind(immerser) {
-    // callback on unbind
+    // <%= getTranslation('callback-on-unbind') %>
   },
   onDestroy(immerser) {
-    // callback on destroy
+    // <%= getTranslation('callback-on-destroy') %>
   },
   onActiveLayerChange(activeIndex, immerser) {
-    // callback on active layer change
+    // <%= getTranslation('callback-on-active-layer-change') %>
   },
 });

@@ -2,40 +2,20 @@
 
 html {
   scroll-behavior: smooth;
-  font-family: 'Questrial', sans-serif;
+  font-family: 'Questrial', 'Montserrat', sans-serif;
   letter-spacing: 0.01em;
-}
 
-body.rulers {
-  $ruler-color: rgba(magenta, 0.2);
-  $ruler-gutter: $base * 1.5;
-  position: relative;
-  &:after {
-    content: '';
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    height: 100%;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      transparent $ruler-gutter - 1,
-      $ruler-color $ruler-gutter - 1,
-      $ruler-color
-    );
-    background-size: 100% $ruler-gutter;
+  &#{$cyrillic-modifier} {
+    font-family: 'Montserrat', sans-serif;
   }
 }
 
 *::selection {
-  background: $color-highlight;
+  background: $color-marker;
   color: $color-secondary;
 }
 *::-moz-selection {
-  background: $color-highlight;
+  background: $color-marker;
   color: $color-secondary;
 }
 
@@ -113,4 +93,46 @@ body.rulers {
 a:hover,
 a._hover {
   color: $color-active !important;
+}
+
+.rulers {
+  $ruler-color: rgba(magenta, 0.3);
+  $horizontal-ruler-gutter: $base * 1.5;
+  $vertical-ruler-gutter: 4.1666666666666664%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  display: none;
+  &--active {
+    display: block;
+  }
+
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent $horizontal-ruler-gutter - 1,
+    $ruler-color $horizontal-ruler-gutter - 1,
+    $ruler-color $horizontal-ruler-gutter
+  );
+
+  &:after {
+    content: '';
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    height: 100%;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent calc(#{$vertical-ruler-gutter / 2} - 1px),
+      $ruler-color calc(#{$vertical-ruler-gutter / 2} - 1px),
+      $ruler-color $vertical-ruler-gutter / 2
+    );
+  }
 }
