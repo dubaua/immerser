@@ -57,6 +57,7 @@ module.exports = Object.keys(languages).map(function(language) {
       new HtmlWebpackPlugin({
         template: './example/index.html',
         filename: language === 'en' ? 'index.html' : language + '.html',
+        favicon: './example/favicon/favicon.ico',
         minify: {
           collapseWhitespace: true,
           removeComments: true,

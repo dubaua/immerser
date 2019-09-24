@@ -6,7 +6,7 @@ module.exports = {
   'menu-link-how-it-works': 'Принцип работы',
   'menu-link-options': 'Настройки',
   'menu-link-possibilities': 'Возможности',
-  'language-switcher': '<a href="/" class="language__link">english</a><span class="language__link language__link--active">по-русски</span>',
+  'language-switcher': '<a href="./" class="language__link">english</a><span class="language__link language__link--active">по-русски</span>',
   github: 'гитхаб',
   copyright: '&copy; 2019 &mdash; Владимир Лысов, Челябинск, Россия',
   'custom-font-body-classname': 'font-cyrillic',

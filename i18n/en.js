@@ -6,7 +6,7 @@ module.exports = {
   'menu-link-how-it-works': 'How it Works',
   'menu-link-options': 'Options',
   'menu-link-possibilities': 'Possibilities',
-  'language-switcher': '<span class="language__link language__link--active">english</span><a href="/ru.html" class="language__link">по-русски</a>',
+  'language-switcher': '<span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>',
   github: 'github',
   copyright: '&copy; 2019 &mdash; Vladimir Lysov, Chelyabinsk, Russia',
   'custom-font-body-classname': '',
