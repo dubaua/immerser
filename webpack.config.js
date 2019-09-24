@@ -57,13 +57,21 @@ module.exports = Object.keys(languages).map(function(language) {
       new HtmlWebpackPlugin({
         template: './example/index.html',
         filename: language === 'en' ? 'index.html' : language + '.html',
+        minify: {
+          collapseWhitespace: true,
+          removeComments: true,
+          removeRedundantAttributes: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          useShortDoctype: true,
+        },
       }),
       new MiniCssExtractPlugin({
         filename: isDev ? '[name].css' : '[name].[hash].css',
         chunkFilename: isDev ? '[id].css' : '[id].[hash].css',
       }),
       new I18nPlugin(languages[language], {
-        functionName: 'getTranslation'
+        functionName: 'getTranslation',
       }),
     ],
   };
