@@ -10,6 +10,35 @@ for (let i = 0; i < scrollbarNodeList.length; i++) {
 }
 
 const immerserInstance = new Immerser({
+  solidClassnameArray: [
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+    {
+      pager: 'pager--contrast-only-md',
+      menu: 'menu--contrast',
+      about: 'about--contrast',
+    },
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+    {
+      logo: 'logo--contrast-only-md',
+      pager: 'pager--contrast-only-md',
+      language: 'language--contrast-only-md',
+      menu: 'menu--contrast',
+      about: 'about--contrast',
+    },
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+  ],
   hasToUpdateHash: true,
   hasToAdjustScroll: true,
   scrollAdjustThreshold: 50,

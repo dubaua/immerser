@@ -1,6 +1,36 @@
 import Immerser from '../immerser.js';
 
 const immerserInstance = new Immerser({
+  // <%= getTranslation('data-attribute-will-override-this-option') %>
+  solidClassnameArray: [
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+    {
+      pager: 'pager--contrast-only-md',
+      menu: 'menu--contrast',
+      about: 'about--contrast',
+    },
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+    {
+      logo: 'logo--contrast-only-md',
+      pager: 'pager--contrast-only-md',
+      language: 'language--contrast-only-md',
+      menu: 'menu--contrast',
+      about: 'about--contrast',
+    },
+    {
+      logo: 'logo--contrast-lg',
+      pager: 'pager--contrast-lg',
+      language: 'language--contrast-lg',
+    },
+  ],
   hasToUpdateHash: true,
   hasToAdjustScroll: true,
   scrollAdjustThreshold: 200,

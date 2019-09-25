@@ -69,6 +69,9 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 </p>
 `,
 
+  'data-attribute-will-override-this-option-line-1': 'this option will be overrided by options',
+  'data-attribute-will-override-this-option-line-2': 'passed in data-immerser-layer-config attribute in each layer',
+
   'section-initialize-immerser': `
 <h1>Initialize Immerser</h1>
 <p>Include immerser in&nbsp;your code and create immerser instance with options.</p>
@@ -112,22 +115,22 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   description: 'описание',
 
   'option-solidClassnameArray':
-    'Array of layer class configurations. Overrides config passed in data-immerser-layer-config for corresponding layer',
+    'Array of layer class configurations. Overrides config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#init-immerser">is shown above</a>',
   'option-fromViewportWidth': 'A viewport width, from which immerser will init',
   'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
   'option-hasToUpdateHash': 'Flag to controll changing hash on pager active state change',
   'option-scrollAdjustThreshold':
-    'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed.',
-  'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust.',
-  'option-classnamePager': 'Classname for pager. Style it on your own.',
-  'option-classnamePagerLink': 'Classname for pager link. Style it on your own.',
-  'option-classnamePagerLinkActive': 'Classname for active pager link. Style it on your own.',
-  'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter.',
-  'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter.',
-  'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter.',
-  'option-onDestroy': 'Fired after destroy. Accept an immerser instance as the only parameter.',
+    'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
+  'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
+  'option-classnamePager': 'Classname for pager. Style it on your own',
+  'option-classnamePagerLink': 'Classname for pager link. Style it on your own',
+  'option-classnamePagerLinkActive': 'Classname for active pager link. Style it on your own',
+  'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter',
+  'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter',
+  'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter',
+  'option-onDestroy': 'Fired after destroy. Accept an immerser instance as the only parameter',
   'option-onActiveLayerChange':
-    'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second.',
+    'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second',
 
   'section-custom-markup': `
 <h1>Custom Markup</h1>

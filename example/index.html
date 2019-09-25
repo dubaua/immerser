@@ -269,7 +269,7 @@ yarn add immerser
             </div>
           </div>
         </div>
-        <div class="grid">
+        <div class="grid" id="prepare-your-markup">
           <div class="grid__col grid__col--beta">
             <div class="grid__content typography">
               <%= getTranslation('section-prepare-your-markup') %>
@@ -309,7 +309,7 @@ yarn add immerser
             </div>
           </div>
         </div>
-        <div class="grid">
+        <div class="grid" id="apply-styles">
           <div class="grid__col grid__col--beta">
             <div class="grid__content typography">
               <%= getTranslation('section-apply-styles') %>
@@ -323,7 +323,7 @@ yarn add immerser
             </div>
           </div>
         </div>
-        <div class="grid">
+        <div class="grid" id="init-immerser">
           <div class="grid__col grid__col--beta end">
             <div class="grid__content typography">
               <%= getTranslation('section-initialize-immerser') %>
@@ -332,9 +332,40 @@ yarn add immerser
           <div class="grid__col grid__col--gamma end background--contrast scroller-x">
             <div class="as-if-title" aria-hidden="true"></div>
             <div class="grid__content code-highlight code-highlight--contrast">
-<pre><code class=" language-javascript"><span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'../immerser.js'</span><span class="token punctuation">;</span>
+<pre><code class="language-javascript"><span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'../immerser.js'</span><span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment">// <%= getTranslation('data-attribute-will-override-this-option-line-1') %></span>
+  <span class="token comment">// <%= getTranslation('data-attribute-will-override-this-option-line-2') %></span>
+  solidClassnameArray<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token punctuation">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token punctuation">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token punctuation">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      pager<span class="token punctuation">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      menu<span class="token punctuation">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      about<span class="token punctuation">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token punctuation">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token punctuation">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token punctuation">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token punctuation">:</span> <span class="token string">'logo--contrast-only-md'</span><span class="token punctuation">,</span>
+      pager<span class="token punctuation">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      language<span class="token punctuation">:</span> <span class="token string">'language--contrast-only-md'</span><span class="token punctuation">,</span>
+      menu<span class="token punctuation">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      about<span class="token punctuation">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token punctuation">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token punctuation">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token punctuation">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
   hasToUpdateHash<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
   hasToAdjustScroll<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
   scrollAdjustThreshold<span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">,</span>
