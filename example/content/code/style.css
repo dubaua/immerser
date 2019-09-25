@@ -22,20 +22,27 @@
   top: 0;
   right: 0;
 }
+.fixed__language {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
 .fixed__about {
   position: absolute;
   bottom: 0;
   right: 0;
 }
-.logo,
 .pager,
+.logo,
 .menu,
+.language,
 .about {
   color: black;
 }
-.logo--contrast,
 .pager--contrast,
+.logo--contrast,
 .menu--contrast,
+.language--contrast,
 .about--contrast {
   color: white;
 }

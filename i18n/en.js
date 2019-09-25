@@ -1,4 +1,5 @@
 module.exports = {
+  'language-code': 'en',
   'document-title': 'immerser — Javascript Library to Switch Fixed Blocks on Scroll',
   immerser: 'immerser',
   'menu-link-reasoning': 'Reasoning',
@@ -12,10 +13,22 @@ module.exports = {
   'custom-font-body-classname': '',
   'section-why-immerser': `
 <h1>Why Immerser?</h1>
-<p>Sometimes designers create complex logic and fix parts of&nbsp;the interface. Also they colour page sections contrastly. How to&nbsp;deal with this mess? </p>
-<p>Immerser comes to&nbsp;help you. It&rsquo;s a&nbsp;javascript library to&nbsp;change fixed elements on&nbsp;scroll.</p>
-<p>Immerser fast, because it&nbsp;calculates states once on&nbsp;init. Then it&nbsp;watches the scroll position and schedules redraw document in&nbsp;the next event loop tick with requestAnimationFrame. Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.</p>
-<p>Immerser doesn&rsquo;t have any dependencies and is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;3.1kb gzipped.</p>`,
+<p>
+  Sometimes designers create complex logic and fix parts of&nbsp;the interface.
+  Also they colour page sections contrastly. How to&nbsp;deal with this mess?
+</p>
+<p>
+  Immerser comes to&nbsp;help you. It&rsquo;s a&nbsp;javascript library to&nbsp;change fixed elements on&nbsp;scroll.
+</p>
+<p>
+  Immerser fast, because it&nbsp;calculates states once on&nbsp;init.
+  Then it&nbsp;watches the scroll position and schedules redraw document in&nbsp;the next event loop tick with requestAnimationFrame.
+  Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
+</p>
+<p>
+  Immerser doesn&rsquo;t have any dependencies and is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;3.4kb gzipped.
+</p>
+`,
 
   'section-terms': `
 <h1>Terms</h1>
@@ -69,8 +82,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 
   'section-how-it-works': `
 <h1>How it&nbsp;Works?</h1>
-<p>First, immerser gathers information about the layers, solids, window and document.</p>
 <p>
+  First, immerser gathers information about the layers, solids, window and document.
   Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer
   is&nbsp;partially and fully in&nbsp;viewport.
 </p>

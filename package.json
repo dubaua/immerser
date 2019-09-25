@@ -20,7 +20,6 @@
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "babel-loader": "^8.0.6",
-    "commitizen": "^3.1.1",
     "create-observable": "^1.0.2",
     "css-loader": "^3.2.0",
     "cz-conventional-changelog": "^2.1.0",
@@ -36,7 +35,6 @@
     "prismjs": "^1.17.1",
     "rimraf": "^2.6.3",
     "sass-loader": "^8.0.0",
-    "semantic-release": "^15.13.12",
     "simplebar": "^4.0.0",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.9",
@@ -45,13 +43,6 @@
   "scripts": {
     "build": "rimraf dist && microbundle --name Immerser --strict",
     "docs": "rimraf docs && webpack --mode production",
-    "dev": "webpack-dev-server --mode development --open",
-    "semantic-release": "semantic-release",
-    "commit": "git-cz"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "dev": "webpack-dev-server --mode development --open"
   }
 }

@@ -75,11 +75,11 @@ for (let i = 0; i < emojiNodeList.length; i++) {
 }
 
 const rulersNode = document.getElementById('rulers');
-document.addEventListener('keydown', ({ altKey, key }) => {
-  const isOne = key.toLowerCase() === '1' || key.toLowerCase() === '!';
-  if (altKey && isOne) {
+document.addEventListener('keydown', ({ altKey, code, keyCode }) => {
+  const isR = code === 'KeyR' || keyCode === 82;
+  if (altKey && isR) {
     rulersNode.classList.toggle('rulers--active');
   }
 });
 
-console.log('welcome here, fella. Press Alt+1 to see vertical rhythm');
+console.log('welcome here, fella. Press Alt+R to see vertical rhythm');

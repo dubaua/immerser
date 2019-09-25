@@ -1,10 +1,12 @@
 # Library for Switching Fixed Elements on Scroll
 
-Nowadays designers tends to create complex logic and fix parts of the interface. Also they colour page sections contrastly. How to deal with this mess? Immerser can help you.
+Sometimes designers create complex logic and fix parts of the interface. Also they colour page sections contrastly. How to deal with this mess?
 
-Immerser fast, because it calculates states once on init. Then it watchs the scroll position and schedules redraw DOM in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
+Immerser comes to help you. It’s a javascript library to change fixed elements on scroll.
 
-Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.1kb gzipped.
+Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
+
+Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.4kb gzipped.
 
 # How to Use
 
@@ -25,7 +27,7 @@ yarn add immerser
 or if you want to use immerser as UMD
 
 ```HTML
-<script src="https://unpkg.com/immerser@1.0.0/dist/immerser.min.umd.js"></script>
+<script src="https://unpkg.com/immerser@2.0.0/dist/immerser.min.umd.js"></script>
 ```
 
 ## Prepare Your Markup
@@ -41,7 +43,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 ```html
 <div class="fixed" data-immerser>
   <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
-  <div class="fixed__logo logo" data-immerser-solid="logo">immerser</div>
+  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo">immerser</a>
   <div class="fixed__menu menu" data-immerser-solid="menu">
     <a href="#reasoning" class="menu__link">Reasoning</a>
     <a href="#how-to-use" class="menu__link">How to Use</a>
@@ -49,63 +51,47 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
     <a href="#options" class="menu__link">Options</a>
     <a href="#possibilities" class="menu__link">Possibilities</a>
   </div>
-  <div class="fixed__social social" data-immerser-solid="social">
-    <a href="https://github.com/dubaua/immerser">github</a>
-    <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
+  <div class="fixed__language language" data-immerser-solid="language">
+    <a href="/" class="language__link">english</a>
+    <a href="/ru.html" class="language__link">по-русски</a>
   </div>
   <div class="fixed__about about" data-immerser-solid="about">
     © 2019 — Vladimir Lysov, Chelyabinsk, Russia
+    <a href="https://github.com/dubaua/immerser">github</a>
+    <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
 </div>
 
 <div
   data-immerser-layer
-  data-immerser-layer-config='{
-  "logo": "logo--contrast", 
-  "pager": "pager--contrast", 
-  "social": "social--contrast"
-}'
+  data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
   id="reasoning"
 ></div>
 <div
   data-immerser-layer
-  data-immerser-layer-config='{
-  "menu": "menu--contrast", 
-  "about": "about--contrast"
-}'
+  data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}'
   id="how-to-use"
 ></div>
 <div
   data-immerser-layer
-  data-immerser-layer-config='{
-  "logo": "logo--contrast", 
-  "pager": "pager--contrast", 
-  "social": "social--contrast"
-}'
+  data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
   id="how-it-works"
 ></div>
 <div
   data-immerser-layer
-  data-immerser-layer-config='{
-  "menu": "menu--contrast", 
-  "about": "about--contrast"
-}'
+  data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}'
   id="options"
 ></div>
 <div
   data-immerser-layer
-  data-immerser-layer-config='{
-  "logo": "logo--contrast", 
-  "pager": "pager--contrast", 
-  "social": "social--contrast"
-}'
+  data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}'
   id="possibilities"
 ></div>
 ```
 
 ## Apply styles
 
-Apply color and background styles to your layers and solids according to your classname configuration passed in data attribute or options.
+Apply color and background styles to your layers and solids according to your classname configuration passed in data attribute or options. I'm using [BEM methodology](https://en.bem.info/methodology/) in this example.
 
 ```css
 .fixed {
@@ -132,29 +118,27 @@ Apply color and background styles to your layers and solids according to your 
   top: 0;
   right: 0;
 }
+.fixed__language {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
 .fixed__about {
   position: absolute;
   bottom: 0;
   right: 0;
 }
-.section {
-  min-height: 100vh;
-  background: white;
-  color: black;
-}
-.section--contrast {
-  background: black;
-  color: white;
-}
-.logo,
 .pager,
+.logo,
 .menu,
+.language,
 .about {
   color: black;
 }
-.logo--contrast,
 .pager--contrast,
+.logo--contrast,
 .menu--contrast,
+.language--contrast,
 .about--contrast {
   color: white;
 }
@@ -165,11 +149,13 @@ Apply color and background styles to your layers and solids according to your 
 Include immerser in your code and create immerser instance with options.
 
 ```js
-// if using package manager
-import Immerser from 'immerser';
+import Immerser from '../immerser.js';
 
 const immerserInstance = new Immerser({
   hasToUpdateHash: true,
+  hasToAdjustScroll: true,
+  scrollAdjustThreshold: 200,
+  scrollAdjustDelay: 300,
   onInit(immerser) {
     // callback on init
   },
@@ -225,7 +211,7 @@ If passed option fails validation it falled back to default value.
 
 ## Custom Markup
 
-Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunatelly, you can markup the immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smily face on the right in this page source.
+Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunatelly, you can markup the immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smily emoji on the right in this page source.
 
 ```html
 <div class="fixed" data-immerser>
@@ -244,7 +230,7 @@ Since immerser cloning nested nodes by default, all event listeners and data bou
 
 ## Hover Synchronizing
 
-As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover a partially visible element, the only visible part will recolor. If you want to synchronize it, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this `hoverId` when the mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
+As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover a partially visible element, only the visible part will recolor. If you want to synchronize it, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this `hoverId` when the mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
 
 ```css
 a:hover,

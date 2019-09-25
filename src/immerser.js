@@ -222,7 +222,7 @@ export default class Immerser {
     this.isCustomMarkup = customMaskNodeList.length === this.statemap.length;
     if (customMaskNodeList.length > 0 && customMaskNodeList.length !== this.statemap.length) {
       // further possible to explicitly pass mask index
-      console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count.");
+      console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count. Check out documentation https://github.com/dubaua/immerser#custom-markup");
     }
 
     // since custom child wrapped in ignoring pointer and touch events immerser mask, we should explicitly set them on
