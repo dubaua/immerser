@@ -24,20 +24,3 @@ export function getLastScrollPosition() {
     y: limit(scrollY, 0, document.documentElement.offsetHeight),
   };
 }
-
-export function mergeAndValidateOptions(options = {}, defaults, context) {
-  for (const key in defaults) {
-    const { initial, description, validator } = defaults[key];
-    context[key] = initial;
-    if (options.hasOwnProperty(key)) {
-      const value = options[key];
-      if (validator(value)) {
-        context[key] = value;
-      } else {
-        console.warn(
-          `Expected ${key} is ${description}, got <${typeof value}> ${value}. Fallback to default value ${initial}. Check documentation https://github.com/dubaua/immerser#options`
-        );
-      }
-    }
-  }
-}

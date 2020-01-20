@@ -1,11 +1,12 @@
 import { DEFAULTS, DEFAULT_OPTIONS } from './defaults.js';
 import createObservable from 'create-observable';
+import mergeOptions from '@dubaua/merge-options';
 import * as utils from './utils.js';
 
 export default class Immerser {
-  constructor(options) {
+  constructor(userOptions) {
     this.initState();
-    this.init(options);
+    this.init(userOptions);
   }
 
   initState() {
@@ -31,11 +32,21 @@ export default class Immerser {
     this.onScroll = null;
   }
 
-  init(options) {
-    utils.mergeAndValidateOptions(options, DEFAULT_OPTIONS, this.options);
+  init(userOptions) {
+    this.options = {
+      ...this.options,
+      ...mergeOptions({
+        userOptions,
+        defaults: DEFAULT_OPTIONS,
+        warnPreffix: 'immerser:',
+        warnSuffix: 'Check out documentation https://github.com/dubaua/immerser#options',
+      }),
+    };
     this.immerserNode = document.querySelector(this.options.selectorImmerser);
     if (!this.immerserNode) {
-      console.warn('Immerser element not found. Check out documentation https://github.com/dubaua/immerser#how-to-use');
+      console.warn(
+        'immerser: immerser element not found. Check out documentation https://github.com/dubaua/immerser#how-to-use',
+      );
       return;
     }
 
@@ -222,7 +233,9 @@ export default class Immerser {
     this.isCustomMarkup = customMaskNodeList.length === this.statemap.length;
     if (customMaskNodeList.length > 0 && customMaskNodeList.length !== this.statemap.length) {
       // further possible to explicitly pass mask index
-      console.warn("You're trying use custom markup, but count of your immerser masks doesn't equal layers count. Check out documentation https://github.com/dubaua/immerser#custom-markup");
+      console.warn(
+        "immerser: You're trying use custom markup, but count of your immerser masks doesn't equal layers count. Check out documentation https://github.com/dubaua/immerser#custom-markup",
+      );
     }
 
     // since custom child wrapped in ignoring pointer and touch events immerser mask, we should explicitly set them on
@@ -452,7 +465,7 @@ export default class Immerser {
   handleScroll() {
     if (this.isBound) {
       this.draw();
-      if (this.options.scrollAdjustThreshold > 0) {
+      if (this.options.hasToUpdateHash && this.options.scrollAdjustThreshold > 0) {
         if (this.scrollTimerId) clearTimeout(this.scrollTimerId);
         this.scrollTimerId = setTimeout(() => {
           this.adjustScroll();

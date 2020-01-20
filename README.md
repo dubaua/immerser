@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed elements
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser doesn’t have any dependencies and is written on vanilla js. Only 3.4kb gzipped.
+Immerser is written on vanilla js. Only 3.4kb gzipped.
 
 # How to Use
 
@@ -149,7 +149,7 @@ Apply color and background styles to your layers and solids according to your cl
 Include immerser in your code and create immerser instance with options.
 
 ```js
-import Immerser from '../immerser.js';
+import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
   // this option will be overrided by options

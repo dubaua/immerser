@@ -26,7 +26,7 @@ module.exports = {
   Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
 </p>
 <p>
-  Immerser doesn&rsquo;t have any dependencies and is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;3.4kb gzipped.
+  Immerser is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;3.4kb gzipped.
 </p>
 `,
 

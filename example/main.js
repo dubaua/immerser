@@ -39,7 +39,7 @@ const immerserInstance = new Immerser({
       language: 'language--contrast-lg',
     },
   ],
-  hasToUpdateHash: true,
+  hasToUpdateHash: false,
   hasToAdjustScroll: true,
   scrollAdjustThreshold: 50,
   scrollAdjustDelay: 300,

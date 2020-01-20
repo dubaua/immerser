@@ -44,5 +44,8 @@
     "build": "rimraf dist && microbundle --name Immerser --strict",
     "docs": "rimraf docs && webpack --mode production",
     "dev": "webpack-dev-server --mode development --open"
+  },
+  "dependencies": {
+    "@dubaua/merge-options": "^1.0.1"
   }
 }

@@ -1,4 +1,4 @@
-import Immerser from '../immerser.js';
+import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
   // <%= getTranslation('data-attribute-will-override-this-option') %>
