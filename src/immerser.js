@@ -1,6 +1,6 @@
 import { DEFAULTS, DEFAULT_OPTIONS } from './defaults.js';
 import createObservable from 'create-observable';
-import mergeOptions from '@dubaua/merge-options';
+import mergeOptions from '@dubaua/merge-options/dist/merge-options.min.js';
 import * as utils from './utils.js';
 
 export default class Immerser {
@@ -36,8 +36,8 @@ export default class Immerser {
     this.options = {
       ...this.options,
       ...mergeOptions({
-        userOptions,
         defaults: DEFAULT_OPTIONS,
+        userOptions,
         warnPreffix: 'immerser:',
         warnSuffix: 'Check out documentation https://github.com/dubaua/immerser#options',
       }),
@@ -317,7 +317,9 @@ export default class Immerser {
     this.isBound = true;
 
     this.draw();
-    this.drawPagerLinks(this.reactiveActiveLayer.value);
+    if (this.pagerNode) {
+      this.drawPagerLinks(this.reactiveActiveLayer.value);
+    }
   }
 
   unbind() {

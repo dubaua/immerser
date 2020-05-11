@@ -41,11 +41,11 @@
     "webpack-dev-server": "^3.8.1"
   },
   "scripts": {
-    "build": "rimraf dist && microbundle --name Immerser --strict",
+    "build": "rimraf dist && microbundle --name Immerser --strict --external none",
     "docs": "rimraf docs && webpack --mode production",
     "dev": "webpack-dev-server --mode development --open"
   },
   "dependencies": {
-    "@dubaua/merge-options": "^1.0.1"
+    "@dubaua/merge-options": "^1.0.2"
   }
 }

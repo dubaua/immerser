@@ -672,10 +672,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@dubaua/merge-options@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@dubaua/merge-options/-/merge-options-1.0.1.tgz#2833209770763d3f10bfb94e8f6ce89923bdde1d"
-  integrity sha512-I5+bwRz/WpaUqBnOv9V7+4x7DcbIceav6YMUTknEPGuCUxkBN1irnddZP7Bn3tmmvRLPj4qIojFBulqzUwjy5Q==
+"@dubaua/merge-options@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@dubaua/merge-options/-/merge-options-1.0.2.tgz#68ae71f1998136cb72e5b3262b46094db1b130a4"
+  integrity sha512-fni29snMBLasQG6bekvO2jYX1hbURQWTk4MKdVGyuvu4iRnV/9WDq3Pu1uh7/OjrbdgW9fzg1GViX6z6mRFFIA==
 
 "@types/estree@0.0.39":
   version "0.0.39"
