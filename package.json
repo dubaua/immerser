@@ -1,6 +1,6 @@
 {
   "name": "immerser",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Javascript library for switching fixed elements on scroll through sections. Like Midnight.js, but without jQuery",
   "source": "src/immerser.js",
   "main": "dist/immerser.min.js",
