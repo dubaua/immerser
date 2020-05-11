@@ -27,7 +27,7 @@ yarn add immerser
 or if you want to use immerser as UMD
 
 ```HTML
-<script src="https://unpkg.com/immerser@2.0.0/dist/immerser.min.umd.js"></script>
+<script src="https://unpkg.com/immerser@2.0.3/dist/immerser.min.umd.js"></script>
 ```
 
 ## Prepare Your Markup
@@ -149,6 +149,7 @@ Apply color and background styles to your layers and solids according to your cl
 Include immerser in your code and create immerser instance with options.
 
 ```js
+// You don't have to import immerser if you're using it as UMD
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({

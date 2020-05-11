@@ -7,9 +7,10 @@ module.exports = {
   'menu-link-how-it-works': 'Принцип работы',
   'menu-link-options': 'Настройки',
   'menu-link-possibilities': 'Возможности',
-  'language-switcher': '<a href="./" class="language__link">english</a><span class="language__link language__link--active">по-русски</span>',
+  'language-switcher':
+    '<a href="./" class="language__link">english</a><span class="language__link language__link--active">по-русски</span>',
   github: 'гитхаб',
-  copyright: '&copy; 2019 &mdash; Владимир Лысов, Челябинск, Россия',
+  copyright: '&copy; 2020 &mdash; Владимир Лысов, Челябинск, Россия',
   'custom-font-body-classname': 'font-cyrillic',
   'section-why-immerser': `
 <h1>Зачем нужен иммёрсер?</h1>
@@ -66,7 +67,7 @@ module.exports = {
   В&nbsp;примере я использую <a href="https://ru.bem.info/methodology/">методологию БЭМ</a>.
 </p>
 `,
-
+  'dont-import-if-umd': 'Вам не нужно импортировать иммёрсер, если вы используете его как UMD',
   'data-attribute-will-override-this-option-line-1': 'будет переопределена настройками,',
   'data-attribute-will-override-this-option-line-2': 'переданными в атрибут data-immerser-layer-config каждого слоя',
 

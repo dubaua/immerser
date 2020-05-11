@@ -265,7 +265,7 @@
 yarn add immerser
 
 </code></pre>
-              <pre><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>https://unpkg.com/immerser@2.0.0/dist/immerser.min.umd.js<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span></code></pre>
+              <pre><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>https://unpkg.com/immerser@2.0.3/dist/immerser.min.umd.js<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span></code></pre>
             </div>
           </div>
         </div>
@@ -305,7 +305,7 @@ yarn add immerser
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">'</span>{"menu": "menu--contrast", "about": "about--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>options<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">'</span>{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>possibilities<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
 </code></pre>
-              <pre data-src="../example/content/code/markup.html"></pre>
+              <!-- <pre data-src="../example/content/code/markup.html"></pre> -->
             </div>
           </div>
         </div>
@@ -332,7 +332,8 @@ yarn add immerser
           <div class="grid__col grid__col--gamma end background--contrast scroller-x">
             <div class="as-if-title" aria-hidden="true"></div>
             <div class="grid__content code-highlight code-highlight--contrast">
-<pre><code class="language-javascript"><span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'../immerser.js'</span><span class="token punctuation">;</span>
+<pre><code class=" language-javascript"><span class="token comment">// <%= getTranslation('dont-import-if-umd') %></span>
+<span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'immerser'</span><span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
   <span class="token comment">// <%= getTranslation('data-attribute-will-override-this-option-line-1') %></span>

@@ -7,9 +7,10 @@ module.exports = {
   'menu-link-how-it-works': 'How it Works',
   'menu-link-options': 'Options',
   'menu-link-possibilities': 'Possibilities',
-  'language-switcher': '<span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>',
+  'language-switcher':
+    '<span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>',
   github: 'github',
-  copyright: '&copy; 2019 &mdash; Vladimir Lysov, Chelyabinsk, Russia',
+  copyright: '&copy; 2020 &mdash; Vladimir Lysov, Chelyabinsk, Russia',
   'custom-font-body-classname': '',
   'section-why-immerser': `
 <h1>Why Immerser?</h1>
@@ -69,6 +70,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 </p>
 `,
 
+  'dont-import-if-umd': `You don't have to import immerser if you're using it as UMD`,
   'data-attribute-will-override-this-option-line-1': 'this option will be overrided by options',
   'data-attribute-will-override-this-option-line-2': 'passed in data-immerser-layer-config attribute in each layer',
 

@@ -1,3 +1,4 @@
+// <%= getTranslation('you-dont-have-to-import-immerser-if-youre-using-umd') %>
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
