@@ -145,12 +145,14 @@ export default class Immerser {
     this.reactiveWindowWidth.value = window.innerWidth;
   }
 
-  initPager() {
+  initCallbacks() {
     this.reactiveActiveLayer.onChange = nextIndex => {
       if (!this.isBound) return;
 
       // draw active pager link
-      this.drawPagerLinks(nextIndex);
+      if (this.pagerNode) {
+        this.drawPagerLinks(nextIndex);
+      }
 
       // update hash if the option passed
       if (this.options.hasToUpdateHash) {
@@ -292,12 +294,12 @@ export default class Immerser {
   }
 
   bind() {
-    // check if pager, init pager, create links
     this.pagerNode = document.querySelector(this.options.selectorPager);
     if (this.pagerNode) {
-      this.initPager();
       this.createPagerLinks();
     }
+
+    this.initCallbacks();
 
     this.createMasks();
 
@@ -409,11 +411,9 @@ export default class Immerser {
       maskNode.style.transform = `translateY(${progress}px)`;
       maskInnerNode.style.transform = `translateY(${-progress}px)`;
 
-      if (this.pagerNode) {
-        const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerThreshold);
-        if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
-          this.reactiveActiveLayer.value = index;
-        }
+      const pagerScrollActivePoint = y + this.windowHeight * (1 - this.options.pagerThreshold);
+      if (top <= pagerScrollActivePoint && pagerScrollActivePoint < bottom) {
+        this.reactiveActiveLayer.value = index;
       }
     });
   }
