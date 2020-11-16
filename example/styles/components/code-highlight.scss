@@ -76,6 +76,7 @@ $theme-variable: red;
   }
   code {
     font-size: $base !important;
+    line-height: $base * 1.5;
   }
 }
 
@@ -89,7 +90,7 @@ pre[class*='language-'] {
   word-spacing: normal;
   word-break: normal;
   word-wrap: normal;
-  line-height: 1.5;
+  line-height: $base * 1.5 - 1px;
 
   -moz-tab-size: 4;
   -o-tab-size: 4;

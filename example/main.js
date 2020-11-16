@@ -1,4 +1,4 @@
-import Immerser from '../src/immerser.js';
+import Immerser from '../dist/immerser.min';
 import SimpleBar from 'simplebar';
 import './styles/main.scss';
 // import Prism from 'prismjs';
@@ -39,10 +39,11 @@ const immerserInstance = new Immerser({
       language: 'language--contrast-lg',
     },
   ],
-  hasToUpdateHash: false,
-  hasToAdjustScroll: true,
+  hasToUpdateHash: true,
+  fromViewportWidth: 1024,
+  pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,
-  scrollAdjustDelay: 300,
+  scrollAdjustDelay: 600,
   onInit(immerser) {
     window.imm = immerser;
     console.log('onInit', immerser);
@@ -70,7 +71,7 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
   highlighterNode.addEventListener('click', highlight(highlighterNode));
 
   function highlight(highlighterNode) {
-    return function() {
+    return function () {
       if (!immerserInstance.isBound) return;
       const targetSelector = highlighterNode.dataset.highlighter;
       const targetNodeList = document.querySelectorAll(targetSelector);
@@ -93,7 +94,7 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
 const emojiNodeList = document.querySelectorAll('[data-emoji-animating]');
 for (let i = 0; i < emojiNodeList.length; i++) {
   const emojiNode = emojiNodeList[i];
-  emojiNode.addEventListener('click', function() {
+  emojiNode.addEventListener('click', function () {
     if (emojiNode.dataset.emojiAnimating === 'false') {
       emojiNode.dataset.emojiAnimating = 'true';
       setTimeout(() => {
@@ -112,3 +113,5 @@ document.addEventListener('keydown', ({ altKey, code, keyCode }) => {
 });
 
 console.log('welcome here, fella. Press Alt+R to see vertical rhythm');
+
+window.immerserInstance = immerserInstance;

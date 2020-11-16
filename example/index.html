@@ -9,16 +9,22 @@
   </head>
   <body>
     <div class="fixed" data-immerser>
-      <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
+      <div class="fixed__pager pager" data-immerser-solid="pager">
+        <a href="#reasoning" class="pager__link" data-immerser-synchro-hover="pager-reasoning" data-immerser-pager-link></a>
+        <a href="#how-to-use" class="pager__link" data-immerser-synchro-hover="pager-how-to-use" data-immerser-pager-link></a>
+        <a href="#how-it-works" class="pager__link" data-immerser-synchro-hover="pager-how-it-works" data-immerser-pager-link></a>
+        <a href="#options" class="pager__link" data-immerser-synchro-hover="pager-options" data-immerser-pager-link></a>
+        <a href="#possibilities" class="pager__link" data-immerser-synchro-hover="pager-possibilities" data-immerser-pager-link></a>
+      </div>
       <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo"
         ><%= getTranslation('immerser') %></a
       >
       <div class="fixed__menu menu" data-immerser-solid="menu">
-        <a href="#reasoning" data-immerser-synchro-hover="reasoning" class="menu__link"><%= getTranslation('menu-link-reasoning') %></a>
-        <a href="#how-to-use" data-immerser-synchro-hover="how-to-use" class="menu__link"><%= getTranslation('menu-link-how-to-use') %></a>
-        <a href="#how-it-works" data-immerser-synchro-hover="how-it-works" class="menu__link"><%= getTranslation('menu-link-how-it-works') %></a>
-        <a href="#options" data-immerser-synchro-hover="options" class="menu__link"><%= getTranslation('menu-link-options') %></a>
-        <a href="#possibilities" data-immerser-synchro-hover="possibilities" class="menu__link"><%= getTranslation('menu-link-possibilities') %></a>
+        <a href="#reasoning" class="menu__link" data-immerser-synchro-hover="reasoning"><%= getTranslation('menu-link-reasoning') %></a>
+        <a href="#how-to-use" class="menu__link" data-immerser-synchro-hover="how-to-use"><%= getTranslation('menu-link-how-to-use') %></a>
+        <a href="#how-it-works" class="menu__link" data-immerser-synchro-hover="how-it-works"><%= getTranslation('menu-link-how-it-works') %></a>
+        <a href="#options" class="menu__link" data-immerser-synchro-hover="options"><%= getTranslation('menu-link-options') %></a>
+        <a href="#possibilities" class="menu__link" data-immerser-synchro-hover="possibilities"><%= getTranslation('menu-link-possibilities') %></a>
       </div>
       <div class="fixed__language language" data-immerser-solid="language">
         <%= getTranslation('language-switcher') %>
@@ -368,9 +374,10 @@ yarn add immerser
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token punctuation">]</span><span class="token punctuation">,</span>
   hasToUpdateHash<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-  hasToAdjustScroll<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-  scrollAdjustThreshold<span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">,</span>
-  scrollAdjustDelay<span class="token punctuation">:</span> <span class="token number">300</span><span class="token punctuation">,</span>
+  fromViewportWidth<span class="token punctuation">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
+  pagerLinkActiveClassname<span class="token punctuation">:</span> <span class="token string">'pager__link--active</span><span class="token punctuation">,</span>
+  scrollAdjustThreshold<span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+  scrollAdjustDelay<span class="token punctuation">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
   <span class="token function">onInit</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment">// <%= getTranslation('callback-on-init') %></span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
@@ -447,7 +454,7 @@ yarn add immerser
                   <tr>
                     <td>fromViewportWidth</td>
                     <td class="token keyword">number</td>
-                    <td class="token number">1024</td>
+                    <td class="token number">0</td>
                     <td><%= getTranslation('option-fromViewportWidth') %></td>
                   </tr>
                   <tr>
@@ -475,22 +482,10 @@ yarn add immerser
                     <td><%= getTranslation('option-scrollAdjustDelay') %></td>
                   </tr>
                   <tr>
-                    <td>classnamePager</td>
+                    <td>pagerLinkActiveClassname</td>
                     <td class="token keyword">string</td>
-                    <td class="token string">'pager'</td>
-                    <td><%= getTranslation('option-classnamePager') %></td>
-                  </tr>
-                  <tr>
-                    <td>classnamePagerLink</td>
-                    <td class="token keyword">string</td>
-                    <td class="token string">'pager__link'</td>
-                    <td><%= getTranslation('option-classnamePagerLink') %></td>
-                  </tr>
-                  <tr>
-                    <td>classnamePagerLinkActive</td>
-                    <td class="token keyword">string</td>
-                    <td class="token string nowrap">'pager__link--active'</td>
-                    <td><%= getTranslation('option-classnamePagerLinkActive') %></td>
+                    <td class="token string nowrap">'pager-link-active'</td>
+                    <td><%= getTranslation('option-pagerLinkActiveClassname') %></td>
                   </tr>
                   <tr>
                     <td>onInit</td>

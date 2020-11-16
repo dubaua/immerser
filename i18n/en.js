@@ -65,7 +65,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'section-apply-styles': `
 <h1>Apply styles</h1>
 <p>
-  Apply color and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;data attribute or&nbsp;options.
+  Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;data attribute or&nbsp;options.
   I&rsquo;m using <a href="https://en.bem.info/methodology/">BEM methodology</a> in&nbsp;this example.
 </p>
 `,
@@ -111,22 +111,20 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 </p>
 `,
 
-  option: 'параметр',
-  type: 'тип',
-  default: 'значение по умолчанию',
-  description: 'описание',
+  option: 'option',
+  type: 'type',
+  default: 'default',
+  description: 'description',
 
   'option-solidClassnameArray':
-    'Array of layer class configurations. Overrides config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#init-immerser">is shown above</a>',
+    'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#init-immerser">is shown above</a>',
   'option-fromViewportWidth': 'A viewport width, from which immerser will init',
   'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
   'option-hasToUpdateHash': 'Flag to controll changing hash on pager active state change',
   'option-scrollAdjustThreshold':
     'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
-  'option-classnamePager': 'Classname for pager. Style it on your own',
-  'option-classnamePagerLink': 'Classname for pager link. Style it on your own',
-  'option-classnamePagerLinkActive': 'Classname for active pager link. Style it on your own',
+  'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
   'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter',
   'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter',
   'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter',
@@ -135,7 +133,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
     'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second',
 
   'section-custom-markup': `
-<h1>Custom Markup</h1>
+<h1>Clonning Event Listeners</h1>
 <p>
   Since immerser cloning nested nodes by&nbsp;default, all event listeners and data bound on&nbsp;nodes will be lost after
   init. Fortunatelly, you can markup the&nbsp;immmerser yourself. It&nbsp;can be&nbsp;useful when you have event listeners
@@ -148,10 +146,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'your-markup': 'your markup',
 
   'section-hover-synchronizing': `
-<h1>Hover Synchronizing</h1>
+<h1>Handle Clone Hover</h1>
 <p>
   As&nbsp;mentioned above, immerser cloning nested nodes to&nbsp;achieve changing on&nbsp;scroll. Therefore if&nbsp;you
-  hover a&nbsp;partially visible element, only the&nbsp;visible part will recolor. If&nbsp;you want to&nbsp;synchronize&nbsp;it, just
+  hover a&nbsp;partially visible element, only the&nbsp;visible part will change. If&nbsp;you want to&nbsp;synchronize all cloned links, just
   pass
   <code>data-immerser-synchro-hover="hoverId"</code> attribute. It&nbsp;will share <code>_hover</code> class between all
   nodes with this <code>hoverId</code> when the mouse is&nbsp;over one of&nbsp;them. Add <code>_hover</code> selector alongside your

@@ -42,7 +42,13 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
 ```html
 <div class="fixed" data-immerser>
-  <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
+  <div class="fixed__pager pager" data-immerser-solid="pager">
+    <a href="#reasoning" class="pager__link" data-immerser-synchro-hover="pager-reasoning" data-immerser-pager-link></a>
+    <a href="#how-to-use" class="pager__link" data-immerser-synchro-hover="pager-how-to-use" data-immerser-pager-link></a>
+    <a href="#how-it-works" class="pager__link" data-immerser-synchro-hover="pager-how-it-works" data-immerser-pager-link></a>
+    <a href="#options" class="pager__link" data-immerser-synchro-hover="pager-options" data-immerser-pager-link></a>
+    <a href="#possibilities" class="pager__link" data-immerser-synchro-hover="pager-possibilities" data-immerser-pager-link></a>
+  </div>
   <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo">immerser</a>
   <div class="fixed__menu menu" data-immerser-solid="menu">
     <a href="#reasoning" class="menu__link">Reasoning</a>
@@ -91,7 +97,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
 ## Apply styles
 
-Apply color and background styles to your layers and solids according to your classname configuration passed in data attribute or options. I'm using [BEM methodology](https://en.bem.info/methodology/) in this example.
+Apply colour and background styles to your layers and solids according to your classname configuration passed in data attribute or options. I'm using [BEM methodology](https://en.bem.info/methodology/) in this example.
 
 ```css
 .fixed {
@@ -185,9 +191,10 @@ const immerserInstance = new Immerser({
     },
   ],
   hasToUpdateHash: true,
-  hasToAdjustScroll: true,
-  scrollAdjustThreshold: 200,
-  scrollAdjustDelay: 300,
+  fromViewportWidth: 1024,
+  pagerLinkActiveClassname: 'pager__link--active',
+  scrollAdjustThreshold: 50,
+  scrollAdjustDelay: 600,
   onInit(immerser) {
     // callback on init
   },
@@ -220,28 +227,26 @@ Finally, immerser binds listeners to scroll and resize events. On resize, it wil
 
 You can pass options to immerser as data-attributes on layers or as function parameters. Data-attributes process last, so they will override options passed in function.
 
-| option                                     | type       | default                 | description                                                                                                                                                                                                     |
-| ------------------------------------------ | ---------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| solidClassnameArray                        | `array`    | `[]`                    | Array of layer class configurations. Overrides config passed in `data-immerser-layer-config` for corresponding layer                                                                                            |
-| fromViewportWidth                          | `number`   | `1024`                  | A viewport width, from which immerser will init                                                                                                                                                                 |
-| pagerThreshold                             | `number`   | `0.5`                   | How much next layer should be in viewport to trigger pager                                                                                                                                                      |
-| hasToUpdateHash                            | `boolean`  | `false`                 | Flag to controll changing hash on pager active state change                                                                                                                                                     |
-| scrollAdjustThreshold                      | `number`   | `0`                     | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed. |
-| scrollAdjustDelay                          | `number`   | `600`                   | Delay after user interaction and before scroll adjust.                                                                                                                                                          |
-| classnamePager                             | `string`   | `'pager'`               | Classname for pager. Style it on your own                                                                                                                                                                       |
-| classnamePagerLink                         | `string`   | `'pager__link'`         | Classname for pager link. Style it on your own                                                                                                                                                                  |
-| classnamePagerLinkActive                   | `string`   | `'pager__link--active'` | Classname for active pager link. Style it on your own                                                                                                                                                           |
-| onInit(immerser)                           | `function` | `null`                  | Fired after initialization. Accept an immerser instance as the only parameter                                                                                                                                   |
-| onBind(immerser)                           | `function` | `null`                  | Fired after binding DOM. Accept an immerser instance as the only parameter                                                                                                                                      |
-| onUnbind(immerser)                         | `function` | `null`                  | Fired after unbinding DOM. Accept an immerser instance as the only parameter                                                                                                                                    |
-| onDestroy(immerser)                        | `function` | `null`                  | Fired after destroy. Accept an immerser instance as the only parameter                                                                                                                                          |
-| onActiveLayerChange(activeIndex, immerser) | `function` | `null`                  | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second                                                                                                |
+| option                                     | type       | default               | description                                                                                                                                                                                                     |
+| ------------------------------------------ | ---------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| solidClassnameArray                        | `array`    | `[]`                  | Array of layer class configurations. Overriding by config passed in `data-immerser-layer-config` for corresponding layer                                                                                        |
+| fromViewportWidth                          | `number`   | `0`                   | A viewport width, from which immerser will init                                                                                                                                                                 |
+| pagerThreshold                             | `number`   | `0.5`                 | How much next layer should be in viewport to trigger pager                                                                                                                                                      |
+| hasToUpdateHash                            | `boolean`  | `false`               | Flag to controll changing hash on pager active state change                                                                                                                                                     |
+| scrollAdjustThreshold                      | `number`   | `0`                   | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed. |
+| scrollAdjustDelay                          | `number`   | `600`                 | Delay after user interaction and before scroll adjust.                                                                                                                                                          |
+| pagerLinkActiveClassname                   | `string`   | `'pager-link-active'` | Added to each pager link pointing to active layer.                                                                                                                                                               |
+| onInit(immerser)                           | `function` | `null`                | Fired after initialization. Accept an immerser instance as the only parameter                                                                                                                                   |
+| onBind(immerser)                           | `function` | `null`                | Fired after binding DOM. Accept an immerser instance as the only parameter                                                                                                                                      |
+| onUnbind(immerser)                         | `function` | `null`                | Fired after unbinding DOM. Accept an immerser instance as the only parameter                                                                                                                                    |
+| onDestroy(immerser)                        | `function` | `null`                | Fired after destroy. Accept an immerser instance as the only parameter                                                                                                                                          |
+| onActiveLayerChange(activeIndex, immerser) | `function` | `null`                | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second                                                                                                |
 
 If passed option fails validation it falled back to default value.
 
 # Possibilities
 
-## Custom Markup
+## Clonning Node Listeners
 
 Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunatelly, you can markup the immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smily emoji on the right in this page source.
 
@@ -260,9 +265,9 @@ Since immerser cloning nested nodes by default, all event listeners and data bou
 </div>
 ```
 
-## Hover Synchronizing
+## Handle Clone Hover
 
-As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover a partially visible element, only the visible part will recolor. If you want to synchronize it, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this `hoverId` when the mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
+As mentioned above, immerser cloning nested nodes to achieve changing on scroll. Therefore if you hover a partially visible element, only the visible part will change. If you want to synchronize all cloned links, just pass `data-immerser-synchro-hover="hoverId"` attribute. It will share `_hover` class between all nodes with this `hoverId` when the mouse is over one of them. Add `_hover` selector alongside your `:hover` pseudoselector to style your interactive elements.
 
 ```css
 a:hover,

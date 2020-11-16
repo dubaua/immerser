@@ -33,9 +33,10 @@ const immerserInstance = new Immerser({
     },
   ],
   hasToUpdateHash: true,
-  hasToAdjustScroll: true,
-  scrollAdjustThreshold: 200,
-  scrollAdjustDelay: 300,
+  fromViewportWidth: 1024,
+  pagerLinkActiveClassname: 'pager__link--active',
+  scrollAdjustThreshold: 50,
+  scrollAdjustDelay: 600,
   onInit(immerser) {
     // <%= getTranslation('callback-on-init') %>
   },
