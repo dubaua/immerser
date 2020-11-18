@@ -36,9 +36,9 @@ Inline svg sprites
 
 ~~Add scroll adjust parameter~~
 
-autoupdate version in readme and docs
+~~autoupdate version in readme and docs~~
 
-autoupdate gzipped size
+~~autoupdate gzipped size~~
 
 add adjustable scroll animation
 

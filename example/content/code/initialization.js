@@ -1,8 +1,10 @@
-// <%= getTranslation('you-dont-have-to-import-immerser-if-youre-using-umd') %>
+// <%= getTranslation('dont-import-if-umd-line-1') %>
+// <%= getTranslation('dont-import-if-umd-line-2') %>
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
-  // <%= getTranslation('data-attribute-will-override-this-option') %>
+  // <%= getTranslation('data-attribute-will-override-this-option-line-1') %>
+  // <%= getTranslation('data-attribute-will-override-this-option-line-2') %>
   solidClassnameArray: [
     {
       logo: 'logo--contrast-lg',

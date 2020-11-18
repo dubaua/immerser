@@ -4,7 +4,7 @@ function classnameValidator(string) {
   return typeof string === 'string' && string !== '' && CLASSNAME_REGEX.test(string);
 }
 
-export const OPTION_CONFIG = {
+const OPTION_CONFIG = {
   solidClassnameArray: {
     default: [],
     description: 'non empty array of objects',
@@ -67,4 +67,9 @@ export const OPTION_CONFIG = {
   },
 };
 
-export const MESSAGE_PREFFIX = '[immmerser:]';
+const MESSAGE_PREFFIX = '[immmerser:]';
+
+module.exports = {
+  OPTION_CONFIG,
+  MESSAGE_PREFFIX
+}
