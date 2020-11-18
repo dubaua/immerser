@@ -6,13 +6,15 @@ const turndownService = new TurndownService();
 
 function getTranslationFromTemplate(fileContent) {
   return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) =>
-    en.hasOwnProperty(capture) ? en[capture] : 'TRANSLATION_NOT_FOUND!',
+    Object.prototype.hasOwnProperty.call(en, capture) ? en[capture] : 'TRANSLATION_NOT_FOUND!',
   );
 }
 
 const markupCode = getTranslationFromTemplate(fs.readFileSync('./example/content/code/markup.html', 'utf8'));
 const styleCode = getTranslationFromTemplate(fs.readFileSync('./example/content/code/styles.css', 'utf8'));
-const initializationCode = getTranslationFromTemplate(fs.readFileSync('./example/content/code/initialization.js', 'utf8'));
+const initializationCode = getTranslationFromTemplate(
+  fs.readFileSync('./example/content/code/initialization.js', 'utf8'),
+);
 const optionsTable = fs.readFileSync('./example/content/code/table.md', 'utf8');
 const clonningEventListenersCode = getTranslationFromTemplate(
   fs.readFileSync('./example/content/code/clonning-event-listeners.html', 'utf8'),

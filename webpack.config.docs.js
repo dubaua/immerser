@@ -47,7 +47,7 @@ module.exports = Object.keys(languages).map((language) => ({
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/,
-        exclude: /svg[\/\\]/,
+        exclude: /svg[/\\]/,
         use: [
           {
             loader: 'file-loader',

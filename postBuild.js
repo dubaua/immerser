@@ -1,12 +1,12 @@
 const fs = require('fs');
 const gzipSize = require('gzip-size');
-const package = require('./package.json');
+const packageJSON = require('./package.json');
 
 const bundle = fs.readFileSync('./dist/immerser.min.js', 'utf8');
 
 const bungleSize = (Math.round(gzipSize.sync(bundle) / 1000 * 100) / 100).toString();
 
-const version = package.version;
+const version = packageJSON.version;
 
 function replacer(content) {
   let result = content;

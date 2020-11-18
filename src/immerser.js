@@ -1,7 +1,7 @@
 import mergeOptions from '@dubaua/merge-options';
 import Observable from '@dubaua/observable';
-import { OPTION_CONFIG, MESSAGE_PREFFIX } from '@/defaults.js';
-import { bindStyles, forEachNode, getNodeArray, getLastScrollPosition, showError, isEmpty } from '@/utils.js';
+import { MESSAGE_PREFFIX, OPTION_CONFIG } from '@/defaults.js';
+import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from '@/utils.js';
 
 const CROPPED_FULL_ABSOLUTE_STYLES = {
   position: 'absolute',
@@ -307,7 +307,7 @@ export default class Immerser {
       const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.selectors.solid);
       forEachNode(clonedSolidNodeList, (clonedSolidNode) => {
         const solidId = clonedSolidNode.dataset.immerserSolid;
-        if (state.solidClassnames && state.solidClassnames.hasOwnProperty(solidId)) {
+        if (state.solidClassnames && Object.prototype.hasOwnProperty.call(state.solidClassnames, solidId)) {
           clonedSolidNode.classList.add(state.solidClassnames[solidId]);
         }
       });
@@ -335,7 +335,7 @@ export default class Immerser {
     if (this.customMaskNodeArray.length > 0 && !this.isCustomMarkup) {
       // later allow explicitly pass mask index?
       showError({
-        message: "You're trying use custom markup, but count of your immerser masks doesn't equal layers count.",
+        message: 'You\'re trying use custom markup, but count of your immerser masks doesn\'t equal layers count.',
         warning: true,
         docs: '#clonning-event-listeners',
       });

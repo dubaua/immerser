@@ -1,5 +1,5 @@
 const fs = require('fs');
-var kindOf = require('kind-of');
+const kindOf = require('kind-of');
 const TurndownService = require('turndown');
 const en = require('./i18n/en.js');
 const { OPTION_CONFIG } = require('./src/defaults.js');
@@ -69,11 +69,11 @@ fs.writeFileSync('./example/content/code/table.html', HTMLTableMarkup);
 const markdownTable = `| option | type | default | description |
 | - | - | - | - |
 ${options
-  .map(
-    ({ optionName, type, defaultValue }) =>
-      `| ${optionName} | \`${type}\` | \`${defaultValue}\` | ${turndownService.turndown(en['option-' + optionName])} |`,
-  )
-  .join('\n')}
+    .map(
+      ({ optionName, type, defaultValue }) =>
+        `| ${optionName} | \`${type}\` | \`${defaultValue}\` | ${turndownService.turndown(en['option-' + optionName])} |`,
+    )
+    .join('\n')}
 `;
 
 fs.writeFileSync('./example/content/code/table.md', markdownTable);

@@ -20,29 +20,44 @@
     // Хотим, чтобы в конце строки многострочного массива или объека всегда была запятая
     // Чтобы при мультивыделении был единообразный конец строк
     "comma-dangle": ["error", "always-multiline"],
-    "constructor-super": "error",
-    "curly": "error",
+    // не дропаем кудрявые скобки в блоках
+    "curly": ["error", "all"],
+    // отступы в 2 пробела
     "indent": ["error", 2, { "SwitchCase": 1 }],
-    "keyword-spacing": "error",
-    "no-console": 0,
-    "no-const-assign": "error",
-    "no-debugger": 0,
-    "no-duplicate-imports": "error",
-    "no-multiple-empty-lines": [2, { "max": 2, "maxEOF": 1 }],
-    "no-this-before-super": "error",
-    "no-unreachable": "error",
-    "no-unused-vars": 2,
-    "no-useless-escape": 0,
+    // ключевые слова всегда отбиваем пробелами
+    "keyword-spacing": ["error", { "before": true, "after": true }],
+    // не используем alert, prompt, confirm
+    "no-alert": "error",
+    // не импортируем из одного файла по нескольку раз, чтобы не путаться в импортах
+    "no-duplicate-imports": ["error", { "includeExports": true }],
+    // не плодим больше 2 пустых строк в коде
+    "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
+    // не бросаем ошибку, но предупреждаем о ненужном экранировании
+    "no-useless-escape": "warn",
+    // используем var по назначению
     "no-var": "error",
+    // всегда отбиваем кудрявые скобки в объектах пробелами
     "object-curly-spacing": ["error", "always"],
+    // каждую переменную, константу отдельно объявляем, так лучше видно
     "one-var": ["error", { "var": "never", "let": "never", "const": "never" }],
-    "prefer-arrow-callback": "error",
+    // стрелочные функции лучше читаются и автоматически получают контекст
+    "prefer-arrow-callback": ["error"],
+    // если не переназначаем переменную, лучше использовать константу
     "prefer-const": "error",
-    // кавычки одинарные
+    // кавычки одинарные используем
     "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    // явно вставляем точку с запятой в концах строк, где они подразумеваются движком
     "semi": ["error", "always"],
+    // сортируем импортируемые модули внутри кудрявых скобок
     "sort-imports": ["error", { "ignoreDeclarationSort": true }],
-    "space-before-function-paren": ["error", "never"],
-    "valid-typeof": "error"
+    // пробелом отбиваем только асинхронную стелочную функцию
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "never",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ]
   }
 }
