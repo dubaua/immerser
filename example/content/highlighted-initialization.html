@@ -1,0 +1,58 @@
+<pre><code class="language-javascript"><span class="token comment">// <%= getTranslation('dont-import-if-umd-line-1') %></span>
+<span class="token comment">// <%= getTranslation('dont-import-if-umd-line-2') %></span>
+<span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'immerser'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment">// <%= getTranslation('data-attribute-will-override-this-option-line-1') %></span>
+  <span class="token comment">// <%= getTranslation('data-attribute-will-override-this-option-line-2') %></span>
+  solidClassnameArray<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      pager<span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      menu<span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      about<span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token operator">:</span> <span class="token string">'logo--contrast-only-md'</span><span class="token punctuation">,</span>
+      pager<span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      language<span class="token operator">:</span> <span class="token string">'language--contrast-only-md'</span><span class="token punctuation">,</span>
+      menu<span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      about<span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      logo<span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      pager<span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      language<span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  hasToUpdateHash<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  fromViewportWidth<span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
+  pagerLinkActiveClassname<span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
+  scrollAdjustThreshold<span class="token operator">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+  scrollAdjustDelay<span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
+  <span class="token function">onInit</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// <%= getTranslation('callback-on-init') %></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">onBind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// <%= getTranslation('callback-on-bind') %></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">onUnbind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// <%= getTranslation('callback-on-unbind') %></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">onDestroy</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// <%= getTranslation('callback-on-destroy') %></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">onActiveLayerChange</span><span class="token punctuation">(</span><span class="token parameter">activeIndex<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// <%= getTranslation('callback-on-active-layer-change') %></span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>

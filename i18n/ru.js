@@ -1,6 +1,7 @@
 module.exports = {
   'language-code': 'ru',
   'document-title': 'иммёрсер — джаваскрипт библиотека для перекрашивания фиксированных блоков по скроллу',
+  'readme-title': 'Библиотека для перекрашивания фиксированных блоков по скроллу',
   immerser: 'иммёрсер',
   'menu-link-reasoning': 'Зачем нужен иммёрсер',
   'menu-link-how-to-use': 'Как пользоваться',
@@ -12,8 +13,8 @@ module.exports = {
   github: 'гитхаб',
   copyright: '&copy; 2020 &mdash; Владимир Лысов, Челябинск, Россия',
   'custom-font-body-classname': 'font-cyrillic',
-  'section-why-immerser': `
-<h1>Зачем нужен иммёрсер?</h1>
+  'why-immerser-title': 'Зачем нужен иммёрсер?',
+  'why-immerser-content': `
 <p>
   Иногда дизайнеры создают сложную логику и&nbsp;фиксируют части интерфейса.
   А&nbsp;еще они красят разделы страницы в&nbsp;контрастные цвета. Как с&nbsp;этим справиться?
@@ -28,29 +29,27 @@ module.exports = {
   Скрипт изменяет свойство transform, это задействует графический ускоритель.
 </p>
 <p>
-  Иммёрсер написан на&nbsp;чистом джаваскрипте. Всего&nbsp;3.4кб в&nbsp;сжатии gzip.
+  Иммёрсер написан на&nbsp;чистом джаваскрипте. Всего&nbsp;%%BUNDLESIZE%%Кб в&nbsp;сжатии gzip.
 </p>
 `,
 
-  'section-terms': `
-<h1>Термины</h1>
+  'terms-title': 'Термины',
+  'terms-content': `
 <p>
-<strong class="highlighter" data-highlighter="[data-immerser]">Корневой элемент иммёрсера</strong>&nbsp;&mdash; это родительский контейнер для ваших фиксированных <strong class="highlighter" data-highlighter="[data-immerser-solid], .emoji">блоков</strong>.
+<code class="highlighter" data-highlighter="[data-immerser]">Корневой элемент иммёрсера</code>&nbsp;&mdash; это родительский контейнер для ваших фиксированных <code class="highlighter" data-highlighter="[data-immerser-solid], .emoji">блоков</code>.
 Фактически они позиционированы абсолютно внутри фиксированного корневого элемента.
-<strong class="highlighter" data-highlighter="[data-immerser-layer]">Слои</strong>&nbsp;&mdash; это разделы страницы, окрашенные в&nbsp;разные цвета.
-Еще вы&nbsp;наверняка захотите добавить <strong class="highlighter" data-highlighter="[data-immerser-pager]">навигацию</strong> по&nbsp;разделам, выделяющую активный раздел.
+<code class="highlighter" data-highlighter="[data-immerser-layer]">Слои</code>&nbsp;&mdash; это разделы страницы, окрашенные в&nbsp;разные цвета.
+Еще вы&nbsp;наверняка захотите добавить <code class="highlighter" data-highlighter="[data-immerser-solid='pager']">навигацию</code> по&nbsp;разделам, выделяющую активный раздел.
 </p>
 `,
 
-  'section-install': `
-<h1>Установка</h1>
-<p>Через npm:</p>
-<p>Через yarn:</p>
-<p>Или подключив скрипт напрямую:</p>
-`,
+  'install-title': 'Установка',
+  'install-npm-label': '<p>Через npm:</p>',
+  'install-yarn-label': '<p>Через yarn:</p>',
+  'install-browser-label': '<p>Или если вы хотите использовать иммёрсер в браузере как глобальную переменную:</p>',
 
-  'section-prepare-your-markup': `
-<h1>Подготовьте разметку</h1>
+  'prepare-your-markup-title': 'Подготовьте разметку',
+  'prepare-your-markup-content': `
 <p>Сначала настройте свой фиксированный контейнер как корневой элемент иммёрсера, добавив атрибут <code>data-immerser</code></p>
 <p>Затем расположите в&nbsp;нем абсолютно позиционированные дочерние элементы и&nbsp;добавьте каждому атрибут <code>data-immerser-solid="solid-id"</code> с&nbsp;идентификатором блока.</p>
 <p>Добавьте каждому слою атрибут <code>data-immerser-layer</code>. Передайте конфигурацию в&nbsp;виде JSON в&nbsp;каждый слой с&nbsp;помощью атрибута
@@ -60,20 +59,20 @@ module.exports = {
 <p>Так&nbsp;же вы&nbsp;можете добавить элемент с&nbsp;атрибутом <code>data-immerser-pager</code> для создания навигации.</p>
 `,
 
-  'section-apply-styles': `
-<h1>Примените стили</h1>
+  'apply-styles-title': 'Примените стили',
+  'apply-styles-content': `
 <p>
   Добавьте стили цвета текста и&nbsp;фона на&nbsp;ваши блоки и&nbsp;слои с&nbsp;помощью классов, переданных в&nbsp;дата-атрибут или настройки.
   В&nbsp;примере я использую <a href="https://ru.bem.info/methodology/">методологию БЭМ</a>.
 </p>
 `,
-  'dont-import-if-umd': 'Вам не нужно импортировать иммёрсер, если вы используете его как UMD',
+  'dont-import-if-umd-line-1': `Вам не нужно импортировать иммёрсер,`,
+  'dont-import-if-umd-line-2': `если вы используете его в браузере как глобальную переменную`,
   'data-attribute-will-override-this-option-line-1': 'будет переопределена настройками,',
   'data-attribute-will-override-this-option-line-2': 'переданными в атрибут data-immerser-layer-config каждого слоя',
 
-  'section-initialize-immerser': `<h1>Инициализируйте иммёрсер</h1>
-<p>Добавьте иммёрсер в&nbsp;код и&nbsp;создайте экземпляр с&nbsp;настройками.</p>
-`,
+  'initialize-immerser-title': 'Инициализируйте иммёрсер',
+  'initialize-immerser-content': `<p>Добавьте иммёрсер в&nbsp;код и&nbsp;создайте экземпляр с&nbsp;настройками.</p>`,
 
   'callback-on-init': 'колбек после инициализации',
   'callback-on-bind': 'колбек после привязки к документу',
@@ -81,16 +80,16 @@ module.exports = {
   'callback-on-destroy': 'колбек после уничтожения',
   'callback-on-active-layer-change': 'колбек после смены активного слоя',
 
-  'section-how-it-works': `
-<h1>Принцип работы</h1>
+  'how-it-works-title': 'Принцип работы',
+  'how-it-works-content': `
 <p>Сначала иммёрсер собирает информацию о&nbsp;слоях, блоках, окне и&nbsp;документе. Затем скрипт создает карту состояний для каждого слоя. Карта содержит размеры слоя, блоков и&nbsp;позиции их&nbsp;пересечений при скролле.</p>
 <p>После сбора информации скрипт копирует все блоки в&nbsp;маскирующий контейнер и&nbsp;применяет к&nbsp;каждому классы, переданные в&nbsp;настройках. Если вы&nbsp;добавили навигацию, то&nbsp;иммёрсер создаст ссылки на&nbsp;каждый слой.</p>
 <p>Затем иммёрсер подписывается на&nbsp;события скролла документа и&nbsp;изменения размеров окна.</p>
 <p>При скролле иммёрсер двигает маскирующий контейнер так, чтобы показывать часть каждой группы блоков для каждого слоя под ними. При изменении размеров окна скрипт рассчитает карту состояний заново.</p>
 `,
 
-  'section-options': `
-<h1>Настройки</h1>
+  'options-title': 'Настройки',
+  'options-content': `
 <p>
   Вы&nbsp;можете передать настройки параметром функции конструктора или дата-атрибутом в&nbsp;документе.
   Дата-ататрибут обрабатывается последним, поэтому он&nbsp;переопределит настройки, переданные в&nbsp;конструктор.
@@ -103,16 +102,14 @@ module.exports = {
   description: 'описание',
 
   'option-solidClassnameArray':
-    'Массив настроек слоев. Конфигурация, переданная в data-immerser-layer-config перезапишет эту настройку для соответствующего слоя. Пример конфигурации <a href="#init-immerser">показан выше</a>',
+    'Массив настроек слоев. Конфигурация, переданная в data-immerser-layer-config перезапишет эту настройку для соответствующего слоя. Пример конфигурации <a href="#initialize-immerser">показан выше</a>',
   'option-fromViewportWidth': 'Минимальная ширина окна для инициализации иммёрсера',
   'option-pagerThreshold': 'Насколько должен следующий слой быть видим в окне, чтобы он стал активен в навигации',
   'option-hasToUpdateHash': 'Флаг, контролирующий обновление хеша страницы',
   'option-scrollAdjustThreshold':
     'Дистанция до&nbsp;верха или низа окна браузера в&nbsp;пикселях. Если текущая дистанция меньше переданного значения, то&nbsp;скрипт подстроит положение скролла',
   'option-scrollAdjustDelay': 'Сколько ждать бездействия пользователя, чтобы начать подстройку скролла',
-  'option-classnamePager': 'Имя класса навигации',
-  'option-classnamePagerLink': 'Имя класса ссылки навигации',
-  'option-classnamePagerLinkActive': 'Имя класса активной ссылки навигации',
+  'option-pagerLinkActiveClassname': 'Применяется, к каждой ссылке пейджера, ссылающуюся на активный слой',
   'option-onInit': 'Колбек после инициализации. Принимает один параметр — экземпляр иммёрсера',
   'option-onBind': 'Колбек после привязки к документу. Принимает один параметр — экземпляр иммёрсера',
   'option-onUnbind': 'Колбек после отвязки от документа. Принимает один параметр — экземпляр иммёрсера',
@@ -120,8 +117,8 @@ module.exports = {
   'option-onActiveLayerChange':
     'Колбек после смены активного слоя. Принимает два параметра: индекс следующего слоя и экземпляр иммёрсера',
 
-  'section-custom-markup': `
-<h1>Кастомная разметка</h1>
+  'clonning-event-listeners-title': 'Клонирование подписчиков событий',
+  'clonning-event-listeners-content': `
 <p>
   Вы&nbsp;уже знаете, что иммёрсер клонирует элементы.
   Подписчики событий и&nbsp;данные, привязанные к&nbsp;нодам, не&nbsp;клонируются вместе с&nbsp;элементом.
@@ -134,8 +131,8 @@ module.exports = {
 
   'your-markup': 'ваша разметка',
 
-  'section-hover-synchronizing': `
-<h1>Синхронизация наведения</h1>
+  'handle-clone-hover-title': 'Обработка наведения на границах слоев',
+  'handle-clone-hover-content': `
 <p>
   Eсли вы&nbsp;наведете мышь на&nbsp;элемент, находящийся на&nbsp;границе слоев,
   то&nbsp;псевдоселектор <code>:hover</code> сработает только на&nbsp;одну часть.

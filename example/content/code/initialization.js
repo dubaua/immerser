@@ -1,8 +1,10 @@
-// <%= getTranslation('you-dont-have-to-import-immerser-if-youre-using-umd') %>
+// <%= getTranslation('dont-import-if-umd-line-1') %>
+// <%= getTranslation('dont-import-if-umd-line-2') %>
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
-  // <%= getTranslation('data-attribute-will-override-this-option') %>
+  // <%= getTranslation('data-attribute-will-override-this-option-line-1') %>
+  // <%= getTranslation('data-attribute-will-override-this-option-line-2') %>
   solidClassnameArray: [
     {
       logo: 'logo--contrast-lg',
@@ -33,9 +35,10 @@ const immerserInstance = new Immerser({
     },
   ],
   hasToUpdateHash: true,
-  hasToAdjustScroll: true,
-  scrollAdjustThreshold: 200,
-  scrollAdjustDelay: 300,
+  fromViewportWidth: 1024,
+  pagerLinkActiveClassname: 'pager__link--active',
+  scrollAdjustThreshold: 50,
+  scrollAdjustDelay: 600,
   onInit(immerser) {
     // <%= getTranslation('callback-on-init') %>
   },

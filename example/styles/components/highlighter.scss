@@ -1,12 +1,17 @@
 @import '../shared/globals.scss';
 
 @include from('md') {
-  .highlighter {
+  .highlighter,
+  p code.highlighter {
     cursor: pointer;
     text-decoration: underline;
     text-decoration-line: underline;
     text-decoration-style: double;
     text-decoration-color: $color-highlight;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
+    background: none;
   }
 
   .highlighter-animation-active {

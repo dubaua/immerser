@@ -1,7 +1,7 @@
 @import '../shared/globals.scss';
 
 .language {
-  @include from('lg') {
+  @include from('md') {
     padding-bottom: $base - 2px;
   }
   margin: 0 $base * -1;

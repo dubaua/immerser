@@ -36,12 +36,22 @@ Inline svg sprites
 
 ~~Add scroll adjust parameter~~
 
-Support mangling internal properties
+~~autoupdate version in readme and docs~~
 
-autoupdate version in readme and docs
-
-autoupdate gzipped size
+~~autoupdate gzipped size~~
 
 add adjustable scroll animation
 
 ~~add russian translation and language switcher~~
+
+~~move selectors to separate object~~
+
+~~create error and warning configuration~~
+
+~~rewrite custom markup to clonning listeners~~
+
+~~rewrite hover synhcro to handle hover~~
+
+Write class JSDoc
+
+Separate public and private methods
