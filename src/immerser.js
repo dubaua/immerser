@@ -140,7 +140,6 @@ export default class Immerser {
   validateSolidClassnameArray() {
     const layerCount = this.layerNodeArray.length;
     const classnamesCount = this.options.solidClassnameArray.length;
-    console.log(layerCount, classnamesCount);
     if (classnamesCount !== layerCount) {
       showError({
         message: 'solidClassnameArray length differs from count of layers',
