@@ -11,7 +11,7 @@ module.exports = {
   'language-switcher':
     '<a href="./" class="language__link">english</a><span class="language__link language__link--active">по-русски</span>',
   github: 'гитхаб',
-  copyright: '&copy; 2020 &mdash; Владимир Лысов, Челябинск, Россия',
+  copyright: '&copy; %%THIS_YEAR%% &mdash; Владимир Лысов, Челябинск, Россия',
   'custom-font-body-classname': 'font-cyrillic',
   'why-immerser-title': 'Зачем нужен иммёрсер?',
   'why-immerser-content': `
@@ -110,6 +110,7 @@ module.exports = {
     'Дистанция до&nbsp;верха или низа окна браузера в&nbsp;пикселях. Если текущая дистанция меньше переданного значения, то&nbsp;скрипт подстроит положение скролла',
   'option-scrollAdjustDelay': 'Сколько ждать бездействия пользователя, чтобы начать подстройку скролла',
   'option-pagerLinkActiveClassname': 'Применяется, к каждой ссылке пейджера, ссылающуюся на активный слой',
+  'option-isScrollHandled': 'Подписывается на событие прокрутки, если включено. Выключите в случае, когда скроллом управляет внешний контроллер',
   'option-onInit': 'Колбек после инициализации. Принимает один параметр — экземпляр иммёрсера',
   'option-onBind': 'Колбек после привязки к документу. Принимает один параметр — экземпляр иммёрсера',
   'option-onUnbind': 'Колбек после отвязки от документа. Принимает один параметр — экземпляр иммёрсера',

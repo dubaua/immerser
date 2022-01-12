@@ -40,6 +40,11 @@ const OPTION_CONFIG = {
     description: 'valid non empty classname string',
     validator: classnameValidator,
   },
+  isScrollHandled: {
+    default: true,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
   onInit: {
     default: null,
     description: 'a function',

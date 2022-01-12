@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on vanilla js. Only 5.36Kb gzipped.
+Immerser is written on vanilla js. Only 5.38Kb gzipped.
 
 ## Terms
 
@@ -40,7 +40,7 @@ First, setup fixed container as the immerser root container, and add the `data
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute to each section and pass configuraton in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
+Then add `data-immerser-layer` attribute to each section and pass configuration in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
 
 Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
@@ -60,7 +60,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
     <a href="/ru.html" class="language__link">по-русски</a>
   </div>
   <div class="fixed__about about" data-immerser-solid="about">
-    &copy; 2020 &mdash; Vladimir Lysov, Chelyabinsk, Russia
+    &copy; 2022 &mdash; Vladimir Lysov, Chelyabinsk, Russia
     <a href="https://github.com/dubaua/immerser">github</a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
@@ -138,7 +138,7 @@ Include immerser in your code and create immerser instance with options.
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
-  // this option will be overrided by options
+  // this option will be overridden by options
   // passed in data-immerser-layer-config attribute in each layer
   solidClassnameArray: [
     {
@@ -197,7 +197,7 @@ const immerserInstance = new Immerser({
 
 First, immerser gathers information about the layers, solids, window and document. Then it creates a statemap for each layer, containing all necessary information, when the layer is partially and fully in viewport.
 
-After that immerser modifies DOM, cloning all solids into mask containers for each layer and appling the classnames given in configuration. If you have added a pager, immerser also creates links for layers.
+After that immerser modifies DOM, cloning all solids into mask containers for each layer and applying the classnames given in configuration. If you have added a pager, immerser also creates links for layers.
 
 Finally, immerser binds listeners to scroll and resize events. On resize, it will meter layers, the window and document heights again and recalculate the statemap.
 
@@ -212,10 +212,11 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | solidClassnameArray | `array` | `[]` | Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
 | fromViewportWidth | `number` | `0` | A viewport width, from which immerser will init |
 | pagerThreshold | `number` | `0.5` | How much next layer should be in viewport to trigger pager |
-| hasToUpdateHash | `boolean` | `false` | Flag to controll changing hash on pager active state change |
+| hasToUpdateHash | `boolean` | `false` | Flag to control changing hash on pager active state change |
 | scrollAdjustThreshold | `number` | `0` | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed |
 | scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
 | pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
+| isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
 | onInit | `function` | `null` | Fired after initialization. Accept an immerser instance as the only parameter |
 | onBind | `function` | `null` | Fired after binding DOM. Accept an immerser instance as the only parameter |
 | onUnbind | `function` | `null` | Fired after unbinding DOM. Accept an immerser instance as the only parameter |
@@ -227,7 +228,7 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 
 ## Clonning Event Listeners
 
-Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunatelly, you can markup the immmerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smily emoji on the right in this page source.
+Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunately, you can markup the immerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smiley emoji on the right in this page source.
 
 ```html
 <div class="fixed" data-immerser>

@@ -232,9 +232,11 @@ export default class Immerser {
   }
 
   addScrollAndResizeListeners() {
-    this.onScroll = this.handleScroll.bind(this);
+    if (this.options.isScrollHandled) {
+      this.onScroll = this.handleScroll.bind(this);
+      window.addEventListener('scroll', this.onScroll, false);
+    }
     this.onResize = this.handleResize.bind(this);
-    window.addEventListener('scroll', this.onScroll, false);
     window.addEventListener('resize', this.onResize, false);
   }
 
@@ -468,12 +470,14 @@ export default class Immerser {
   }
 
   removeScrollAndResizeListeners() {
-    window.removeEventListener('scroll', this.onScroll, false);
+    if (this.options.isScrollHandled) {
+      window.removeEventListener('scroll', this.onScroll, false);
+    }
     window.removeEventListener('resize', this.onResize, false);
   }
 
-  draw() {
-    const { y } = getLastScrollPosition();
+  draw(scrollY) {
+    const y = scrollY !== undefined ? scrollY : getLastScrollPosition().y;
     this.stateArray.forEach(
       ({ beginEnter, endEnter, beginLeave, endLeave, maskNode, maskInnerNode, layerTop, layerBottom }, layerIndex) => {
         let progress;
