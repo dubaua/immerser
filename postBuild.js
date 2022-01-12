@@ -11,7 +11,7 @@ const version = packageJSON.version;
 function replacer(content) {
   let result = content;
   const thisYear = new Date().getFullYear();
-  result = result.replace(/%%BUNDLE_SIZE%%/g, bungleSize);
+  result = result.replace(/%%BUNDLESIZE%%/g, bungleSize);
   result = result.replace(/%%VERSION%%/g, version);
   result = result.replace(/%%THIS_YEAR%%/g, thisYear);
   return result;
