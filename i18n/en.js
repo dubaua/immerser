@@ -11,7 +11,7 @@ module.exports = {
   'language-switcher':
     '<span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>',
   github: 'github',
-  copyright: '&copy; 2020 &mdash; Vladimir Lysov, Chelyabinsk, Russia',
+  copyright: '&copy; %%THIS_YEAR%% &mdash; Vladimir Lysov, Chelyabinsk, Russia',
   'custom-font-body-classname': '',
   'why-immerser-title': 'Why Immerser?',
   'why-immerser-content': `
@@ -28,7 +28,7 @@ module.exports = {
   Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
 </p>
 <p>
-  Immerser is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;%%BUNDLESIZE%%Kb gzipped.
+  Immerser is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;%%BUNDLE_SIZE%%Kb gzipped.
 </p>
 `,
 
@@ -54,7 +54,7 @@ and indicate active state.
   'prepare-your-markup-content': `
 <p>First, setup fixed container as&nbsp;the immerser root container, and add the&nbsp;<code>data-immerser</code> attribute.</p>
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
-<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuraton in
+<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration in
 <code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>. Otherwise, you can pass configuration as
 <code>solidClassnameArray</code> option to&nbsp;immerser. Config should contain JSON describing what class should be
 applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
@@ -71,7 +71,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 
   'dont-import-if-umd-line-1': `You don't have to import immerser`,
   'dont-import-if-umd-line-2': `if you're using it in browser as global variable`,
-  'data-attribute-will-override-this-option-line-1': 'this option will be overrided by options',
+  'data-attribute-will-override-this-option-line-1': 'this option will be overridden by options',
   'data-attribute-will-override-this-option-line-2': 'passed in data-immerser-layer-config attribute in each layer',
 
   'initialize-immerser-title': 'Initialize Immerser',
@@ -86,7 +86,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
 <p>First, immerser gathers information about the layers, solids, window and document. Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer is&nbsp;partially and fully in&nbsp;viewport.</p>
-<p>After that immerser modifies DOM, cloning all solids into mask containers for each layer and appling the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
+<p>After that immerser modifies DOM, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
 <p>Finally, immerser binds listeners to&nbsp;scroll and resize events. On&nbsp;resize, it&nbsp;will meter layers, the window and document heights again and recalculate the statemap.</p>
 <p>On&nbsp;scroll, immerser moves a&nbsp;mask of&nbsp;solids to&nbsp;show part of&nbsp;each solid group according to&nbsp;the layer below.</p>
 `,
@@ -108,11 +108,12 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
     'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
   'option-fromViewportWidth': 'A viewport width, from which immerser will init',
   'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
-  'option-hasToUpdateHash': 'Flag to controll changing hash on pager active state change',
+  'option-hasToUpdateHash': 'Flag to control changing hash on pager active state change',
   'option-scrollAdjustThreshold':
     'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
   'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
+  'option-isScrollHandled': 'Binds scroll listener if true. Set to false if you\'re using remote scroll controller',
   'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter',
   'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter',
   'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter',
@@ -124,9 +125,9 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'clonning-event-listeners-content': `
 <p>
   Since immerser cloning nested nodes by&nbsp;default, all event listeners and data bound on&nbsp;nodes will be lost after
-  init. Fortunatelly, you can markup the&nbsp;immmerser yourself. It&nbsp;can be&nbsp;useful when you have event listeners
+  init. Fortunately, you can markup the&nbsp;immerser yourself. It&nbsp;can be&nbsp;useful when you have event listeners
   on&nbsp;solids, reactive logic or&nbsp;more than classname switching. All you need is&nbsp;to&nbsp;place the number
-  of&nbsp;nested immerser masks equal to&nbsp;the number of&nbsp;the layers. Look how I change the smily emoji
+  of&nbsp;nested immerser masks equal to&nbsp;the number of&nbsp;the layers. Look how I change the smiley emoji
   on&nbsp;the right in&nbsp;this page source.
 </p>
 `,
