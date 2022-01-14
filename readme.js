@@ -16,11 +16,14 @@ const initializationCode = getTranslationFromTemplate(
   fs.readFileSync('./example/content/code/initialization.js', 'utf8'),
 );
 const optionsTable = fs.readFileSync('./example/content/code/table.md', 'utf8');
-const clonningEventListenersCode = getTranslationFromTemplate(
-  fs.readFileSync('./example/content/code/clonning-event-listeners.html', 'utf8'),
+const cloningEventListenersCode = getTranslationFromTemplate(
+  fs.readFileSync('./example/content/code/cloning-event-listeners.html', 'utf8'),
 );
-const handleCloneHovereCode = getTranslationFromTemplate(
+const handleCloneHoverCode = getTranslationFromTemplate(
   fs.readFileSync('./example/content/code/handle-clone-hover.css', 'utf8'),
+);
+const handleDOMChangeCode = getTranslationFromTemplate(
+  fs.readFileSync('./example/content/code/handle-dom-change.js', 'utf8'),
 );
 
 const readmeContent = `# ${en['readme-title']}
@@ -87,14 +90,14 @@ ${turndownService.turndown(en['options-content'])}
 
 ${optionsTable}
 
-# ${en['menu-link-possibilities']}
+# ${en['menu-link-recipes']}
 
-## ${en['clonning-event-listeners-title']}
+## ${en['cloning-event-listeners-title']}
 
-${turndownService.turndown(en['clonning-event-listeners-content'])}
+${turndownService.turndown(en['cloning-event-listeners-content'])}
 
 \`\`\`html
-${clonningEventListenersCode}
+${cloningEventListenersCode}
 \`\`\`
 
 ## ${en['handle-clone-hover-title']}
@@ -102,7 +105,15 @@ ${clonningEventListenersCode}
 ${turndownService.turndown(en['handle-clone-hover-content'])}
 
 \`\`\`css
-${handleCloneHovereCode}
+${handleCloneHoverCode}
+\`\`\`
+
+## ${en['handle-dom-change-title']}
+
+${turndownService.turndown(en['handle-dom-change-content'])}
+
+\`\`\`js
+${handleDOMChangeCode}
 \`\`\`
 `;
 
