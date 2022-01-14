@@ -258,7 +258,7 @@ a._hover {
 
 ## Handle DOM change
 
-Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document and want immerser to recalculate and redraw solids, call onDOMChange method on the immerser instance.
+Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document and want immerser to recalculate and redraw solids, call `onDOMChange` method on the immerser instance.
 
 ```js
 // adding or removing node, that changes DOM height
