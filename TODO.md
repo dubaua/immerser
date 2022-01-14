@@ -48,10 +48,12 @@ add adjustable scroll animation
 
 ~~create error and warning configuration~~
 
-~~rewrite custom markup to clonning listeners~~
+~~rewrite custom markup to cloning listeners~~
 
 ~~rewrite hover synhcro to handle hover~~
 
 Write class JSDoc
 
 Separate public and private methods
+
+Rewrite on Typescript

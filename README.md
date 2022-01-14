@@ -1,12 +1,12 @@
 # Library for Switching Fixed Elements on Scroll
 
-Sometimes designers create complex logic and fix parts of the interface. Also they colour page sections contrastly. How to deal with this mess?
+Sometimes designers create complex logic and fix parts of the interface. Also they colour page sections contrasted. How to deal with this mess?
 
 Immerser comes to help you. It’s a javascript library to change fixed elements on scroll.
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on vanilla js. Only 5.38Kb gzipped.
+Immerser is written on vanilla js. Only 5.39Kb gzipped.
 
 ## Terms
 
@@ -53,7 +53,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
     <a href="#how-to-use" class="menu__link">How to Use</a>
     <a href="#how-it-works" class="menu__link">How it Works</a>
     <a href="#options" class="menu__link">Options</a>
-    <a href="#possibilities" class="menu__link">Possibilities</a>
+    <a href="#recipes" class="menu__link">Recipes</a>
   </div>
   <div class="fixed__language language" data-immerser-solid="language">
     <a href="/" class="language__link">english</a>
@@ -70,7 +70,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 <div data-immerser-layer data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}' id="how-to-use"></div>
 <div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="how-it-works"></div>
 <div data-immerser-layer data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}' id="options"></div>
-<div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="possibilities"></div>
+<div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="recipes"></div>
 ```
 
 ## Apply styles
@@ -224,9 +224,9 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | onActiveLayerChange | `function` | `null` | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second |
 
 
-# Possibilities
+# Recipes
 
-## Clonning Event Listeners
+## Cloning Event Listeners
 
 Since immerser cloning nested nodes by default, all event listeners and data bound on nodes will be lost after init. Fortunately, you can markup the immerser yourself. It can be useful when you have event listeners on solids, reactive logic or more than classname switching. All you need is to place the number of nested immerser masks equal to the number of the layers. Look how I change the smiley emoji on the right in this page source.
 
@@ -254,4 +254,17 @@ a:hover,
 a._hover {
   color: magenta;
 }
+```
+
+## Handle DOM change
+
+Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document and want immerser to recalculate and redraw solids, call onDOMChange method on the immerser instance.
+
+```js
+// adding or removing node, that changes DOM height
+document.appendChild(someNode);
+document.removeChild(anotherNode);
+
+// then explicitly redraw immerser
+immerserInstance.onDOMChange();
 ```

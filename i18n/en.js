@@ -7,7 +7,7 @@ module.exports = {
   'menu-link-how-to-use': 'How to Use',
   'menu-link-how-it-works': 'How it Works',
   'menu-link-options': 'Options',
-  'menu-link-possibilities': 'Possibilities',
+  'menu-link-recipes': 'Recipes',
   'language-switcher':
     '<span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>',
   github: 'github',
@@ -17,7 +17,7 @@ module.exports = {
   'why-immerser-content': `
 <p>
   Sometimes designers create complex logic and fix parts of&nbsp;the interface.
-  Also they colour page sections contrastly. How to&nbsp;deal with this mess?
+  Also they colour page sections contrasted. How to&nbsp;deal with this mess?
 </p>
 <p>
   Immerser comes to&nbsp;help you. It&rsquo;s a&nbsp;javascript library to&nbsp;change fixed elements on&nbsp;scroll.
@@ -121,8 +121,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'option-onActiveLayerChange':
     'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second',
 
-  'clonning-event-listeners-title': 'Clonning Event Listeners',
-  'clonning-event-listeners-content': `
+  'cloning-event-listeners-title': 'Cloning Event Listeners',
+  'cloning-event-listeners-content': `
 <p>
   Since immerser cloning nested nodes by&nbsp;default, all event listeners and data bound on&nbsp;nodes will be lost after
   init. Fortunately, you can markup the&nbsp;immerser yourself. It&nbsp;can be&nbsp;useful when you have event listeners
@@ -143,6 +143,13 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   <code>data-immerser-synchro-hover="hoverId"</code> attribute. It&nbsp;will share <code>_hover</code> class between all
   nodes with this <code>hoverId</code> when the mouse is&nbsp;over one of&nbsp;them. Add <code>_hover</code> selector alongside your
   <code>:hover</code> pseudoselector to&nbsp;style your interactive elements.
+</p>
+`,
+  'handle-dom-change-title': 'Handle DOM change',
+  'handle-dom-change-content': `
+<p>
+  Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document 
+  and want immerser to recalculate and redraw solids, call onDOMChange method on the immerser instance.
 </p>
 `,
 };

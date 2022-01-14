@@ -304,7 +304,7 @@ export default class Immerser {
         maskInnerNode.appendChild(clonnedChildNode);
       });
 
-      // assing class modifiers to clonned solids
+      // assign class modifiers to cloned solids
       const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.selectors.solid);
       forEachNode(clonedSolidNodeList, (clonedSolidNode) => {
         const solidId = clonedSolidNode.dataset.immerserSolid;
@@ -338,7 +338,7 @@ export default class Immerser {
       showError({
         message: 'You\'re trying use custom markup, but count of your immerser masks doesn\'t equal layers count.',
         warning: true,
-        docs: '#clonning-event-listeners',
+        docs: '#cloning-event-listeners',
       });
     }
 
@@ -546,6 +546,11 @@ export default class Immerser {
         window.scrollTo(x, layerBottom - this.windowHeight);
       }
     }
+  }
+
+  onDOMChange() {
+    this.setSizes();
+    this.draw();
   }
 
   handleScroll() {
