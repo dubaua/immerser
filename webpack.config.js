@@ -2,11 +2,12 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  entry: './src/immerser.js',
+  entry: './src/immerser.ts',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
+    extensions: ['.ts', '.js'],
   },
   output: {
     filename: 'immerser.min.js',
@@ -18,7 +19,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(ts|js)$/,
         use: ['babel-loader'],
         exclude: /node_modules/,
       },

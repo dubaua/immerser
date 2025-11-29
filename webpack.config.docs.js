@@ -20,6 +20,7 @@ module.exports = Object.keys(languages).map((language) => ({
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
+    extensions: ['.ts', '.js'],
   },
   output: {
     path: __dirname + '/docs',
@@ -41,7 +42,7 @@ module.exports = Object.keys(languages).map((language) => ({
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(ts|js)$/,
         use: ['babel-loader'],
         exclude: /node_modules/,
       },

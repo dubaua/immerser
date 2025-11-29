@@ -8,6 +8,8 @@
           "browsers": ["> 1%", "last 2 versions", "not ie <= 8", "ie >= 11"]
         }
       }
-    ]
-  ]
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": ["@babel/plugin-proposal-class-properties"]
 }

@@ -1,10 +1,16 @@
 const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
 
-function classnameValidator(string) {
-  return typeof string === 'string' && string !== '' && CLASSNAME_REGEX.test(string);
+function classnameValidator(str: string): boolean {
+  return typeof str === 'string' && str !== '' && CLASSNAME_REGEX.test(str);
 }
 
-const OPTION_CONFIG = {
+interface OptionConfigItem {
+  default: any;
+  description: string;
+  validator: (x: any) => boolean;
+}
+
+const OPTION_CONFIG: Record<string, OptionConfigItem> = {
   solidClassnameArray: {
     default: [],
     description: 'non empty array of objects',
@@ -74,7 +80,4 @@ const OPTION_CONFIG = {
 
 const MESSAGE_PREFFIX = '[immmerser:]';
 
-module.exports = {
-  OPTION_CONFIG,
-  MESSAGE_PREFFIX,
-};
+export { OPTION_CONFIG, MESSAGE_PREFFIX };

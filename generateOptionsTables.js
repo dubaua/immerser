@@ -2,7 +2,12 @@ const fs = require('fs');
 const kindOf = require('kind-of');
 const TurndownService = require('turndown');
 const en = require('./i18n/en.js');
-const { OPTION_CONFIG } = require('./src/defaults.js');
+
+require('@babel/register')({
+  extensions: ['.ts', '.js'],
+  presets: ['@babel/preset-env', '@babel/preset-typescript'],
+});
+const { OPTION_CONFIG } = require('./src/defaults.ts');
 
 const turndownService = new TurndownService();
 
