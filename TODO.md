@@ -52,8 +52,8 @@ add adjustable scroll animation
 
 ~~rewrite hover synhcro to handle hover~~
 
-Write class JSDoc
+~~Write class JSDoc~~
 
-Separate public and private methods
+~~Separate public and private methods~~
 
-Rewrite on Typescript
+~~Rewrite on Typescript~~
