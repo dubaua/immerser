@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $color-primary: white;
 $color-secondary: black;
 $color-accent: magenta;
@@ -12,4 +14,4 @@ $color-text: $color-secondary;
 $color-text--contrast: $color-primary;
 $color-active: $color-accent;
 
-$color-code-background: scale-color($color-accent, $lightness: 90%, $saturation: -75%);
+$color-code-background: color.scale($color-accent, $lightness: 90%, $saturation: -75%);

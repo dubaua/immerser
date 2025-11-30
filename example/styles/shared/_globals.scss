@@ -1,7 +1,7 @@
-@import './breakpoints.scss';
-@import './colors.scss';
-@import './grid.scss';
-@import './transitions.scss';
+@forward './breakpoints';
+@forward './colors';
+@forward './grid';
+@forward './transitions';
 
 $base: 16px;
 $cyrillic-modifier: '.font-cyrillic';

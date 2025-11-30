@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 $breakpoints: (
   xs: 0,
   sm: 586px,
@@ -6,7 +8,7 @@ $breakpoints: (
 );
 
 @mixin from($breakpoint) {
-  $size: map-get($breakpoints, $breakpoint);
+  $size: map.get($breakpoints, $breakpoint);
   @if ($size == 0) {
     @content;
   } @else {
@@ -17,8 +19,8 @@ $breakpoints: (
 }
 
 @mixin from-to($from, $to) {
-  $min: map-get($breakpoints, $from);
-  $max: map-get($breakpoints, $to) - 1px;
+  $min: map.get($breakpoints, $from);
+  $max: map.get($breakpoints, $to) - 1px;
 
   @if ($min == 0) {
     @media screen and (max-width: $max) {
@@ -32,7 +34,7 @@ $breakpoints: (
 }
 
 @mixin show-from($breakpoint) {
-  $size: map-get($breakpoints, $breakpoint);
+  $size: map.get($breakpoints, $breakpoint);
   @if ($size != 0) {
     display: none;
     @media screen and (min-width: $size) {
@@ -45,8 +47,8 @@ $breakpoints: (
 }
 
 @mixin show-from-to($from, $to) {
-  $min: map-get($breakpoints, $from);
-  $max: map-get($breakpoints, $to) - 1px;
+  $min: map.get($breakpoints, $from);
+  $max: map.get($breakpoints, $to) - 1px;
 
   display: none;
   @if ($min == 0) {

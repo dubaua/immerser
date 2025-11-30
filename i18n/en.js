@@ -28,7 +28,7 @@ module.exports = {
   Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
 </p>
 <p>
-  Immerser is&nbsp;written on&nbsp;vanilla&nbsp;js. Only&nbsp;%%BUNDLESIZE%%Kb gzipped.
+  Immerser is&nbsp;written on&nbsp;typescript. Only&nbsp;%%BUNDLESIZE%%Kb gzipped.
 </p>
 `,
 
@@ -113,7 +113,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
     'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
   'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
-  'option-isScrollHandled': 'Binds scroll listener if true. Set to false if you\'re using remote scroll controller',
+  'option-isScrollHandled': "Binds scroll listener if true. Set to false if you're using remote scroll controller",
   'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter',
   'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter',
   'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter',

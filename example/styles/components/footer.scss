@@ -1,4 +1,4 @@
-@import '../shared/globals.scss';
+@use '../shared/globals.scss' as *;
 
 .footer {
   margin-top: $base * 1.5;

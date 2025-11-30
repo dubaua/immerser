@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on vanilla js. Only 5.39Kb gzipped.
+Immerser is written on typescript. Only 5.88Kb gzipped.
 
 ## Terms
 
@@ -60,7 +60,7 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
     <a href="/ru.html" class="language__link">по-русски</a>
   </div>
   <div class="fixed__about about" data-immerser-solid="about">
-    &copy; 2022 &mdash; Vladimir Lysov, Chelyabinsk, Russia
+    &copy; 2025 &mdash; Vladimir Lysov, Chelyabinsk, Russia
     <a href="https://github.com/dubaua/immerser">github</a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>

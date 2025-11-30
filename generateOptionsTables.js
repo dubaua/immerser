@@ -2,7 +2,12 @@ const fs = require('fs');
 const kindOf = require('kind-of');
 const TurndownService = require('turndown');
 const en = require('./i18n/en.js');
-const { OPTION_CONFIG } = require('./src/defaults.js');
+
+require('@babel/register')({
+  extensions: ['.ts', '.js'],
+  presets: ['@babel/preset-env', '@babel/preset-typescript'],
+});
+const { OPTION_CONFIG } = require('./src/options.ts');
 
 const turndownService = new TurndownService();
 
@@ -69,11 +74,11 @@ fs.writeFileSync('./example/content/code/table.html', HTMLTableMarkup);
 const markdownTable = `| option | type | default | description |
 | - | - | - | - |
 ${options
-    .map(
-      ({ optionName, type, defaultValue }) =>
-        `| ${optionName} | \`${type}\` | \`${defaultValue}\` | ${turndownService.turndown(en['option-' + optionName])} |`,
-    )
-    .join('\n')}
+  .map(
+    ({ optionName, type, defaultValue }) =>
+      `| ${optionName} | \`${type}\` | \`${defaultValue}\` | ${turndownService.turndown(en['option-' + optionName])} |`,
+  )
+  .join('\n')}
 `;
 
 fs.writeFileSync('./example/content/code/table.md', markdownTable);

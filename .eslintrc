@@ -6,8 +6,8 @@
     "es6": true,
     "node": true
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "parser": "babel-eslint",
     "sourceType": "module",
     "ecmaVersion": 2018
   },
@@ -36,6 +36,8 @@
     "no-useless-escape": "warn",
     // используем var по назначению
     "no-var": "error",
+    // отключаем проверку неиспользуемых переменных из-за типов TypeScript
+    "no-unused-vars": "off",
     // всегда отбиваем кудрявые скобки в объектах пробелами
     "object-curly-spacing": ["error", "always"],
     // каждую переменную, константу отдельно объявляем, так лучше видно

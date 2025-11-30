@@ -1,25 +1,26 @@
-@import '../shared/globals.scss';
+@use 'sass:color';
+@use '../shared/globals.scss' as *;
 
 $code-color-muted: #b0b0b0;
 $code-color-muted--contrast: #404040;
 
-$code-color-sintax: scale-color($color-accent, $lightness: 20%, $saturation: -38%);
-$code-color-sintax--contrast: scale-color($color-accent, $lightness: -20%, $saturation: -62%);
+$code-color-sintax: color.scale($color-accent, $lightness: 20%, $saturation: -38%);
+$code-color-sintax--contrast: color.scale($color-accent, $lightness: -20%, $saturation: -62%);
 
-$code-color-name: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
-$code-color-name--contrast: scale-color($color-highlight, $lightness: -20%, $saturation: -62%);
+$code-color-name: color.scale($color-highlight, $lightness: -20%, $saturation: -62%);
+$code-color-name--contrast: color.scale($color-highlight, $lightness: -20%, $saturation: -62%);
 
-$code-color-punctuation: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
-$code-color-punctuation--contrast: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-punctuation: color.scale($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-punctuation--contrast: color.scale($color-highlight, $lightness: 75%, $saturation: -90%);
 
-$code-color-text: scale-color($color-highlight, $lightness: -50%, $saturation: -90%);
-$code-color-text--contrast: scale-color($color-highlight, $lightness: 75%, $saturation: -90%);
+$code-color-text: color.scale($color-highlight, $lightness: -50%, $saturation: -90%);
+$code-color-text--contrast: color.scale($color-highlight, $lightness: 75%, $saturation: -90%);
 
-$code-color-value: scale-color($color-highlight, $lightness: -75%, $saturation: -80%);
-$code-color-value--contrast: scale-color($color-highlight, $lightness: 62%, $saturation: -80%);
+$code-color-value: color.scale($color-highlight, $lightness: -75%, $saturation: -80%);
+$code-color-value--contrast: color.scale($color-highlight, $lightness: 62%, $saturation: -80%);
 
-$code-color-function: scale-color($color-accent, $lightness: 0%, $saturation: 0%);
-$code-color-function--contrast: scale-color($color-accent, $lightness: 30%, $saturation: -38%);
+$code-color-function: color.scale($color-accent, $lightness: 0%, $saturation: 0%);
+$code-color-function--contrast: color.scale($color-accent, $lightness: 30%, $saturation: -38%);
 
 
 $theme-prolog: $code-color-muted;

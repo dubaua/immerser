@@ -1,4 +1,4 @@
-@import '../shared/globals.scss';
+@use '../shared/globals.scss' as *;
 
 .about {
   padding-bottom: $base - 2px;
