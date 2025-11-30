@@ -31,7 +31,7 @@ yarn add immerser
 Or if you want to use immerser in browser as global variable:
 
 ```html
-<script src="https://unpkg.com/immerser@3.1.1/dist/immerser.min.js"></script>
+<script src="https://unpkg.com/immerser@4.0.0/dist/immerser.min.js"></script>
 ```
 
 ## Prepare Your Markup
