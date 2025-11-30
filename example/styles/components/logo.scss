@@ -1,4 +1,4 @@
-@import '../shared/globals.scss';
+@use '../shared/globals.scss' as *;
 
 .logo {
   padding-top: $base * 0.62;

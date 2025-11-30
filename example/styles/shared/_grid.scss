@@ -1,3 +1,6 @@
+@use 'sass:math';
+@use './breakpoints' as *;
+
 $alpha-width: 0;
 $alpha-width--xl: 4;
 
@@ -9,7 +12,7 @@ $gamma-width--xl: 13;
 
 $grid-width: $alpha-width + $beta-width + $gamma-width;
 
-$col-width: 1 / $grid-width * 100vw;
+$col-width: math.div(1, $grid-width) * 100vw;
 
 .grid {
   @include from('md') {
@@ -36,31 +39,31 @@ $col-width: 1 / $grid-width * 100vw;
 
     @include from('md') {
       &--alpha-beta {
-        $width: #{($alpha-width + $beta-width) / $grid-width * 100}vw;
+        $width: #{math.div($alpha-width + $beta-width, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--alpha-beta-gamma {
-        $width: #{($alpha-width + $beta-width + $gamma-width) / $grid-width * 100}vw;
+        $width: #{math.div($alpha-width + $beta-width + $gamma-width, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--beta {
-        $width: #{$beta-width / $grid-width * 100}vw;
+        $width: #{math.div($beta-width, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--beta-gamma {
-        $width: #{($beta-width + $gamma-width) / $grid-width * 100}vw;
+        $width: #{math.div($beta-width + $gamma-width, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--gamma {
-        $width: #{$gamma-width / $grid-width * 100}vw;
+        $width: #{math.div($gamma-width, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
@@ -68,40 +71,42 @@ $col-width: 1 / $grid-width * 100vw;
     @include from('lg') {
       &--alpha {
         display: block;
-        $width: #{$alpha-width--xl / $grid-width * 100}vw;
+        $width: #{math.div($alpha-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--alpha-beta {
-        $width: #{($alpha-width--xl + $beta-width--xl) / $grid-width * 100}vw;
+        $width: #{math.div($alpha-width--xl + $beta-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--alpha-beta-gamma {
-        $width: #{($alpha-width--xl + $beta-width--xl + $gamma-width--xl) / $grid-width * 100}vw;
+        $width: #{math.div($alpha-width--xl + $beta-width--xl + $gamma-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--beta {
-        $width: #{$beta-width--xl / $grid-width * 100}vw;
+        $width: #{math.div($beta-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--beta-gamma {
-        $width: #{($beta-width--xl + $gamma-width--xl) / $grid-width * 100}vw;
+        $width: #{math.div($beta-width--xl + $gamma-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
 
       &--gamma {
-        $width: #{$gamma-width--xl / $grid-width * 100}vw;
+        $width: #{math.div($gamma-width--xl, $grid-width) * 100}vw;
         flex-basis: $width;
         max-width: $width;
       }
     }
   }
 }
+$grid-width: $alpha-width + $beta-width + $gamma-width;
+$col-width: math.div(1, $grid-width) * 100vw;

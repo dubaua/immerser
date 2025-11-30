@@ -1,4 +1,4 @@
-@import '../shared/globals.scss';
+@use '../shared/globals.scss' as *;
 
 .menu {
   $menu: &;

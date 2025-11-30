@@ -1,4 +1,6 @@
-@import '../shared/globals.scss';
+@use 'sass:color';
+@use 'sass:math';
+@use '../shared/globals.scss' as *;
 
 html {
   scroll-behavior: smooth;
@@ -61,17 +63,17 @@ html {
   overflow-y: hidden;
 
   &.background .simplebar-scrollbar:before {
-    background: scale-color($color-accent, $lightness: 62%, $saturation: -62%);
+    background: color.scale($color-accent, $lightness: 62%, $saturation: -62%);
   }
   &.background .simplebar-scrollbar.simplebar-hover:before {
-    background: scale-color($color-accent, $lightness: 62%+5%, $saturation: -62%+5%);
+    background: color.scale($color-accent, $lightness: 62% + 5%, $saturation: -62% + 5%);
   }
 
   &.background--contrast .simplebar-scrollbar:before {
-    background: scale-color($color-highlight, $lightness: -62%, $saturation: -62%);
+    background: color.scale($color-highlight, $lightness: -62%, $saturation: -62%);
   }
   &.background--contrast .simplebar-scrollbar.simplebar-hover:before {
-    background: scale-color($color-highlight, $lightness: -62%+5%, $saturation: -62%+5%);
+    background: color.scale($color-highlight, $lightness: -62% + 5%, $saturation: -62% + 5%);
   }
 
   .simplebar-track.simplebar-horizontal {
@@ -131,9 +133,9 @@ a._hover {
     background-image: repeating-linear-gradient(
       to right,
       transparent,
-      transparent calc(#{$vertical-ruler-gutter / 2} - 1px),
-      $ruler-color calc(#{$vertical-ruler-gutter / 2} - 1px),
-      $ruler-color $vertical-ruler-gutter / 2
+      transparent calc(#{math.div($vertical-ruler-gutter, 2)} - 1px),
+      $ruler-color calc(#{math.div($vertical-ruler-gutter, 2)} - 1px),
+      $ruler-color math.div($vertical-ruler-gutter, 2)
     );
   }
 }
