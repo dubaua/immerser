@@ -1,11 +1,11 @@
 import mergeOptions from '@dubaua/merge-options';
 import Observable from '@dubaua/observable';
 import {
-  OPTION_CONFIG,
-  MESSAGE_PREFIX,
   CROPPED_FULL_ABSOLUTE_STYLES,
-  NOT_INTERACTIVE_STYLES,
   INTERACTIVE_STYLES,
+  MESSAGE_PREFIX,
+  NOT_INTERACTIVE_STYLES,
+  OPTION_CONFIG,
 } from '@/options';
 import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from '@/utils';
 import { LayerState, Options } from '@/types';
@@ -75,7 +75,7 @@ export default class Immerser {
   }
 
   setNodes(): void {
-    this.rootNode = document.querySelector(this.selectors.root);
+    this.rootNode = document.querySelector<HTMLElement>(this.selectors.root);
     this.layerNodeArray = getNodeArray({ selector: this.selectors.layer });
     this.solidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: this.rootNode });
   }
@@ -304,9 +304,12 @@ export default class Immerser {
       const maskNode = this.isCustomMarkup ? this.customMaskNodeArray[stateIndex] : document.createElement('div');
       bindStyles(maskNode, CROPPED_FULL_ABSOLUTE_STYLES);
 
-      const maskInnerNode = this.isCustomMarkup
-        ? maskNode.querySelector(this.selectors.maskInner)
+      let maskInnerNode = this.isCustomMarkup
+        ? maskNode.querySelector<HTMLElement>(this.selectors.maskInner)
         : document.createElement('div');
+      if (!maskInnerNode) {
+        maskInnerNode = document.createElement('div');
+      }
       bindStyles(maskInnerNode, CROPPED_FULL_ABSOLUTE_STYLES);
 
       // mark created masks with data attributes
@@ -317,14 +320,19 @@ export default class Immerser {
 
       // clone solids to innerMask
       this.originalSolidNodeArray.forEach((childNode) => {
-        const ClonedChildNode = childNode.cloneNode(true) as HTMLElement;
-        bindStyles(ClonedChildNode, INTERACTIVE_STYLES);
-        (ClonedChildNode as any).__immerserCloned = true;
-        maskInnerNode.appendChild(ClonedChildNode);
+        const clonedChildNode = childNode.cloneNode(true);
+        if (clonedChildNode instanceof HTMLElement) {
+          bindStyles(clonedChildNode, INTERACTIVE_STYLES);
+          (clonedChildNode as any).__immerserCloned = true;
+          maskInnerNode.appendChild(clonedChildNode);
+        }
       });
 
       // assign class modifiers to cloned solids
-      const clonedSolidNodeList = maskInnerNode.querySelectorAll(this.selectors.solid);
+      const clonedSolidNodeList = getNodeArray<HTMLElement>({
+        selector: this.selectors.solid,
+        parent: maskInnerNode,
+      });
       forEachNode(clonedSolidNodeList, (clonedSolidNode) => {
         const solidId = clonedSolidNode.dataset.immerserSolid;
         if (state.solidClassnames && Object.prototype.hasOwnProperty.call(state.solidClassnames, solidId)) {
@@ -361,17 +369,24 @@ export default class Immerser {
     }
 
     this.customMaskNodeArray.forEach((customMaskNode) => {
-      const customChildrenHTMLCollection = (customMaskNode.querySelector(this.selectors.maskInner) as HTMLElement)
-        .children;
-      for (let i = 0; i < customChildrenHTMLCollection.length; i++) {
-        bindStyles(customChildrenHTMLCollection[i] as HTMLElement, INTERACTIVE_STYLES);
+      const maskInnerNode = customMaskNode.querySelector<HTMLElement>(this.selectors.maskInner);
+      if (!maskInnerNode) {
+        return;
       }
+      Array.from(maskInnerNode.children).forEach((child) => {
+        if (child instanceof HTMLElement) {
+          bindStyles(child, INTERACTIVE_STYLES);
+        }
+      });
     });
   }
 
   detachOriginalSolidNodes(): void {
+    if (!this.rootNode) {
+      return;
+    }
     this.originalSolidNodeArray.forEach((childNode) => {
-      (this.rootNode as HTMLElement).removeChild(childNode);
+      this.rootNode.removeChild(childNode);
     });
   }
 
@@ -462,8 +477,11 @@ export default class Immerser {
   }
 
   restoreOriginalSolidNodes(): void {
+    if (!this.rootNode) {
+      return;
+    }
     this.originalSolidNodeArray.forEach((childNode) => {
-      (this.rootNode as HTMLElement).appendChild(childNode);
+      this.rootNode.appendChild(childNode);
     });
   }
 
@@ -472,16 +490,21 @@ export default class Immerser {
       if (this.isCustomMarkup) {
         immerserMaskNode.removeAttribute('style');
         immerserMaskNode.removeAttribute('aria-hidden');
-        const immerserMaskInnerNode = immerserMaskNode.querySelector(this.selectors.maskInner) as HTMLElement;
+        const immerserMaskInnerNode = immerserMaskNode.querySelector<HTMLElement>(this.selectors.maskInner);
+        if (!immerserMaskInnerNode) {
+          return;
+        }
         immerserMaskInnerNode.removeAttribute('style');
-        const ClonedSolidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: immerserMaskInnerNode });
-        ClonedSolidNodeArray.forEach((ClonedSolidNode) => {
-          if ((ClonedSolidNode as any).__immerserCloned) {
-            immerserMaskInnerNode.removeChild(ClonedSolidNode);
+        const clonedSolidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: immerserMaskInnerNode });
+        clonedSolidNodeArray.forEach((clonedSolidNode) => {
+          if ((clonedSolidNode as any).__immerserCloned) {
+            immerserMaskInnerNode.removeChild(clonedSolidNode);
           }
         });
       } else {
-        (this.rootNode as HTMLElement).removeChild(immerserMaskNode);
+        if (this.rootNode) {
+          this.rootNode.removeChild(immerserMaskNode);
+        }
       }
     });
   }
@@ -584,7 +607,7 @@ export default class Immerser {
           }
           this.scrollAdjustTimerId = setTimeout(this.adjustScroll.bind(this), this.options.scrollAdjustDelay);
         }
-      }, this.options.scrollAdjustDelay);
+      });
     }
   }
 

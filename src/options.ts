@@ -77,21 +77,21 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
 
 export const MESSAGE_PREFIX = '[immerser:]';
 
-export const CROPPED_FULL_ABSOLUTE_STYLES = {
+export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
   position: 'absolute',
-  top: 0,
-  right: 0,
-  bottom: 0,
-  left: 0,
+  top: '0',
+  right: '0',
+  bottom: '0',
+  left: '0',
   overflow: 'hidden',
 };
 
-export const NOT_INTERACTIVE_STYLES = {
+export const NOT_INTERACTIVE_STYLES: Record<string, string> = {
   pointerEvents: 'none',
   touchAction: 'none',
 };
 
-export const INTERACTIVE_STYLES = {
+export const INTERACTIVE_STYLES: Record<string, string> = {
   pointerEvents: 'all',
   touchAction: 'auto',
 };

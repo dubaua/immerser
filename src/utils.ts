@@ -16,18 +16,18 @@ export function forEachNode<T extends Element>(
   }
 }
 
-export function getNodeArray({
+export function getNodeArray<T extends Element = HTMLElement>({
   selector,
   parent = document,
 }: {
   selector: string;
   parent?: Document | Element | null;
-}): Element[] {
+}): T[] {
   if (!parent) {
     return [];
   }
-  const nodeList = parent.querySelectorAll(selector);
-  return [].slice.call(nodeList);
+  const nodeList = parent.querySelectorAll<T>(selector);
+  return Array.from(nodeList);
 }
 
 export function showError({

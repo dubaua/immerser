@@ -3,6 +3,7 @@
     "target": "es5",
     "module": "es2020",
     "moduleResolution": "node",
+    "lib": ["DOM", "ES2015"],
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
