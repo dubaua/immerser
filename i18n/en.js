@@ -149,7 +149,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'handle-dom-change-content': `
 <p>
   Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document 
-  and want immerser to recalculate and redraw solids, call <code>onDOMChange</code> method on the immerser instance.
+  and want immerser to recalculate and redraw solids, call <code>render</code> method on the immerser instance.
 </p>
 `,
 };
