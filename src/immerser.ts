@@ -56,11 +56,6 @@ interface Options {
   onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
 }
 
-interface IObservable<T> {
-  value: T;
-  subscribe(callback: (value: T) => void): () => void;
-}
-
 export default class Immerser {
   options: Options = {} as Options;
   selectors = {
@@ -91,9 +86,9 @@ export default class Immerser {
   resizeFrameId: number | null = null;
   scrollFrameId: number | null = null;
   scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
-  reactiveActiveLayer: IObservable<number | undefined> = new Observable() as IObservable<number | undefined>;
-  reactiveWindowWidth: IObservable<number> = new Observable() as IObservable<number>;
-  reactiveSynchroHoverId: IObservable<string | undefined> = new Observable() as IObservable<string | undefined>;
+  reactiveActiveLayer: Observable<number | undefined> = new Observable<number | undefined>();
+  reactiveWindowWidth: Observable<number> = new Observable<number>();
+  reactiveSynchroHoverId: Observable<string | undefined> = new Observable<string | undefined>();
   stopRedrawingPager: (() => void) | null = null;
   stopUpdatingHash: (() => void) | null = null;
   stopFiringActiveLayerChangeCallback: (() => void) | null = null;
@@ -321,9 +316,9 @@ export default class Immerser {
     this.resizeFrameId = null;
     this.scrollFrameId = null;
     this.scrollAdjustTimerId = null;
-    this.reactiveActiveLayer = new Observable() as IObservable<number | undefined>;
-    this.reactiveWindowWidth = new Observable() as IObservable<number>;
-    this.reactiveSynchroHoverId = new Observable() as IObservable<string | undefined>;
+    this.reactiveActiveLayer = new Observable<number | undefined>();
+    this.reactiveWindowWidth = new Observable<number>();
+    this.reactiveSynchroHoverId = new Observable<string | undefined>();
     this.stopRedrawingPager = null;
     this.stopUpdatingHash = null;
     this.stopFiringActiveLayerChangeCallback = null;
