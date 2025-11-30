@@ -1,3 +1,19 @@
+# 4.0.0
+
+## Breaking Changes
+
+- Renamed `onDOMChange` to `render`.
+- Rewritten core to TypeScript.
+- Updated build tooling (webpack, sass).
+- Split public and private fields, removed access to internal methods.
+- Adjusted type definitions and validation signatures.
+- Added getters `activeIndex`, `isBound`, `rootNode`.
+- Methods `bind`, `unbind`, `destroy` and `render` are public, others are private now.
+
+## Migration Notes
+
+- Replace all calls to `onDOMChange()` with `render()`.
+
 # 3.0.0
 
 ## Default Options Configuration Prop Names
