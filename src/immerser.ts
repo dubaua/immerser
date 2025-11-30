@@ -52,10 +52,15 @@ export default class Immerser {
   private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
   private _onSynchroHoverMouseOut: (() => void) | null = null;
 
+  /**
+   * Creates immerser instance and immediately runs setup with optional user options.
+   * @param userOptions overrides for defaults defined in OPTION_CONFIG if pass validation
+   */
   constructor(userOptions?: Partial<Options>) {
     this._init(userOptions);
   }
 
+  /** Bootstraps nodes, options, state, listeners and fires onInit callback if provided. */
   private _init(userOptions?: Partial<Options>): void {
     this._setDomNodes();
     this._validateMarkup();
@@ -63,7 +68,7 @@ export default class Immerser {
     this._readClassnamesFromMarkup();
     this._validateSolidClassnameArray();
     this._initSectionIds();
-    this._initStateMap();
+    this._initLayerStateArray();
     this._validateClassnames();
     this._toggleBindOnResizeObserver();
     this._setSizes();
@@ -73,12 +78,14 @@ export default class Immerser {
     }
   }
 
+  /** Collects root, layer and solid nodes from DOM. */
   private _setDomNodes(): void {
     this._rootNode = document.querySelector<HTMLElement>(this._selectors.root);
     this._layerNodeArray = getNodeArray({ selector: this._selectors.layer });
     this._solidNodeArray = getNodeArray({ selector: this._selectors.solid, parent: this._rootNode });
   }
 
+  /** Validates required markup presence and reports descriptive errors. */
   private _validateMarkup(): void {
     if (!this._rootNode) {
       showError({
@@ -100,6 +107,7 @@ export default class Immerser {
     }
   }
 
+  /** Merges user options with defaults and attaches helper metadata to messages. */
   private _mergeOptions(userOptions?: Partial<Options>): void {
     this._options = mergeOptions({
       optionConfig: OPTION_CONFIG,
@@ -109,6 +117,7 @@ export default class Immerser {
     }) as Options;
   }
 
+  /** Reads per-layer classname configs from data attributes if provided. */
   private _readClassnamesFromMarkup(): void {
     this._layerNodeArray.forEach((layerNode, layerIndex) => {
       if (layerNode.dataset.immerserLayerConfig) {
@@ -121,6 +130,7 @@ export default class Immerser {
     });
   }
 
+  /** Ensures classname configuration length matches layers count. */
   private _validateSolidClassnameArray(): void {
     const layerCount = this._layerNodeArray.length;
     const classnamesCount = this._options.solidClassnameArray.length;
@@ -132,6 +142,7 @@ export default class Immerser {
     }
   }
 
+  /** Assigns ids to layers when missing and records their indexes. */
   private _initSectionIds(): void {
     this._layerNodeArray.forEach((layerNode, layerIndex) => {
       let id = layerNode.id;
@@ -144,7 +155,8 @@ export default class Immerser {
     });
   }
 
-  private _initStateMap(): void {
+  /** Creates initial LayerState entries for every layer. */
+  private _initLayerStateArray(): void {
     this._layerStateArray = this._layerNodeArray.map((layerNode, layerIndex) => {
       const solidClassnames = this._options.solidClassnameArray[layerIndex];
       const { id } = layerNode;
@@ -164,6 +176,7 @@ export default class Immerser {
     });
   }
 
+  /** Verifies solid classnames are configured; otherwise warns via showError. */
   private _validateClassnames(): void {
     const noClassnameConfigPassed = this._layerStateArray.every((state) => isEmpty(state.solidClassnames));
     if (noClassnameConfigPassed) {
@@ -174,6 +187,7 @@ export default class Immerser {
     }
   }
 
+  /** Subscribes to window width changes to bind/unbind based on breakpoint. */
   private _toggleBindOnResizeObserver(): void {
     this._unsubscribeToggleBindOnResize = this._reactiveWindowWidth.subscribe((nextWindowWidth) => {
       if (nextWindowWidth >= this._options.fromViewportWidth) {
@@ -186,6 +200,7 @@ export default class Immerser {
     });
   }
 
+  /** Recalculates sizes and thresholds for each layer and updates window width observable. */
   private _setSizes(): void {
     this._windowHeight = window.innerHeight;
     this._immerserTop = (this._rootNode as HTMLElement).offsetTop;
@@ -214,6 +229,7 @@ export default class Immerser {
     this._reactiveWindowWidth.value = window.innerWidth;
   }
 
+  /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
   private _addScrollAndResizeListeners(): void {
     if (this._options.isScrollHandled) {
       this._onScroll = this._handleScroll.bind(this);
@@ -223,6 +239,7 @@ export default class Immerser {
     window.addEventListener('resize', this._onResize, false);
   }
 
+  /** Clears internal caches, observables and references after destroy. */
   private _resetInternalState(): void {
     this._layerStateArray = [];
     this._layerStateIndexById = {};
@@ -256,6 +273,7 @@ export default class Immerser {
     this._onSynchroHoverMouseOut = null;
   }
 
+  /** Builds masks, clones solids, applies classes and mounts generated markup. */
   private _createMarkup(): void {
     bindStyles(this._rootNode as HTMLElement, NOT_INTERACTIVE_STYLES);
     this._initCustomMarkup();
@@ -315,9 +333,10 @@ export default class Immerser {
       return { ...state, maskNode, maskInnerNode };
     });
 
-    this._removeOriginalSolidNodes();
+    this._detachOriginalSolidNodes();
   }
 
+  /** Validates and prepares custom masks, binding interactive styles to their children. */
   private _initCustomMarkup(): void {
     this._customMaskNodeArray = getNodeArray({ selector: this._selectors.mask, parent: this._rootNode });
     this._isCustomMarkup = this._customMaskNodeArray.length === this._layerStateArray.length;
@@ -343,7 +362,8 @@ export default class Immerser {
     });
   }
 
-  private _removeOriginalSolidNodes(): void {
+  /** Removes original solid nodes from root after clones are in place. */
+  private _detachOriginalSolidNodes(): void {
     if (!this._rootNode) {
       return;
     }
@@ -352,6 +372,7 @@ export default class Immerser {
     });
   }
 
+  /** Parses pager links and maps them to layer indexes using href hash. */
   private _initPagerLinks(): void {
     this._pagerLinkNodeArray = getNodeArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
     this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
@@ -366,6 +387,7 @@ export default class Immerser {
     });
   }
 
+  /** Sets up synchro hover listeners and reactive updates. */
   private _initHoverSynchro(): void {
     this._synchroHoverNodeArray = getNodeArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
 
@@ -385,6 +407,7 @@ export default class Immerser {
     });
   }
 
+  /** Subscribes to reactive values to redraw pager, hash, callbacks and hover. */
   private _attachCallbacks(): void {
     if (this._pagerLinkNodeArray.length > 0) {
       this._unsubscribeRedrawingPager = this._reactiveActiveLayer.subscribe(this._drawPagerLinks.bind(this));
@@ -405,6 +428,7 @@ export default class Immerser {
     }
   }
 
+  /** Unsubscribes from all reactive callbacks. */
   private _detachCallbacks(): void {
     if (typeof this._unsubscribeRedrawingPager === 'function') {
       this._unsubscribeRedrawingPager();
@@ -423,6 +447,7 @@ export default class Immerser {
     }
   }
 
+  /** Removes hover listeners from synchro hover nodes. */
   private _removeSyncroHoverListeners(): void {
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       synchroHoverNode.removeEventListener('mouseover', this._onSynchroHoverMouseOver!);
@@ -430,6 +455,7 @@ export default class Immerser {
     });
   }
 
+  /** Drops autogenerated ids from layers on teardown. */
   private _clearCustomSectionIds(): void {
     this._layerStateArray.forEach((state) => {
       if ((state.layerNode as any).__immerserCustomId) {
@@ -438,6 +464,7 @@ export default class Immerser {
     });
   }
 
+  /** Restores original solid nodes back into the root node. */
   private _restoreOriginalSolidNodes(): void {
     if (!this._rootNode) {
       return;
@@ -447,6 +474,7 @@ export default class Immerser {
     });
   }
 
+  /** Removes cloned markup or cleans up custom masks when unbinding. */
   private _cleanupClonedMarkup(): void {
     this._maskNodeArray.forEach((immerserMaskNode) => {
       if (this._isCustomMarkup) {
@@ -478,6 +506,7 @@ export default class Immerser {
     window.removeEventListener('resize', this._onResize!, false);
   }
 
+  /** Applies transforms based on scroll position and updates active layer state. */
   private _draw(scrollY?: number): void {
     const y = scrollY !== undefined ? scrollY : getLastScrollPosition().y;
     this._layerStateArray.forEach(
@@ -507,6 +536,7 @@ export default class Immerser {
     );
   }
 
+  /** Adds or removes active pager classname according to current layer. */
   private _drawPagerLinks(layerIndex?: number): void {
     this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
       if (parseInt(pagerLinkNode.dataset.immerserLayerIndex, 10) === layerIndex) {
@@ -517,6 +547,7 @@ export default class Immerser {
     });
   }
 
+  /** Updates window hash to match active layer id. */
   private _drawHash(layerIndex: number): void {
     const { id, layerNode } = this._layerStateArray[layerIndex];
     layerNode.removeAttribute('id');
@@ -524,6 +555,7 @@ export default class Immerser {
     layerNode.setAttribute('id', id);
   }
 
+  /** Syncs hover state across elements with matching synchroHover id. */
   private _drawSynchroHover(synchroHoverId?: string): void {
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
@@ -534,6 +566,7 @@ export default class Immerser {
     });
   }
 
+  /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
   private _adjustScroll(): void {
     const { layerTop, layerBottom } = this._layerStateArray[this._reactiveActiveLayer.value as number];
     const { x, y } = getLastScrollPosition();
@@ -549,6 +582,7 @@ export default class Immerser {
     }
   }
 
+  /** RAF-throttled scroll handler that draws and optionally snaps scroll. */
   private _handleScroll(): void {
     if (this._isBound) {
       if (this._scrollFrameId) {
@@ -568,6 +602,7 @@ export default class Immerser {
     }
   }
 
+  /** RAF-throttled resize handler that recalculates sizes and redraws. */
   private _handleResize(): void {
     if (this._resizeFrameId) {
       window.cancelAnimationFrame(this._resizeFrameId);
@@ -579,6 +614,10 @@ export default class Immerser {
     });
   }
 
+  /**
+   * Prepares markup, attaches listeners and triggers first draw; also fires onBind callback.
+   * Intended to be idempotent for toggling immerser on when viewport width allows.
+   */
   public bind(): void {
     this._createMarkup();
     this._initPagerLinks();
@@ -591,6 +630,10 @@ export default class Immerser {
     }
   }
 
+  /**
+   * Tears down generated markup and listeners, restores DOM, resets active layer and fires onUnbind.
+   * Safe to call multiple times; no-op when already unbound.
+   */
   public unbind(): void {
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
@@ -604,6 +647,10 @@ export default class Immerser {
     this._reactiveActiveLayer.value = undefined;
   }
 
+  /**
+   * Fully destroys immerser: unbinds, removes window listeners, runs onDestroy and clears all references.
+   * Use when component is permanently removed.
+   */
   public destroy(): void {
     this.unbind();
     this._unsubscribeToggleBindOnResize?.();
@@ -614,19 +661,26 @@ export default class Immerser {
     this._resetInternalState();
   }
 
+  /**
+   * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
+   * Exposed for dynamic content updates without reinitializing immerser.
+   */
   public render(): void {
     this._setSizes();
     this._draw();
   }
 
+  /** Current active layer index derived from scroll position. */
   public get activeIndex(): number {
     return this._reactiveActiveLayer.value;
   }
 
+  /** Indicates whether immerser is currently bound (markup cloned and listeners attached). */
   public get isBound(): boolean {
     return this._isBound;
   }
 
+  /** The root DOM node immerser is attached to. */
   public get rootNode(): HTMLElement {
     return this._rootNode;
   }
