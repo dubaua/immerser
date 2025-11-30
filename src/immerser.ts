@@ -1,60 +1,14 @@
 import mergeOptions from '@dubaua/merge-options';
 import Observable from '@dubaua/observable';
-import { MESSAGE_PREFFIX, OPTION_CONFIG } from '@/defaults';
+import {
+  OPTION_CONFIG,
+  MESSAGE_PREFIX,
+  CROPPED_FULL_ABSOLUTE_STYLES,
+  NOT_INTERACTIVE_STYLES,
+  INTERACTIVE_STYLES,
+} from '@/options';
 import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from '@/utils';
-
-const CROPPED_FULL_ABSOLUTE_STYLES = {
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  bottom: 0,
-  left: 0,
-  overflow: 'hidden',
-};
-
-const NOT_INTERACTIVE_STYLES = {
-  pointerEvents: 'none',
-  touchAction: 'none',
-};
-
-const INTERACTIVE_STYLES = {
-  pointerEvents: 'all',
-  touchAction: 'auto',
-};
-
-interface SolidClassnames {
-  [key: string]: string;
-}
-
-interface State {
-  beginEnter: number;
-  beginLeave: number;
-  endEnter: number;
-  endLeave: number;
-  id: string;
-  layerBottom: number;
-  layerTop: number;
-  maskInnerNode: HTMLElement | null;
-  maskNode: HTMLElement | null;
-  layerNode: HTMLElement;
-  solidClassnames: SolidClassnames | null;
-}
-
-interface Options {
-  solidClassnameArray: SolidClassnames[];
-  fromViewportWidth: number;
-  pagerThreshold: number;
-  hasToUpdateHash: boolean;
-  scrollAdjustThreshold: number;
-  scrollAdjustDelay: number;
-  pagerLinkActiveClassname: string;
-  isScrollHandled: boolean;
-  onInit: ((immerser: Immerser) => void) | null;
-  onBind: ((immerser: Immerser) => void) | null;
-  onUnbind: ((immerser: Immerser) => void) | null;
-  onDestroy: ((immerser: Immerser) => void) | null;
-  onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
-}
+import { LayerState, Options } from '@/types';
 
 export default class Immerser {
   options: Options = {} as Options;
@@ -67,7 +21,7 @@ export default class Immerser {
     maskInner: '[data-immerser-mask-inner]',
     synchroHover: '[data-immerser-synchro-hover]',
   };
-  stateArray: State[] = [];
+  stateArray: LayerState[] = [];
   stateIndexById: Record<string, number> = {};
   isBound = false;
   rootNode: HTMLElement | null = null;
@@ -151,7 +105,7 @@ export default class Immerser {
     this.options = mergeOptions({
       optionConfig: OPTION_CONFIG,
       userOptions,
-      preffix: MESSAGE_PREFFIX,
+      prefix: MESSAGE_PREFIX,
       suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
     }) as Options;
   }
@@ -162,7 +116,7 @@ export default class Immerser {
         try {
           this.options.solidClassnameArray[layerIndex] = JSON.parse(layerNode.dataset.immerserLayerConfig);
         } catch (e) {
-          console.error(MESSAGE_PREFFIX, 'Failed to parse JSON classname configuration.', e);
+          console.error(MESSAGE_PREFIX, 'Failed to parse JSON classname configuration.', e);
         }
       }
     });
@@ -207,7 +161,7 @@ export default class Immerser {
         maskNode: null,
         layerNode: layerNode,
         solidClassnames,
-      } as State;
+      } as LayerState;
     });
   }
 
@@ -256,7 +210,7 @@ export default class Immerser {
         endEnter,
         beginLeave,
         endLeave,
-      } as State;
+      } as LayerState;
     });
 
     this.reactiveWindowWidth.value = window.innerWidth;
@@ -400,14 +354,15 @@ export default class Immerser {
 
     if (this.customMaskNodeArray.length > 0 && !this.isCustomMarkup) {
       showError({
-        message: 'You\'re trying use custom markup, but count of your immerser masks doesn\'t equal layers count.',
+        message: "You're trying use custom markup, but count of your immerser masks doesn't equal layers count.",
         warning: true,
         docs: '#cloning-event-listeners',
       });
     }
 
     this.customMaskNodeArray.forEach((customMaskNode) => {
-      const customChildrenHTMLCollection = (customMaskNode.querySelector(this.selectors.maskInner) as HTMLElement).children;
+      const customChildrenHTMLCollection = (customMaskNode.querySelector(this.selectors.maskInner) as HTMLElement)
+        .children;
       for (let i = 0; i < customChildrenHTMLCollection.length; i++) {
         bindStyles(customChildrenHTMLCollection[i] as HTMLElement, INTERACTIVE_STYLES);
       }

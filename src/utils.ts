@@ -1,4 +1,4 @@
-import { MESSAGE_PREFFIX } from '@/defaults';
+import { MESSAGE_PREFIX } from '@/options';
 
 export function bindStyles(node: HTMLElement, styles: { [key: string]: string }): void {
   for (const rule in styles) {
@@ -6,14 +6,23 @@ export function bindStyles(node: HTMLElement, styles: { [key: string]: string })
   }
 }
 
-export function forEachNode<T extends Element>(nodeList: ArrayLike<T>, callback: (node: T, index: number, nodeList: ArrayLike<T>) => void): void {
+export function forEachNode<T extends Element>(
+  nodeList: ArrayLike<T>,
+  callback: (node: T, index: number, nodeList: ArrayLike<T>) => void,
+): void {
   for (let index = 0; index < nodeList.length; index++) {
     const node = nodeList[index];
     callback(node, index, nodeList);
   }
 }
 
-export function getNodeArray({ selector, parent = document }: { selector: string; parent?: Document | Element | null }): Element[] {
+export function getNodeArray({
+  selector,
+  parent = document,
+}: {
+  selector: string;
+  parent?: Document | Element | null;
+}): Element[] {
   if (!parent) {
     return [];
   }
@@ -21,9 +30,17 @@ export function getNodeArray({ selector, parent = document }: { selector: string
   return [].slice.call(nodeList);
 }
 
-export function showError({ message, warning = false, docs }: { message: string; warning?: boolean; docs?: string }): void {
+export function showError({
+  message,
+  warning = false,
+  docs,
+}: {
+  message: string;
+  warning?: boolean;
+  docs?: string;
+}): void {
   const docsHash = docs ? docs : '';
-  const resultMessage = `${MESSAGE_PREFFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
+  const resultMessage = `${MESSAGE_PREFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
   if (warning) {
     console.warn(resultMessage);
   } else {
