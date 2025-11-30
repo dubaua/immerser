@@ -21,8 +21,8 @@ export default class Immerser {
     maskInner: '[data-immerser-mask-inner]',
     synchroHover: '[data-immerser-synchro-hover]',
   };
-  stateArray: LayerState[] = [];
-  stateIndexById: Record<string, number> = {};
+  layerStateArray: LayerState[] = [];
+  layerStateIndexById: Record<string, number> = {};
   isBound = false;
   rootNode: HTMLElement | null = null;
   layerNodeArray: HTMLElement[] = [];
@@ -43,44 +43,44 @@ export default class Immerser {
   reactiveActiveLayer: Observable<number | undefined> = new Observable<number | undefined>();
   reactiveWindowWidth: Observable<number> = new Observable<number>();
   reactiveSynchroHoverId: Observable<string | undefined> = new Observable<string | undefined>();
-  stopRedrawingPager: (() => void) | null = null;
-  stopUpdatingHash: (() => void) | null = null;
-  stopFiringActiveLayerChangeCallback: (() => void) | null = null;
-  stopTrackingSynchroHover: (() => void) | null = null;
-  stopToggleBindOnResize: (() => void) | null = null;
+  unsubscribeRedrawingPager: (() => void) | null = null;
+  unsubscribeUpdatingHash: (() => void) | null = null;
+  unsubscribeActiveLayerChange: (() => void) | null = null;
+  unsubscribeSynchroHover: (() => void) | null = null;
+  unsubscribeToggleBindOnResize: (() => void) | null = null;
   onResize: (() => void) | null = null;
   onScroll: (() => void) | null = null;
   onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
   onSynchroHoverMouseOut: (() => void) | null = null;
 
   constructor(userOptions?: Partial<Options>) {
-    this.init(userOptions);
+    this._init(userOptions);
   }
 
-  init(userOptions?: Partial<Options>): void {
-    this.setNodes();
-    this.validateMarkup();
-    this.mergeOptions(userOptions);
-    this.getClassnamesFromMarkup();
-    this.validateSolidClassnameArray();
-    this.initSectionIds();
-    this.initStatemap();
-    this.validateClassnames();
-    this.toggleBindOnResize();
-    this.setSizes();
-    this.addScrollAndResizeListeners();
+  private _init(userOptions?: Partial<Options>): void {
+    this._setDomNodes();
+    this._validateMarkup();
+    this._mergeOptions(userOptions);
+    this._readClassnamesFromMarkup();
+    this._validateSolidClassnameArray();
+    this._initSectionIds();
+    this._initStateMap();
+    this._validateClassnames();
+    this._toggleBindOnResizeObserver();
+    this._setSizes();
+    this._addScrollAndResizeListeners();
     if (typeof this.options.onInit === 'function') {
       this.options.onInit(this);
     }
   }
 
-  setNodes(): void {
+  private _setDomNodes(): void {
     this.rootNode = document.querySelector<HTMLElement>(this.selectors.root);
     this.layerNodeArray = getNodeArray({ selector: this.selectors.layer });
     this.solidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: this.rootNode });
   }
 
-  validateMarkup(): void {
+  private _validateMarkup(): void {
     if (!this.rootNode) {
       showError({
         message: 'immerser root node not found.',
@@ -101,7 +101,7 @@ export default class Immerser {
     }
   }
 
-  mergeOptions(userOptions?: Partial<Options>): void {
+  private _mergeOptions(userOptions?: Partial<Options>): void {
     this.options = mergeOptions({
       optionConfig: OPTION_CONFIG,
       userOptions,
@@ -110,7 +110,7 @@ export default class Immerser {
     }) as Options;
   }
 
-  getClassnamesFromMarkup(): void {
+  private _readClassnamesFromMarkup(): void {
     this.layerNodeArray.forEach((layerNode, layerIndex) => {
       if (layerNode.dataset.immerserLayerConfig) {
         try {
@@ -122,7 +122,7 @@ export default class Immerser {
     });
   }
 
-  validateSolidClassnameArray(): void {
+  private _validateSolidClassnameArray(): void {
     const layerCount = this.layerNodeArray.length;
     const classnamesCount = this.options.solidClassnameArray.length;
     if (classnamesCount !== layerCount) {
@@ -133,7 +133,7 @@ export default class Immerser {
     }
   }
 
-  initSectionIds(): void {
+  private _initSectionIds(): void {
     this.layerNodeArray.forEach((layerNode, layerIndex) => {
       let id = layerNode.id;
       if (!id) {
@@ -141,12 +141,12 @@ export default class Immerser {
         layerNode.id = id;
         (layerNode as any).__immerserCustomId = true;
       }
-      this.stateIndexById[id] = layerIndex;
+      this.layerStateIndexById[id] = layerIndex;
     });
   }
 
-  initStatemap(): void {
-    this.stateArray = this.layerNodeArray.map((layerNode, layerIndex) => {
+  private _initStateMap(): void {
+    this.layerStateArray = this.layerNodeArray.map((layerNode, layerIndex) => {
       const solidClassnames = this.options.solidClassnameArray[layerIndex];
       const { id } = layerNode;
       return {
@@ -165,8 +165,8 @@ export default class Immerser {
     });
   }
 
-  validateClassnames(): void {
-    const noClassnameConfigPassed = this.stateArray.every((state) => isEmpty(state.solidClassnames));
+  private _validateClassnames(): void {
+    const noClassnameConfigPassed = this.layerStateArray.every((state) => isEmpty(state.solidClassnames));
     if (noClassnameConfigPassed) {
       showError({
         message: 'immerser will do nothing without solid classname configuration.',
@@ -175,8 +175,8 @@ export default class Immerser {
     }
   }
 
-  toggleBindOnResize(): void {
-    this.stopToggleBindOnResize = this.reactiveWindowWidth.subscribe((nextWindowWidth) => {
+  private _toggleBindOnResizeObserver(): void {
+    this.unsubscribeToggleBindOnResize = this.reactiveWindowWidth.subscribe((nextWindowWidth) => {
       if (nextWindowWidth >= this.options.fromViewportWidth) {
         if (!this.isBound) {
           this.bind();
@@ -187,13 +187,13 @@ export default class Immerser {
     });
   }
 
-  setSizes(): void {
+  private _setSizes(): void {
     this.documentHeight = document.documentElement.offsetHeight;
     this.windowHeight = window.innerHeight;
     this.immerserTop = (this.rootNode as HTMLElement).offsetTop;
     this.immerserHeight = (this.rootNode as HTMLElement).offsetHeight;
 
-    this.stateArray = this.stateArray.map((state) => {
+    this.layerStateArray = this.layerStateArray.map((state) => {
       const layerTop = state.layerNode.offsetTop;
       const layerBottom = layerTop + state.layerNode.offsetHeight;
 
@@ -216,33 +216,33 @@ export default class Immerser {
     this.reactiveWindowWidth.value = window.innerWidth;
   }
 
-  addScrollAndResizeListeners(): void {
+  private _addScrollAndResizeListeners(): void {
     if (this.options.isScrollHandled) {
-      this.onScroll = this.handleScroll.bind(this);
+      this.onScroll = this._handleScroll.bind(this);
       window.addEventListener('scroll', this.onScroll, false);
     }
-    this.onResize = this.handleResize.bind(this);
+    this.onResize = this._handleResize.bind(this);
     window.addEventListener('resize', this.onResize, false);
   }
 
-  bind(): void {
-    this.createMarkup();
-    this.initPagerLinks();
-    this.initHoverSynchro();
-    this.attachCallbacks();
+  public bind(): void {
+    this._createMarkup();
+    this._initPagerLinks();
+    this._initHoverSynchro();
+    this._attachCallbacks();
     this.isBound = true;
-    this.draw();
+    this._draw();
     if (typeof this.options.onBind === 'function') {
       this.options.onBind(this);
     }
   }
 
-  unbind(): void {
-    this.detachCallbacks();
-    this.removeSyncroHoverListeners();
-    this.clearCustomSectionIds();
-    this.restoreOriginalSolidNodes();
-    this.cleanupClonedMarkup();
+  public unbind(): void {
+    this._detachCallbacks();
+    this._removeSyncroHoverListeners();
+    this._clearCustomSectionIds();
+    this._restoreOriginalSolidNodes();
+    this._cleanupClonedMarkup();
     this.isBound = false;
     if (typeof this.options.onUnbind === 'function') {
       this.options.onUnbind(this);
@@ -250,9 +250,9 @@ export default class Immerser {
     this.reactiveActiveLayer.value = undefined;
   }
 
-  private resetInternalState(): void {
-    this.stateArray = [];
-    this.stateIndexById = {};
+  private _resetInternalState(): void {
+    this.layerStateArray = [];
+    this.layerStateIndexById = {};
     this.isBound = false;
     this.rootNode = null;
     this.layerNodeArray = [];
@@ -273,33 +273,33 @@ export default class Immerser {
     this.reactiveActiveLayer = new Observable<number | undefined>();
     this.reactiveWindowWidth = new Observable<number>();
     this.reactiveSynchroHoverId = new Observable<string | undefined>();
-    this.stopRedrawingPager = null;
-    this.stopUpdatingHash = null;
-    this.stopFiringActiveLayerChangeCallback = null;
-    this.stopTrackingSynchroHover = null;
-    this.stopToggleBindOnResize = null;
+    this.unsubscribeRedrawingPager = null;
+    this.unsubscribeUpdatingHash = null;
+    this.unsubscribeActiveLayerChange = null;
+    this.unsubscribeSynchroHover = null;
+    this.unsubscribeToggleBindOnResize = null;
     this.onResize = null;
     this.onScroll = null;
     this.onSynchroHoverMouseOver = null;
     this.onSynchroHoverMouseOut = null;
   }
 
-  destroy(): void {
+  public destroy(): void {
     this.unbind();
-    this.stopToggleBindOnResize?.();
-    this.removeScrollAndResizeListeners();
+    this.unsubscribeToggleBindOnResize?.();
+    this._removeScrollAndResizeListeners();
     if (typeof this.options.onDestroy === 'function') {
       this.options.onDestroy(this);
     }
-    this.resetInternalState();
+    this._resetInternalState();
   }
 
-  createMarkup(): void {
+  private _createMarkup(): void {
     bindStyles(this.rootNode as HTMLElement, NOT_INTERACTIVE_STYLES);
-    this.initCustomMarkup();
+    this._initCustomMarkup();
     this.originalSolidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: this.rootNode });
 
-    this.stateArray = this.stateArray.map((state, stateIndex) => {
+    this.layerStateArray = this.layerStateArray.map((state, stateIndex) => {
       // create or assign existing markup, bind styles
       const maskNode = this.isCustomMarkup ? this.customMaskNodeArray[stateIndex] : document.createElement('div');
       bindStyles(maskNode, CROPPED_FULL_ABSOLUTE_STYLES);
@@ -353,16 +353,16 @@ export default class Immerser {
       return { ...state, maskNode, maskInnerNode };
     });
 
-    this.detachOriginalSolidNodes();
+    this._removeOriginalSolidNodes();
   }
 
-  initCustomMarkup(): void {
+  private _initCustomMarkup(): void {
     this.customMaskNodeArray = getNodeArray({ selector: this.selectors.mask, parent: this.rootNode });
-    this.isCustomMarkup = this.customMaskNodeArray.length === this.stateArray.length;
+    this.isCustomMarkup = this.customMaskNodeArray.length === this.layerStateArray.length;
 
     if (this.customMaskNodeArray.length > 0 && !this.isCustomMarkup) {
       showError({
-        message: "You're trying use custom markup, but count of your immerser masks doesn't equal layers count.",
+        message: 'You\'re trying use custom markup, but count of your immerser masks doesn\'t equal layers count.',
         warning: true,
         docs: '#cloning-event-listeners',
       });
@@ -381,7 +381,7 @@ export default class Immerser {
     });
   }
 
-  detachOriginalSolidNodes(): void {
+  private _removeOriginalSolidNodes(): void {
     if (!this.rootNode) {
       return;
     }
@@ -390,21 +390,21 @@ export default class Immerser {
     });
   }
 
-  initPagerLinks(): void {
+  private _initPagerLinks(): void {
     this.pagerLinkNodeArray = getNodeArray({ selector: this.selectors.pagerLink, parent: this.rootNode });
     this.pagerLinkNodeArray.forEach((pagerLinkNode) => {
       const { href } = pagerLinkNode as HTMLAnchorElement;
       if (href) {
         const layerId = href.split('#')[1];
         if (layerId) {
-          const layerIndex = this.stateIndexById[layerId];
+          const layerIndex = this.layerStateIndexById[layerId];
           pagerLinkNode.dataset.immerserLayerIndex = layerIndex.toString();
         }
       }
     });
   }
 
-  initHoverSynchro(): void {
+  private _initHoverSynchro(): void {
     this.synchroHoverNodeArray = getNodeArray({ selector: this.selectors.synchroHover, parent: this.rootNode });
 
     this.onSynchroHoverMouseOver = (e: MouseEvent): void => {
@@ -423,60 +423,60 @@ export default class Immerser {
     });
   }
 
-  attachCallbacks(): void {
+  private _attachCallbacks(): void {
     if (this.pagerLinkNodeArray.length > 0) {
-      this.stopRedrawingPager = this.reactiveActiveLayer.subscribe(this.drawPagerLinks.bind(this));
+      this.unsubscribeRedrawingPager = this.reactiveActiveLayer.subscribe(this._drawPagerLinks.bind(this));
     }
 
     if (this.options.hasToUpdateHash) {
-      this.stopUpdatingHash = this.reactiveActiveLayer.subscribe(this.drawHash.bind(this));
+      this.unsubscribeUpdatingHash = this.reactiveActiveLayer.subscribe(this._drawHash.bind(this));
     }
 
     if (typeof this.options.onActiveLayerChange === 'function') {
-      this.stopFiringActiveLayerChangeCallback = this.reactiveActiveLayer.subscribe((nextIndex) => {
+      this.unsubscribeActiveLayerChange = this.reactiveActiveLayer.subscribe((nextIndex) => {
         this.options.onActiveLayerChange!(nextIndex, this);
       });
     }
 
     if (this.synchroHoverNodeArray.length > 0) {
-      this.stopTrackingSynchroHover = this.reactiveSynchroHoverId.subscribe(this.drawSynchroHover.bind(this));
+      this.unsubscribeSynchroHover = this.reactiveSynchroHoverId.subscribe(this._drawSynchroHover.bind(this));
     }
   }
 
-  detachCallbacks(): void {
-    if (typeof this.stopRedrawingPager === 'function') {
-      this.stopRedrawingPager();
+  private _detachCallbacks(): void {
+    if (typeof this.unsubscribeRedrawingPager === 'function') {
+      this.unsubscribeRedrawingPager();
     }
 
-    if (typeof this.stopUpdatingHash === 'function') {
-      this.stopUpdatingHash();
+    if (typeof this.unsubscribeUpdatingHash === 'function') {
+      this.unsubscribeUpdatingHash();
     }
 
-    if (typeof this.stopFiringActiveLayerChangeCallback === 'function') {
-      this.stopFiringActiveLayerChangeCallback();
+    if (typeof this.unsubscribeActiveLayerChange === 'function') {
+      this.unsubscribeActiveLayerChange();
     }
 
-    if (typeof this.stopTrackingSynchroHover === 'function') {
-      this.stopTrackingSynchroHover();
+    if (typeof this.unsubscribeSynchroHover === 'function') {
+      this.unsubscribeSynchroHover();
     }
   }
 
-  removeSyncroHoverListeners(): void {
+  private _removeSyncroHoverListeners(): void {
     this.synchroHoverNodeArray.forEach((synchroHoverNode) => {
       synchroHoverNode.removeEventListener('mouseover', this.onSynchroHoverMouseOver!);
       synchroHoverNode.removeEventListener('mouseout', this.onSynchroHoverMouseOut!);
     });
   }
 
-  clearCustomSectionIds(): void {
-    this.stateArray.forEach((state) => {
+  private _clearCustomSectionIds(): void {
+    this.layerStateArray.forEach((state) => {
       if ((state.layerNode as any).__immerserCustomId) {
         state.layerNode.removeAttribute('id');
       }
     });
   }
 
-  restoreOriginalSolidNodes(): void {
+  private _restoreOriginalSolidNodes(): void {
     if (!this.rootNode) {
       return;
     }
@@ -485,7 +485,7 @@ export default class Immerser {
     });
   }
 
-  cleanupClonedMarkup(): void {
+  private _cleanupClonedMarkup(): void {
     this.maskNodeArray.forEach((immerserMaskNode) => {
       if (this.isCustomMarkup) {
         immerserMaskNode.removeAttribute('style');
@@ -509,16 +509,16 @@ export default class Immerser {
     });
   }
 
-  removeScrollAndResizeListeners(): void {
+  private _removeScrollAndResizeListeners(): void {
     if (this.options.isScrollHandled) {
       window.removeEventListener('scroll', this.onScroll!, false);
     }
     window.removeEventListener('resize', this.onResize!, false);
   }
 
-  draw(scrollY?: number): void {
+  private _draw(scrollY?: number): void {
     const y = scrollY !== undefined ? scrollY : getLastScrollPosition().y;
-    this.stateArray.forEach(
+    this.layerStateArray.forEach(
       ({ beginEnter, endEnter, beginLeave, endLeave, maskNode, maskInnerNode, layerTop, layerBottom }, layerIndex) => {
         let progress: number;
 
@@ -545,7 +545,7 @@ export default class Immerser {
     );
   }
 
-  drawPagerLinks(layerIndex?: number): void {
+  private _drawPagerLinks(layerIndex?: number): void {
     this.pagerLinkNodeArray.forEach((pagerLinkNode) => {
       if (parseInt(pagerLinkNode.dataset.immerserLayerIndex, 10) === layerIndex) {
         pagerLinkNode.classList.add(this.options.pagerLinkActiveClassname);
@@ -555,14 +555,14 @@ export default class Immerser {
     });
   }
 
-  drawHash(layerIndex: number): void {
-    const { id, layerNode } = this.stateArray[layerIndex];
+  private _drawHash(layerIndex: number): void {
+    const { id, layerNode } = this.layerStateArray[layerIndex];
     layerNode.removeAttribute('id');
     window.location.hash = id;
     layerNode.setAttribute('id', id);
   }
 
-  drawSynchroHover(synchroHoverId?: string): void {
+  private _drawSynchroHover(synchroHoverId?: string): void {
     this.synchroHoverNodeArray.forEach((synchroHoverNode) => {
       if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
         synchroHoverNode.classList.add('_hover');
@@ -572,8 +572,8 @@ export default class Immerser {
     });
   }
 
-  adjustScroll(): void {
-    const { layerTop, layerBottom } = this.stateArray[this.reactiveActiveLayer.value as number];
+  private _adjustScroll(): void {
+    const { layerTop, layerBottom } = this.layerStateArray[this.reactiveActiveLayer.value as number];
     const { x, y } = getLastScrollPosition();
     const topThreshold = Math.abs(y - layerTop);
     const bottomThreshold = Math.abs(y + this.windowHeight - layerBottom);
@@ -587,38 +587,38 @@ export default class Immerser {
     }
   }
 
-  onDOMChange(): void {
-    this.setSizes();
-    this.draw();
+  public onDOMChange(): void {
+    this._setSizes();
+    this._draw();
   }
 
-  handleScroll(): void {
+  private _handleScroll(): void {
     if (this.isBound) {
       if (this.scrollFrameId) {
         window.cancelAnimationFrame(this.scrollFrameId);
         this.scrollFrameId = null;
       }
       this.scrollFrameId = window.requestAnimationFrame(() => {
-        this.draw();
+        this._draw();
         if (this.options.scrollAdjustThreshold > 0) {
           if (this.scrollAdjustTimerId) {
             clearTimeout(this.scrollAdjustTimerId);
             this.scrollAdjustTimerId = null;
           }
-          this.scrollAdjustTimerId = setTimeout(this.adjustScroll.bind(this), this.options.scrollAdjustDelay);
+          this.scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this.options.scrollAdjustDelay);
         }
       });
     }
   }
 
-  handleResize(): void {
+  private _handleResize(): void {
     if (this.resizeFrameId) {
       window.cancelAnimationFrame(this.resizeFrameId);
       this.resizeFrameId = null;
     }
     this.resizeFrameId = window.requestAnimationFrame(() => {
-      this.setSizes();
-      this.draw();
+      this._setSizes();
+      this._draw();
     });
   }
 }
