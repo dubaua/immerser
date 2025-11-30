@@ -5,11 +5,14 @@
     "moduleResolution": "node",
     "lib": ["DOM", "ES2015"],
     "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"]
-    },
+    "types": [],
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist/types",
+    "rootDir": "./src"
   },
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,5 +1,5 @@
 import type { OptionConfig } from '@dubaua/merge-options';
-import { Options } from '@/types';
+import { Options } from './types';
 
 const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
 

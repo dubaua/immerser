@@ -6,10 +6,11 @@ import {
   MESSAGE_PREFIX,
   NOT_INTERACTIVE_STYLES,
   OPTION_CONFIG,
-} from '@/options';
-import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from '@/utils';
-import { LayerState, Options } from '@/types';
+} from './options';
+import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from './utils';
+import { LayerState, Options, SolidClassnames } from './types';
 
+/** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {
   private _options: Options = {} as Options;
   private _selectors = {
@@ -54,7 +55,7 @@ export default class Immerser {
 
   /**
    * Creates immerser instance and immediately runs setup with optional user options.
-   * @param userOptions overrides for defaults defined in OPTION_CONFIG if pass validation
+   * @param userOptions - overrides for defaults defined in OPTION_CONFIG if pass validation
    */
   constructor(userOptions?: Partial<Options>) {
     this._init(userOptions);
@@ -343,7 +344,7 @@ export default class Immerser {
 
     if (this._customMaskNodeArray.length > 0 && !this._isCustomMarkup) {
       showError({
-        message: "You're trying use custom markup, but count of your immerser masks doesn't equal layers count.",
+        message: `You're trying use custom markup, but count of your immerser masks doesn't equal layers count.`,
         warning: true,
         docs: '#cloning-event-listeners',
       });
@@ -685,3 +686,6 @@ export default class Immerser {
     return this._rootNode;
   }
 }
+
+// for typedef generation needs
+export type { Options, SolidClassnames };

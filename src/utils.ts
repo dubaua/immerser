@@ -1,4 +1,4 @@
-import { MESSAGE_PREFIX } from '@/options';
+import { MESSAGE_PREFIX } from './options';
 
 export function bindStyles(node: HTMLElement, styles: { [key: string]: string }): void {
   for (const rule in styles) {
