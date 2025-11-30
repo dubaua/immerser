@@ -47,7 +47,7 @@ export default class Immerser {
   stopUpdatingHash: (() => void) | null = null;
   stopFiringActiveLayerChangeCallback: (() => void) | null = null;
   stopTrackingSynchroHover: (() => void) | null = null;
-  stopToggleBindOnRezise: (() => void) | null = null;
+  stopToggleBindOnResize: (() => void) | null = null;
   onResize: (() => void) | null = null;
   onScroll: (() => void) | null = null;
   onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
@@ -66,7 +66,7 @@ export default class Immerser {
     this.initSectionIds();
     this.initStatemap();
     this.validateClassnames();
-    this.toggleBindOnRezise();
+    this.toggleBindOnResize();
     this.setSizes();
     this.addScrollAndResizeListeners();
     if (typeof this.options.onInit === 'function') {
@@ -175,8 +175,8 @@ export default class Immerser {
     }
   }
 
-  toggleBindOnRezise(): void {
-    this.stopToggleBindOnRezise = this.reactiveWindowWidth.subscribe((nextWindowWidth) => {
+  toggleBindOnResize(): void {
+    this.stopToggleBindOnResize = this.reactiveWindowWidth.subscribe((nextWindowWidth) => {
       if (nextWindowWidth >= this.options.fromViewportWidth) {
         if (!this.isBound) {
           this.bind();
@@ -242,7 +242,7 @@ export default class Immerser {
     this.removeSyncroHoverListeners();
     this.clearCustomSectionIds();
     this.restoreOriginalSolidNodes();
-    this.cleanupClonnedMarkup();
+    this.cleanupClonedMarkup();
     this.isBound = false;
     if (typeof this.options.onUnbind === 'function') {
       this.options.onUnbind(this);
@@ -277,7 +277,7 @@ export default class Immerser {
     this.stopUpdatingHash = null;
     this.stopFiringActiveLayerChangeCallback = null;
     this.stopTrackingSynchroHover = null;
-    this.stopToggleBindOnRezise = null;
+    this.stopToggleBindOnResize = null;
     this.onResize = null;
     this.onScroll = null;
     this.onSynchroHoverMouseOver = null;
@@ -286,7 +286,7 @@ export default class Immerser {
 
   destroy(): void {
     this.unbind();
-    this.stopToggleBindOnRezise?.();
+    this.stopToggleBindOnResize?.();
     this.removeScrollAndResizeListeners();
     if (typeof this.options.onDestroy === 'function') {
       this.options.onDestroy(this);
@@ -317,10 +317,10 @@ export default class Immerser {
 
       // clone solids to innerMask
       this.originalSolidNodeArray.forEach((childNode) => {
-        const clonnedChildNode = childNode.cloneNode(true) as HTMLElement;
-        bindStyles(clonnedChildNode, INTERACTIVE_STYLES);
-        (clonnedChildNode as any).__immerserClonned = true;
-        maskInnerNode.appendChild(clonnedChildNode);
+        const ClonedChildNode = childNode.cloneNode(true) as HTMLElement;
+        bindStyles(ClonedChildNode, INTERACTIVE_STYLES);
+        (ClonedChildNode as any).__immerserCloned = true;
+        maskInnerNode.appendChild(ClonedChildNode);
       });
 
       // assign class modifiers to cloned solids
@@ -467,17 +467,17 @@ export default class Immerser {
     });
   }
 
-  cleanupClonnedMarkup(): void {
+  cleanupClonedMarkup(): void {
     this.maskNodeArray.forEach((immerserMaskNode) => {
       if (this.isCustomMarkup) {
         immerserMaskNode.removeAttribute('style');
         immerserMaskNode.removeAttribute('aria-hidden');
         const immerserMaskInnerNode = immerserMaskNode.querySelector(this.selectors.maskInner) as HTMLElement;
         immerserMaskInnerNode.removeAttribute('style');
-        const clonnedSolidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: immerserMaskInnerNode });
-        clonnedSolidNodeArray.forEach((clonnedSolideNode) => {
-          if ((clonnedSolideNode as any).__immerserClonned) {
-            immerserMaskInnerNode.removeChild(clonnedSolideNode);
+        const ClonedSolidNodeArray = getNodeArray({ selector: this.selectors.solid, parent: immerserMaskInnerNode });
+        ClonedSolidNodeArray.forEach((ClonedSolidNode) => {
+          if ((ClonedSolidNode as any).__immerserCloned) {
+            immerserMaskInnerNode.removeChild(ClonedSolidNode);
           }
         });
       } else {
