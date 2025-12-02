@@ -18,6 +18,7 @@ declare class Immerser {
     private _immerserTop;
     private _immerserHeight;
     private _resizeFrameId;
+    private _resizeObserver;
     private _scrollFrameId;
     private _scrollAdjustTimerId;
     private _reactiveActiveLayer;
