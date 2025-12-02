@@ -75,9 +75,7 @@ export default class Immerser {
     this._toggleBindOnResizeObserver();
     this._setSizes();
     this._addScrollAndResizeListeners();
-    if (typeof this._options.onInit === 'function') {
-      this._options.onInit(this);
-    }
+    this._options.onInit?.(this);
   }
 
   /** Collects root, layer and solid nodes from DOM. */
@@ -425,9 +423,9 @@ export default class Immerser {
       this._unsubscribeUpdatingHash = this._reactiveActiveLayer.subscribe(this._drawHash.bind(this));
     }
 
-    if (typeof this._options.onActiveLayerChange === 'function') {
+    if (this._options.onActiveLayerChange) {
       this._unsubscribeActiveLayerChange = this._reactiveActiveLayer.subscribe((nextIndex) => {
-        this._options.onActiveLayerChange!(nextIndex, this);
+        this._options.onActiveLayerChange(nextIndex, this);
       });
     }
 
@@ -438,21 +436,10 @@ export default class Immerser {
 
   /** Unsubscribes from all reactive callbacks. */
   private _detachCallbacks(): void {
-    if (typeof this._unsubscribeRedrawingPager === 'function') {
-      this._unsubscribeRedrawingPager();
-    }
-
-    if (typeof this._unsubscribeUpdatingHash === 'function') {
-      this._unsubscribeUpdatingHash();
-    }
-
-    if (typeof this._unsubscribeActiveLayerChange === 'function') {
-      this._unsubscribeActiveLayerChange();
-    }
-
-    if (typeof this._unsubscribeSynchroHover === 'function') {
-      this._unsubscribeSynchroHover();
-    }
+    this._unsubscribeRedrawingPager?.();
+    this._unsubscribeUpdatingHash?.();
+    this._unsubscribeActiveLayerChange?.();
+    this._unsubscribeSynchroHover?.();
   }
 
   /** Removes hover listeners from synchro hover nodes. */
@@ -634,9 +621,7 @@ export default class Immerser {
     this._attachCallbacks();
     this._isBound = true;
     this._draw();
-    if (typeof this._options.onBind === 'function') {
-      this._options.onBind(this);
-    }
+    this._options.onBind?.(this);
   }
 
   /**
@@ -650,9 +635,7 @@ export default class Immerser {
     this._restoreOriginalSolidNodes();
     this._cleanupClonedMarkup();
     this._isBound = false;
-    if (typeof this._options.onUnbind === 'function') {
-      this._options.onUnbind(this);
-    }
+    this._options.onUnbind?.(this);
     this._reactiveActiveLayer.value = undefined;
   }
 
@@ -664,9 +647,7 @@ export default class Immerser {
     this.unbind();
     this._unsubscribeToggleBindOnResize?.();
     this._removeScrollAndResizeListeners();
-    if (typeof this._options.onDestroy === 'function') {
-      this._options.onDestroy(this);
-    }
+    this._options.onDestroy?.(this);
     this._resetInternalState();
   }
 
