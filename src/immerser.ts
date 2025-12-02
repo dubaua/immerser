@@ -38,6 +38,7 @@ export default class Immerser {
   private _immerserTop = 0;
   private _immerserHeight = 0;
   private _resizeFrameId: number | null = null;
+  private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
   private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
   private _reactiveActiveLayer = new Observable<number>(0);
@@ -238,6 +239,11 @@ export default class Immerser {
     }
     this._onResize = this._handleResize.bind(this);
     window.addEventListener('resize', this._onResize, false);
+    window.addEventListener('orientationchange', this._onResize, false);
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(this._onResize);
+      this._resizeObserver.observe(this._rootNode);
+    }
   }
 
   /** Clears internal caches, observables and references after destroy. */
@@ -258,6 +264,7 @@ export default class Immerser {
     this._immerserTop = 0;
     this._immerserHeight = 0;
     this._resizeFrameId = null;
+    this._resizeObserver = null;
     this._scrollFrameId = null;
     this._scrollAdjustTimerId = null;
     this._reactiveActiveLayer.reset();
@@ -505,6 +512,8 @@ export default class Immerser {
       window.removeEventListener('scroll', this._onScroll!, false);
     }
     window.removeEventListener('resize', this._onResize!, false);
+    window.removeEventListener('orientationchange', this._onResize!, false);
+    this._resizeObserver?.disconnect();
   }
 
   /** Applies transforms based on scroll position and updates active layer state. */
@@ -610,8 +619,7 @@ export default class Immerser {
       this._resizeFrameId = null;
     }
     this._resizeFrameId = window.requestAnimationFrame(() => {
-      this._setSizes();
-      this._draw();
+      this.render();
     });
   }
 
