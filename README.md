@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 5.88Kb gzipped.
+Immerser is written on typescript. Only 5.98Kb gzipped.
 
 ## Terms
 
@@ -31,7 +31,7 @@ yarn add immerser
 Or if you want to use immerser in browser as global variable:
 
 ```html
-<script src="https://unpkg.com/immerser@4.0.0/dist/immerser.min.js"></script>
+<script src="https://unpkg.com/immerser@4.0.2/dist/immerser.min.js"></script>
 ```
 
 ## Prepare Your Markup
