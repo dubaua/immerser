@@ -86,16 +86,28 @@ for (let i = 0; i < highlighterNodeList.length; i++) {
 }
 
 const emojiNodeList = document.querySelectorAll('[data-emoji-animating]');
-for (let i = 0; i < emojiNodeList.length; i++) {
-  const emojiNode = emojiNodeList[i];
-  emojiNode.addEventListener('click', () => {
-    if (emojiNode.dataset.emojiAnimating === 'false') {
-      emojiNode.dataset.emojiAnimating = 'true';
-      setTimeout(() => {
-        emojiNode.dataset.emojiAnimating = 'false';
-      }, 620);
+let emojiAnimationTimerId = null;
+
+function animateAllEmojis() {
+  if (emojiAnimationTimerId) {
+    return;
+  }
+
+  for (let i = 0; i < emojiNodeList.length; i++) {
+    emojiNodeList[i].dataset.emojiAnimating = 'true';
+  }
+
+  emojiAnimationTimerId = setTimeout(() => {
+    for (let i = 0; i < emojiNodeList.length; i++) {
+      emojiNodeList[i].dataset.emojiAnimating = 'false';
     }
-  });
+    clearTimeout(emojiAnimationTimerId);
+    emojiAnimationTimerId = null;
+  }, 620);
+}
+
+for (let i = 0; i < emojiNodeList.length; i++) {
+  emojiNodeList[i].addEventListener('click', animateAllEmojis);
 }
 
 const rulersNode = document.getElementById('rulers');

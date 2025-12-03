@@ -30,7 +30,7 @@ Ask for and make code review
 
 Unique animations on smily faces
 
-batch animation on all faces
+~~batch animation on all faces~~
 
 Inline svg sprites
 
