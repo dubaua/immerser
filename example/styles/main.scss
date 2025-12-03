@@ -1,9 +1,9 @@
 @use 'normalize.css/normalize';
-@use 'simplebar/dist/simplebar';
 @use './components/about';
 @use './components/code-highlight';
 @use './components/common';
 @use './components/emoji';
+@use './components/scrollbar';
 @use './components/fixed';
 @use './components/footer';
 @use './components/header';

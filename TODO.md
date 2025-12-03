@@ -57,3 +57,5 @@ add adjustable scroll animation
 ~~Separate public and private methods~~
 
 ~~Rewrite on Typescript~~
+
+~~get rid of simplebar, the css for scrollbar is enough~~

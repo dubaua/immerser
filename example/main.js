@@ -1,13 +1,6 @@
 import Immerser from '../dist/immerser.min.js';
-import SimpleBar from 'simplebar';
 import './styles/main.scss';
 // import Prism from 'prismjs';
-
-const scrollbarNodeList = document.querySelectorAll('.scroller-x');
-for (let i = 0; i < scrollbarNodeList.length; i++) {
-  const scrollbarNode = scrollbarNodeList[i];
-  new SimpleBar(scrollbarNode, { autoHide: false });
-}
 
 const immerserInstance = new Immerser({
   solidClassnameArray: [

@@ -1,0 +1,39 @@
+@use 'sass:color';
+@use '../shared/globals.scss' as *;
+
+// Horizontal scroll now rely on native scrollbars with themed colors.
+$scrollbar-height: $base;
+$scrollbar-thumb: color.scale($color-accent, $lightness: 62%, $saturation: -62%);
+$scrollbar-thumb-hover: color.scale($color-accent, $lightness: 62% + 5%, $saturation: -62% + 5%);
+$scrollbar-thumb-contrast: color.scale($color-highlight, $lightness: -62%, $saturation: -62%);
+$scrollbar-thumb-contrast-hover: color.scale($color-highlight, $lightness: -62% + 5%, $saturation: -62% + 5%);
+
+@mixin scrollbar-colors($thumb, $thumb-hover) {
+  &::-webkit-scrollbar {
+    height: $scrollbar-height;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: ew-resize;
+    background-color: $thumb;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $thumb-hover;
+  }
+}
+
+.scroller-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  @include scrollbar-colors($scrollbar-thumb, $scrollbar-thumb-hover);
+
+  &.background {
+    @include scrollbar-colors($scrollbar-thumb, $scrollbar-thumb-hover);
+  }
+
+  &.background--contrast {
+    @include scrollbar-colors($scrollbar-thumb-contrast, $scrollbar-thumb-contrast-hover);
+  }
+}

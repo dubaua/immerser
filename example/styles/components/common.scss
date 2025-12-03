@@ -59,39 +59,6 @@ html {
   }
 }
 
-.scroller-x {
-  overflow-y: hidden;
-
-  &.background .simplebar-scrollbar:before {
-    background: color.scale($color-accent, $lightness: 62%, $saturation: -62%);
-  }
-  &.background .simplebar-scrollbar.simplebar-hover:before {
-    background: color.scale($color-accent, $lightness: 62% + 5%, $saturation: -62% + 5%);
-  }
-
-  &.background--contrast .simplebar-scrollbar:before {
-    background: color.scale($color-highlight, $lightness: -62%, $saturation: -62%);
-  }
-  &.background--contrast .simplebar-scrollbar.simplebar-hover:before {
-    background: color.scale($color-highlight, $lightness: -62% + 5%, $saturation: -62% + 5%);
-  }
-
-  .simplebar-track.simplebar-horizontal {
-    height: $base;
-    .simplebar-scrollbar {
-      height: $base;
-      top: 0;
-      &.simplebar-visible:before {
-        border-radius: 0;
-        height: $base;
-        left: 0;
-        right: 0;
-        opacity: 1;
-      }
-    }
-  }
-}
-
 a:hover,
 a._hover {
   color: $color-active !important;
