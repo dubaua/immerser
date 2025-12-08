@@ -261,11 +261,11 @@ a._hover {
 Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document and want immerser to recalculate and redraw solids, call `render` method on the immerser instance.
 
 ```js
-// adding or removing node, that changes DOM height
+// make any manipulations, that changes DOM flow
 document.appendChild(someNode);
 document.removeChild(anotherNode);
 
-// then explicitly redraw immerser
+// then tell immerser redraw things
 immerserInstance.render();
 
 ```

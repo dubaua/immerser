@@ -1,6 +1,6 @@
-// adding or removing node, that changes DOM height
+// <%= getTranslation('recipes-changing-dom') %>
 document.appendChild(someNode);
 document.removeChild(anotherNode);
 
-// then explicitly redraw immerser
+// <%= getTranslation('recipes-redraw-immerser') %>
 immerserInstance.render();

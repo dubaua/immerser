@@ -1,8 +1,10 @@
 const fs = require('fs');
+const path = require('path');
 const TurndownService = require('turndown');
-const en = require('./i18n/en.js');
+const en = require('../i18n/en.js');
 
 const turndownService = new TurndownService();
+const rootDir = path.join(__dirname, '..');
 
 function getTranslationFromTemplate(fileContent) {
   return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) =>
@@ -10,20 +12,24 @@ function getTranslationFromTemplate(fileContent) {
   );
 }
 
-const markupCode = getTranslationFromTemplate(fs.readFileSync('./example/content/code/markup.html', 'utf8'));
-const styleCode = getTranslationFromTemplate(fs.readFileSync('./example/content/code/styles.css', 'utf8'));
-const initializationCode = getTranslationFromTemplate(
-  fs.readFileSync('./example/content/code/initialization.js', 'utf8'),
+const markupCode = getTranslationFromTemplate(
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'markup.html'), 'utf8'),
 );
-const optionsTable = fs.readFileSync('./example/content/code/table.md', 'utf8');
+const styleCode = getTranslationFromTemplate(
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'styles.css'), 'utf8'),
+);
+const initializationCode = getTranslationFromTemplate(
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'initialization.js'), 'utf8'),
+);
+const optionsTable = fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'table.md'), 'utf8');
 const cloningEventListenersCode = getTranslationFromTemplate(
-  fs.readFileSync('./example/content/code/cloning-event-listeners.html', 'utf8'),
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'cloning-event-listeners.html'), 'utf8'),
 );
 const handleCloneHoverCode = getTranslationFromTemplate(
-  fs.readFileSync('./example/content/code/handle-clone-hover.css', 'utf8'),
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'handle-clone-hover.css'), 'utf8'),
 );
 const handleDOMChangeCode = getTranslationFromTemplate(
-  fs.readFileSync('./example/content/code/handle-dom-change.js', 'utf8'),
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'handle-dom-change.js'), 'utf8'),
 );
 
 const readmeContent = `# ${en['readme-title']}
@@ -117,4 +123,4 @@ ${handleDOMChangeCode}
 \`\`\`
 `;
 
-fs.writeFileSync('README.md', readmeContent);
+fs.writeFileSync(path.join(rootDir, 'README.md'), readmeContent);

@@ -152,4 +152,6 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   and want immerser to recalculate and redraw solids, call <code>render</code> method on the immerser instance.
 </p>
 `,
+  'recipes-changing-dom': 'make any manipulations, that changes DOM flow',
+  'recipes-redraw-immerser': 'then tell immerser redraw things',
 };

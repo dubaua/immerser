@@ -55,8 +55,11 @@
   "scripts": {
     "build:lib": "webpack --mode production",
     "build:docs": "webpack --config ./webpack.config.docs.js --mode production",
-    "post-build": "node postBuild.js && npm run types",
-    "build": "npm run lint && node generateOptionsTables.js && node readme.js && npm run build:lib && npm run build:docs && npm run post-build",
+    "build:options": "node scripts/build-options-table.js",
+    "build:readme": "node scripts/readme.js",
+    "build:docs:code": "node scripts/build-source-code.js",
+    "build:post": "node scripts/post-build.js && npm run types",
+    "build": "npm run lint && npm run build:options && npm run build:readme && npm run build:docs:code && npm run build:lib && npm run build:docs && npm run build:post",
     "types": "tsc --emitDeclarationOnly && api-extractor run --local",
     "dev": "webpack serve --config ./webpack.config.docs.js --mode development --open",
     "lint": "eslint ./src --ext .ts && eslint ./example/main.js"
