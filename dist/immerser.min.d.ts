@@ -119,8 +119,18 @@ declare class Immerser {
     /**
      * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
      * Exposed for dynamic content updates without reinitializing immerser.
+     *
+     * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
      */
     render(): void;
+    /**
+     * Syncs immerser with an externally controlled scroll position.
+     * `isScrollHandled=false` option flag is required to call this method.
+     * Call when using a custom scroll engine.
+     *
+     * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
+     */
+    syncScroll(): void;
     /** Current active layer index derived from scroll position. */
     get activeIndex(): number;
     /** Indicates whether immerser is currently bound (markup cloned and listeners attached). */
@@ -146,7 +156,9 @@ export declare type Options = {
     scrollAdjustDelay: number;
     /** Classname added to pager link pointing to the active layer. */
     pagerLinkActiveClassname: string;
-    /** If false, immerser will not attach its own scroll listener (use external controller). */
+    /** If false, immerser will not attach its own scroll listener.
+     * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
+     */
     isScrollHandled: boolean;
     /** Callback fired after init; receives immerser instance. */
     onInit: ((immerser: Immerser) => void) | null;

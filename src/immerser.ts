@@ -665,9 +665,29 @@ export default class Immerser {
   /**
    * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
    * Exposed for dynamic content updates without reinitializing immerser.
+   *
+   * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public render(): void {
     this._setSizes();
+    this._draw();
+  }
+
+  /**
+   * Syncs immerser with an externally controlled scroll position.
+   * `isScrollHandled=false` option flag is required to call this method.
+   * Call when using a custom scroll engine.
+   *
+   * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
+   */
+  public syncScroll(): void {
+    if (this._options.isScrollHandled) {
+      if (process.env.NODE_ENV !== 'production') {
+        // TODO normal isWarning handler
+        console.warn('immerser: syncScroll() was called while isScrollHandled=true; call ignored.');
+      }
+      return;
+    }
     this._draw();
   }
 

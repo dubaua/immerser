@@ -716,6 +716,35 @@ immerserInstance<span class="token punctuation">.</span><span class="token funct
             </div>
           </div>
         </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <h1><%= getTranslation('external-scroll-engine-title') %></h1>
+              <%= getTranslation('external-scroll-engine-content') %>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma code-background background scroller-x">
+            <div class="as-if-title" aria-hidden="true"></div>
+            <div class="grid__content">
+              <div class="code-highlight">
+                <!-- @build-source-code ./content/code/external-scroll-engine.js -->
+<pre><code class="language-javascript"><span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'immerser'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment">// <%=getTranslation('recipes-disable-scroll-handling-with-external-scroll')%></span>
+  <span class="token literal-property property">isScrollHandled</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+customScrollEngine<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'scroll'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token comment">// <%=getTranslation('recipes-sync-with-external-engine')%></span>
+  immerserInstance<span class="token punctuation">.</span><span class="token function">syncScroll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<!-- @end-build-source-code -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -152,6 +152,17 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   and want immerser to recalculate and redraw solids, call <code>render</code> method on the immerser instance.
 </p>
 `,
+  'external-scroll-engine-title': 'External Scroll Engine',
+  'external-scroll-engine-content': `
+<p>
+  If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with
+  <code>isScrollHandled=false</code> flag and call <code>syncScroll</code> method every time the engine updates position.
+  Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
+</p>
+`,
   'recipes-changing-dom': 'make any manipulations, that changes DOM flow',
   'recipes-redraw-immerser': 'then tell immerser redraw things',
+  'recipes-disable-scroll-handling-with-external-scroll':
+    'turn off immerser scroll handling when using a custom engine',
+  'recipes-sync-with-external-engine': 'subscribe to engine scroll event to run sync immerser',
 };

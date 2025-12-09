@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 6Kb gzipped.
+Immerser is written on typescript. Only 6.02Kb gzipped.
 
 ## Terms
 
@@ -267,5 +267,24 @@ document.removeChild(anotherNode);
 
 // then tell immerser redraw things
 immerserInstance.render();
+
+```
+
+## External Scroll Engine
+
+If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with `isScrollHandled=false` flag and call `syncScroll` method every time the engine updates position. Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
+
+```js
+import Immerser from 'immerser';
+
+const immerserInstance = new Immerser({
+  // turn off immerser scroll handling when using a custom engine
+  isScrollHandled: false,
+});
+
+customScrollEngine.on('scroll', () => {
+  // subscribe to engine scroll event to run sync immerser
+  immerserInstance.syncScroll();
+});
 
 ```

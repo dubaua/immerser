@@ -35,7 +35,9 @@ export type Options = {
   scrollAdjustDelay: number;
   /** Classname added to pager link pointing to the active layer. */
   pagerLinkActiveClassname: string;
-  /** If false, immerser will not attach its own scroll listener (use external controller). */
+  /** If false, immerser will not attach its own scroll listener.
+   * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
+   */
   isScrollHandled: boolean;
   /** Callback fired after init; receives immerser instance. */
   onInit: ((immerser: Immerser) => void) | null;

@@ -59,3 +59,15 @@ add adjustable scroll animation
 ~~Rewrite on Typescript~~
 
 ~~get rid of simplebar, the css for scrollbar is enough~~
+
+add horizontal immerser support, for horizontal scroll
+
+add react wrapper
+
+add vue wrapper
+
+add solid wrapper
+
+add angular wrapper
+
+~~add external scroll engine support~~

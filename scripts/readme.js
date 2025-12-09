@@ -31,6 +31,9 @@ const handleCloneHoverCode = getTranslationFromTemplate(
 const handleDOMChangeCode = getTranslationFromTemplate(
   fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'handle-dom-change.js'), 'utf8'),
 );
+const externalScrollEngineCode = getTranslationFromTemplate(
+  fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'external-scroll-engine.js'), 'utf8'),
+);
 
 const readmeContent = `# ${en['readme-title']}
 
@@ -120,6 +123,14 @@ ${turndownService.turndown(en['handle-dom-change-content'])}
 
 \`\`\`js
 ${handleDOMChangeCode}
+\`\`\`
+
+## ${en['external-scroll-engine-title']}
+
+${turndownService.turndown(en['external-scroll-engine-content'])}
+
+\`\`\`js
+${externalScrollEngineCode}
 \`\`\`
 `;
 
