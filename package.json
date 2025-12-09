@@ -12,6 +12,11 @@
     }
   },
   "types": "./dist/immerser.min.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "keywords": [
     "scroll",
     "fixed",
