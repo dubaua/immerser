@@ -7,7 +7,14 @@ import {
   NOT_INTERACTIVE_STYLES,
   OPTION_CONFIG,
 } from './options';
-import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty, showError } from './utils';
+import {
+  bindStyles,
+  forEachNode,
+  getLastScrollPosition,
+  getNodeArray,
+  isEmpty,
+  showMessageWithDocumentationLink,
+} from './utils';
 import { LayerState, Options, SolidClassnames } from './types';
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
@@ -88,21 +95,21 @@ export default class Immerser {
   /** Validates required markup presence and reports descriptive errors. */
   private _validateMarkup(): void {
     if (!this._rootNode) {
-      showError({
-        message: 'immerser root node not found.',
-        docs: '#prepare-your-markup',
+      showMessageWithDocumentationLink({
+        message: 'root node not found.',
+        docsHash: '#prepare-your-markup',
       });
     }
     if (this._layerNodeArray.length < 0) {
-      showError({
-        message: 'immerser will not work without layer nodes.',
-        docs: '#prepare-your-markup',
+      showMessageWithDocumentationLink({
+        message: 'layer nodes not found.',
+        docsHash: '#prepare-your-markup',
       });
     }
     if (this._solidNodeArray.length < 0) {
-      showError({
-        message: 'immerser will not work without solid nodes.',
-        docs: '#prepare-your-markup',
+      showMessageWithDocumentationLink({
+        message: 'solid nodes not found.',
+        docsHash: '#prepare-your-markup',
       });
     }
   }
@@ -123,8 +130,12 @@ export default class Immerser {
       if (layerNode.dataset.immerserLayerConfig) {
         try {
           this._options.solidClassnameArray[layerIndex] = JSON.parse(layerNode.dataset.immerserLayerConfig);
-        } catch (e) {
-          console.error(MESSAGE_PREFIX, 'Failed to parse JSON classname configuration.', e);
+        } catch (error) {
+          showMessageWithDocumentationLink({
+            message: 'Failed to parse JSON classname configuration.',
+            error,
+            docsHash: '#options',
+          });
         }
       }
     });
@@ -135,9 +146,9 @@ export default class Immerser {
     const layerCount = this._layerNodeArray.length;
     const classnamesCount = this._options.solidClassnameArray.length;
     if (classnamesCount !== layerCount) {
-      showError({
+      showMessageWithDocumentationLink({
         message: 'solidClassnameArray length differs from count of layers',
-        docs: '#options',
+        docsHash: '#options',
       });
     }
   }
@@ -180,9 +191,9 @@ export default class Immerser {
   private _validateClassnames(): void {
     const noClassnameConfigPassed = this._layerStateArray.every((state) => isEmpty(state.solidClassnames));
     if (noClassnameConfigPassed) {
-      showError({
+      showMessageWithDocumentationLink({
         message: 'immerser will do nothing without solid classname configuration.',
-        docs: '#prepare-your-markup',
+        docsHash: '#prepare-your-markup',
       });
     }
   }
@@ -348,10 +359,10 @@ export default class Immerser {
     this._isCustomMarkup = this._customMaskNodeArray.length === this._layerStateArray.length;
 
     if (this._customMaskNodeArray.length > 0 && !this._isCustomMarkup) {
-      showError({
+      showMessageWithDocumentationLink({
         message: `You're trying use custom markup, but count of your immerser masks doesn't equal layers count.`,
-        warning: true,
-        docs: '#cloning-event-listeners',
+        isWarning: true,
+        docsHash: '#cloning-event-listeners',
       });
     }
 

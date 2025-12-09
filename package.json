@@ -34,6 +34,7 @@
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
     "@microsoft/api-extractor": "^7.55.1",
+    "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "@zainulbr/i18n-webpack-plugin": "^2.0.3",

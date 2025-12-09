@@ -30,21 +30,26 @@ export function getNodeArray<T extends Element = HTMLElement>({
   return Array.from(nodeList);
 }
 
-export function showError({
+export function showMessageWithDocumentationLink({
   message,
-  warning = false,
-  docs,
+  error,
+  isWarning = false,
+  docsHash = '',
 }: {
   message: string;
-  warning?: boolean;
-  docs?: string;
+  error?: unknown;
+  isWarning?: boolean;
+  docsHash?: string;
 }): void {
-  const docsHash = docs ? docs : '';
   const resultMessage = `${MESSAGE_PREFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
-  if (warning) {
-    console.warn(resultMessage);
+  if (isWarning) {
+    if (error !== undefined) {
+      console.warn(resultMessage, error);
+    } else {
+      console.warn(resultMessage);
+    }
   } else {
-    throw new Error(resultMessage);
+    throw new Error(resultMessage, { cause: error });
   }
 }
 
