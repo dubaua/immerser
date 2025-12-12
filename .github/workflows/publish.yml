@@ -7,11 +7,13 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
     name: Publish package
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +23,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
+          always-auth: true
           cache: npm
 
       - name: Install dependencies
@@ -30,4 +33,4 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish --access public --provenance

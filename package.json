@@ -22,9 +22,14 @@
     "fixed",
     "sticky"
   ],
-  "repository": "git@github.com:dubaua/immerser.git",
-  "author": "Vladimir Lysov",
-  "email": "dubaua@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dubaua/immerser.git"
+  },
+  "author": {
+    "name": "Vladimir Lysov",
+    "email": "dubaua@gmail.com"
+  },
   "license": "MIT",
   "homepage": "https://dubaua.github.io/immerser/",
   "devDependencies": {
