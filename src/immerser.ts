@@ -683,8 +683,11 @@ export default class Immerser {
   public syncScroll(): void {
     if (this._options.isScrollHandled) {
       if (process.env.NODE_ENV !== 'production') {
-        // TODO normal isWarning handler
-        console.warn('immerser: syncScroll() was called while isScrollHandled=true; call ignored.');
+        showMessageWithDocumentationLink({
+          message: 'syncScroll requires the isScrollHandled flag set to false. Call ignored.',
+          isWarning: true,
+          docsHash: '#external-scroll-engine',
+        });
       }
       return;
     }
