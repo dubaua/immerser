@@ -2,9 +2,8 @@ name: Publish to npm
 
 on:
   push:
-    tags:
-      - '*.*.*'
-      - 'v*.*.*'
+    branches:
+      - master
 
 permissions:
   contents: read
