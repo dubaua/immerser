@@ -100,13 +100,13 @@ export default class Immerser {
         docsHash: '#prepare-your-markup',
       });
     }
-    if (this._layerNodeArray.length < 0) {
+    if (this._layerNodeArray.length === 0) {
       showMessageWithDocumentationLink({
         message: 'layer nodes not found.',
         docsHash: '#prepare-your-markup',
       });
     }
-    if (this._solidNodeArray.length < 0) {
+    if (this._solidNodeArray.length === 0) {
       showMessageWithDocumentationLink({
         message: 'solid nodes not found.',
         docsHash: '#prepare-your-markup',
