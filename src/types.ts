@@ -49,4 +49,6 @@ export type Options = {
   onDestroy: ((immerser: Immerser) => void) | null;
   /** Callback fired when active layer changes; receives next index and immerser instance. */
   onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
+  /** Callback fired on each scroll update; receives per-layer normalized overlap values (0..1) and the immerser instance. */
+  onLayersUpdate: ((layersProgress: number[], immerser: Immerser) => void) | null;
 };

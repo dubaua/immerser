@@ -51,6 +51,7 @@ export default class Immerser {
   private _reactiveActiveLayer = new Observable<number>(0);
   private _reactiveWindowWidth = new Observable<number>();
   private _reactiveSynchroHoverId = new Observable<string | null>(null);
+  private _layerProgressArray: number[] = [];
   private _unsubscribeRedrawingPager: (() => void) | null = null;
   private _unsubscribeUpdatingHash: (() => void) | null = null;
   private _unsubscribeActiveLayerChange: (() => void) | null = null;
@@ -185,6 +186,7 @@ export default class Immerser {
         solidClassnames,
       } as LayerState;
     });
+    this._layerProgressArray = this._layerNodeArray.map(() => 0);
   }
 
   /** Verifies solid classnames are configured; otherwise warns via showError. */
@@ -279,6 +281,7 @@ export default class Immerser {
     this._reactiveActiveLayer.reset();
     this._reactiveWindowWidth.reset();
     this._reactiveSynchroHoverId.reset();
+    this._layerProgressArray = [];
     this._unsubscribeRedrawingPager = null;
     this._unsubscribeUpdatingHash = null;
     this._unsubscribeActiveLayerChange = null;
@@ -514,6 +517,19 @@ export default class Immerser {
     this._resizeObserver?.disconnect();
   }
 
+  /** Calculates per-layer progress (0..1) based on which part of screen the layer overlaps. */
+  private _setLayersProgress(scrollY?: number): void {
+    const y = scrollY ?? getLastScrollPosition().y;
+    const viewportBottom = y + this._windowHeight;
+
+    this._layerProgressArray = this._layerStateArray.map(({ layerTop, layerBottom }) => {
+      const layerHeight = layerBottom - layerTop;
+      const overlap = Math.min(layerBottom, viewportBottom) - Math.max(layerTop, y);
+      const overlapBase = Math.min(layerHeight, this._windowHeight);
+      return overlapBase <= 0 ? 0 : Math.max(0, Math.min(1, overlap / overlapBase));
+    });
+  }
+
   /** Applies transforms based on scroll position and updates active layer state. */
   private _draw(scrollY?: number): void {
     const y = scrollY !== undefined ? scrollY : getLastScrollPosition().y;
@@ -598,7 +614,10 @@ export default class Immerser {
         this._scrollFrameId = null;
       }
       this._scrollFrameId = window.requestAnimationFrame(() => {
-        this._draw();
+        const y = getLastScrollPosition().y;
+        this._setLayersProgress(y);
+        this._options.onLayersUpdate?.(this._layerProgressArray, this);
+        this._draw(y);
         if (this._options.scrollAdjustThreshold > 0) {
           if (this._scrollAdjustTimerId) {
             clearTimeout(this._scrollAdjustTimerId);
@@ -631,6 +650,7 @@ export default class Immerser {
     this._initHoverSynchro();
     this._attachCallbacks();
     this._isBound = true;
+    this._setLayersProgress();
     this._draw();
     this._options.onBind?.(this);
   }
@@ -670,6 +690,7 @@ export default class Immerser {
    */
   public render(): void {
     this._setSizes();
+    this._setLayersProgress();
     this._draw();
   }
 
@@ -691,6 +712,7 @@ export default class Immerser {
       }
       return;
     }
+    this._setLayersProgress();
     this._draw();
   }
 
@@ -707,6 +729,11 @@ export default class Immerser {
   /** The root DOM node immerser is attached to. */
   public get rootNode(): HTMLElement {
     return this._rootNode;
+  }
+
+  /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
+  public get layerProgressArray(): readonly number[] {
+    return this._layerProgressArray;
   }
 }
 

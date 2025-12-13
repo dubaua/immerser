@@ -73,6 +73,11 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     description: 'a function',
     validator: (x) => typeof x === 'function',
   },
+  onLayersUpdate: {
+    default: null,
+    description: 'a function',
+    validator: (x) => typeof x === 'function',
+  },
 };
 
 export const MESSAGE_PREFIX = '[immerser:]';
