@@ -103,6 +103,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   type: 'type',
   default: 'default',
   description: 'description',
+  name: 'name',
 
   'option-solidClassnameArray':
     'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
@@ -120,6 +121,21 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'option-onDestroy': 'Fired after destroy. Accept an immerser instance as the only parameter',
   'option-onActiveLayerChange':
     'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second',
+  'option-onLayersUpdate':
+    'Fired on each scroll update. Accepts an array of layer progress values (0..1) describing how much of the viewport each layer occupies, and an immerser instance',
+
+  'public-fields-title': 'Public fields and methods',
+  'public-field-bind': 'Clones markup, attaches listeners, and starts internal logic',
+  'public-field-unbind': 'Remove generated markup and listeners, keeping the instance reusable',
+  'public-field-destroy':
+    'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
+  'public-field-render': 'Recalculates sizes and redraws masks',
+  'public-field-syncScroll': 'Updates immerser when scroll is controlled externally (requires isScrollHandled = false)',
+  'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
+  'public-field-isBound': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
+  'public-field-rootNode': 'Root element the immerser instance is attached to',
+  'public-field-layerProgressArray':
+    'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',
   'cloning-event-listeners-content': `

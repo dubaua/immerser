@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 6.02Kb gzipped.
+Immerser is written on typescript. Only 6.18Kb gzipped.
 
 ## Terms
 
@@ -222,6 +222,22 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | onUnbind | `function` | `null` | Fired after unbinding DOM. Accept an immerser instance as the only parameter |
 | onDestroy | `function` | `null` | Fired after destroy. Accept an immerser instance as the only parameter |
 | onActiveLayerChange | `function` | `null` | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second |
+| onLayersUpdate | `function` | `null` | Fired on each scroll update. Accepts an array of layer progress values (0..1) describing how much of the viewport each layer occupies, and an immerser instance |
+
+
+# Public fields and methods
+
+| name | kind | description |
+| - | - | - |
+| bind | `method` | Clones markup, attaches listeners, and starts internal logic |
+| unbind | `method` | Remove generated markup and listeners, keeping the instance reusable |
+| destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |
+| render | `method` | Recalculates sizes and redraws masks |
+| syncScroll | `method` | Updates immerser when scroll is controlled externally (requires isScrollHandled = false) |
+| activeIndex | `getter` | Index of the currently active layer, calculated from scroll position |
+| isBound | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
+| rootNode | `getter` | Root element the immerser instance is attached to |
+| layerProgressArray | `getter` | Per-layer progress values (0–1) showing how much each layer is visible in the viewport |
 
 
 # Recipes

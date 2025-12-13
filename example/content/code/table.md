@@ -13,3 +13,4 @@
 | onUnbind | `function` | `null` | Fired after unbinding DOM. Accept an immerser instance as the only parameter |
 | onDestroy | `function` | `null` | Fired after destroy. Accept an immerser instance as the only parameter |
 | onActiveLayerChange | `function` | `null` | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second |
+| onLayersUpdate | `function` | `null` | Fired on each scroll update. Accepts an array of layer progress values (0..1) describing how much of the viewport each layer occupies, and an immerser instance |

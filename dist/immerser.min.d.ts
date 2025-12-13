@@ -24,6 +24,7 @@ declare class Immerser {
     private _reactiveActiveLayer;
     private _reactiveWindowWidth;
     private _reactiveSynchroHoverId;
+    private _layerProgressArray;
     private _unsubscribeRedrawingPager;
     private _unsubscribeUpdatingHash;
     private _unsubscribeActiveLayerChange;
@@ -87,6 +88,8 @@ declare class Immerser {
     /** Removes cloned markup or cleans up custom masks when unbinding. */
     private _cleanupClonedMarkup;
     private _removeScrollAndResizeListeners;
+    /** Calculates per-layer progress (0..1) based on which part of screen the layer overlaps. */
+    private _setLayersProgress;
     /** Applies transforms based on scroll position and updates active layer state. */
     private _draw;
     /** Adds or removes active pager classname according to current layer. */
@@ -137,6 +140,8 @@ declare class Immerser {
     get isBound(): boolean;
     /** The root DOM node immerser is attached to. */
     get rootNode(): HTMLElement;
+    /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
+    get layerProgressArray(): readonly number[];
 }
 export default Immerser;
 
@@ -170,6 +175,8 @@ export declare type Options = {
     onDestroy: ((immerser: Immerser) => void) | null;
     /** Callback fired when active layer changes; receives next index and immerser instance. */
     onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
+    /** Callback fired on each scroll update; receives per-layer normalized overlap values (0..1) and the immerser instance. */
+    onLayersUpdate: ((layersProgress: number[], immerser: Immerser) => void) | null;
 };
 
 /** @public Map of solid id to classname. */
