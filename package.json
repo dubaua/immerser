@@ -74,7 +74,7 @@
     "build": "npm run lint && npm run build:options && npm run build:public-fields && npm run build:readme && npm run build:docs:code && npm run build:lib && npm run build:docs && npm run build:post",
     "types": "tsc --emitDeclarationOnly && api-extractor run --local",
     "dev": "webpack serve --config ./webpack.config.docs.js --mode development --open",
-    "lint": "eslint ./src --ext .ts && eslint ./example/main.js"
+    "lint": "eslint ./src --ext .ts && eslint ./example/main.ts"
   },
   "dependencies": {
     "@dubaua/merge-options": "^3.0.1",
