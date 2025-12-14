@@ -48,8 +48,8 @@ export default class Immerser {
   private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
   private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
-  private _reactiveActiveLayer = new Observable<number>(0);
-  private _reactiveWindowWidth = new Observable<number>();
+  private _reactiveActiveLayer = new Observable<number>(-1);
+  private _reactiveWindowWidth = new Observable<number>(-1);
   private _reactiveSynchroHoverId = new Observable<string | null>(null);
   private _layerProgressArray: number[] = [];
   private _unsubscribeRedrawingPager: (() => void) | null = null;
