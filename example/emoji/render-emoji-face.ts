@@ -6,7 +6,7 @@ import { renderGlasses } from './render-glasses';
 import { renderHand } from './render-hand';
 import { EmojiFaceConfig } from './config';
 import { EmojiNodes } from './select-emoji-nodes';
-import { easeInOutCubic } from './easing';
+import { easeCubicInOut } from 'd3-ease';
 
 export function renderEmojiFace(config: EmojiFaceConfig, nodes: EmojiNodes): void {
   if (nodes.mouthClipPath && nodes.mouthShape) {
@@ -16,8 +16,8 @@ export function renderEmojiFace(config: EmojiFaceConfig, nodes: EmojiNodes): voi
     renderMouthLine(config.mouthLineScaleX, config.mouthLineShiftX, nodes.mouthLine);
   }
   if (nodes.tongue) {
-    const tongueX = easeInOutCubic(config.tongueX);
-    const tongueY = easeInOutCubic(config.tongueY);
+    const tongueX = easeCubicInOut(config.tongueX);
+    const tongueY = easeCubicInOut(config.tongueY);
     renderTongue(tongueX, tongueY, nodes.tongue);
   }
   if (nodes.leftEyeOpen) {
@@ -39,11 +39,10 @@ export function renderEmojiFace(config: EmojiFaceConfig, nodes: EmojiNodes): voi
     renderRightBrow(config.rightBrowScaleX, config.rightBrowY, nodes.rightBrow);
   }
   if (nodes.glass) {
-    const glassesValue = easeInOutCubic(config.glasses);
-    renderGlasses(glassesValue, nodes.glass);
+    renderGlasses(config.glasses, nodes.glass);
   }
   if (nodes.handInner && nodes.handOuter) {
-    const handValue = easeInOutCubic(config.hand);
+    const handValue = easeCubicInOut(config.hand);
     renderHand(handValue, nodes.handInner, nodes.handOuter);
   }
 }

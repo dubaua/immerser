@@ -1,10 +1,10 @@
+import { easeSinInOut } from 'd3-ease';
+import Observable from '@dubaua/observable';
 import Animation from '../../../ogawa/src/animate';
 import { EmojiNodes, selectEmojiNodes } from './select-emoji-nodes';
 import { renderEmojiFace } from './render-emoji-face';
 import { layerConfigs, EmojiFaceConfig, deadConfig } from './config';
-import { easeInOutSine } from './easing';
 import { mixConfigByProgress } from './mix-config-by-progress';
-import Observable from '@dubaua/observable';
 import { renderHpBar } from './render-hp-bar';
 
 const emojiAnimationDurationMs = 620;
@@ -128,7 +128,7 @@ export function initEmojiAnimation() {
     autoStart: false,
     duration: emojiAnimationDurationMs,
     draw: (progress) => {
-      const easedProgress = easeInOutSine(progress);
+      const easedProgress = easeSinInOut(progress);
       emojiState.nodes.forEach((nodes) => {
         const target = nodes.rotator;
         if (target) {

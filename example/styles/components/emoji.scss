@@ -5,6 +5,7 @@
   position: relative;
   &__face {
     display: block;
+    overflow: visible;
   }
   &__hand {
     position: absolute;
