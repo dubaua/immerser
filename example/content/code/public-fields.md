@@ -5,6 +5,9 @@
 | destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |
 | render | `method` | Recalculates sizes and redraws masks |
 | syncScroll | `method` | Updates immerser when scroll is controlled externally (requires isScrollHandled = false) |
+| on | `method` | Registers a persistent immerser event handler |
+| once | `method` | Registers a one-time immerser event handler that is removed after the first call |
+| off | `method` | Removes a specific handler for the given immerser event |
 | activeIndex | `getter` | Index of the currently active layer, calculated from scroll position |
 | isBound | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
 | rootNode | `getter` | Root element the immerser instance is attached to |

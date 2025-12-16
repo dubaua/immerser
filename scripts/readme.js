@@ -22,6 +22,7 @@ const initializationCode = getTranslationFromTemplate(
   fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'initialization.js'), 'utf8'),
 );
 const optionsTable = fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'table.md'), 'utf8');
+const eventsTable = fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'event-table.md'), 'utf8');
 const publicFieldsTable = fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'public-fields.md'), 'utf8');
 const cloningEventListenersCode = getTranslationFromTemplate(
   fs.readFileSync(path.join(rootDir, 'example', 'content', 'code', 'cloning-event-listeners.html'), 'utf8'),
@@ -99,6 +100,12 @@ ${turndownService.turndown(en['how-it-works-content'])}
 ${turndownService.turndown(en['options-content'])}
 
 ${optionsTable}
+
+# ${en['events-title']}
+
+${turndownService.turndown(en['events-content'])}
+
+${eventsTable}
 
 # ${en['public-fields-title']}
 

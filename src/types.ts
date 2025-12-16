@@ -1,5 +1,7 @@
 import type Immerser from './immerser';
+import { EVENT_NAMES } from './options';
 
+/** @internal Runtime metrics for each layer. */
 export type LayerState = {
   beginEnter: number;
   beginLeave: number;
@@ -18,6 +20,37 @@ export type LayerState = {
 export interface SolidClassnames {
   [key: string]: string;
 }
+
+/** @public All available immerser event names. */
+export type EventName = (typeof EVENT_NAMES)[number];
+
+/** @public Base handler signature for immerser lifecycle events. */
+export type BaseHandler = (immerser: Immerser) => void;
+/** @public Handler signature for active layer change events. */
+export type ActiveLayerChangeHandler = (layerIndex: number, immerser: Immerser) => void;
+/** @public Handler signature for layers update events. */
+export type LayersUpdateHandler = (layersProgress: number[], immerser: Immerser) => void;
+
+// key EventName value BaseHandler ActiveLayerChangeHandler LayersUpdateHandler
+/** @public Map of immerser event names to handler signatures. */
+export type HandlerByEventName = {
+  init: BaseHandler;
+  bind: BaseHandler;
+  unbind: BaseHandler;
+  destroy: BaseHandler;
+  activeLayerChange: ActiveLayerChangeHandler;
+  layersUpdate: LayersUpdateHandler;
+};
+
+type HandlerArgsMap = {
+  [K in EventName]: Parameters<HandlerByEventName[K]>;
+};
+
+/** @internal Helper to infer argument tuple for the given event name. */
+export type HandlerArgs<K extends EventName> = HandlerArgsMap[K];
+
+/** @public Map of event names to handler signatures. */
+export type EventHandlers = { [K in EventName]?: HandlerByEventName[K] };
 
 /** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
 export type Options = {
@@ -39,16 +72,6 @@ export type Options = {
    * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
    */
   isScrollHandled: boolean;
-  /** Callback fired after init; receives immerser instance. */
-  onInit: ((immerser: Immerser) => void) | null;
-  /** Callback fired after bind; receives immerser instance. */
-  onBind: ((immerser: Immerser) => void) | null;
-  /** Callback fired after unbind; receives immerser instance. */
-  onUnbind: ((immerser: Immerser) => void) | null;
-  /** Callback fired after destroy; receives immerser instance. */
-  onDestroy: ((immerser: Immerser) => void) | null;
-  /** Callback fired when active layer changes; receives next index and immerser instance. */
-  onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
-  /** Callback fired on each scroll update; receives per-layer normalized overlap values (0..1) and the immerser instance. */
-  onLayersUpdate: ((layersProgress: number[], immerser: Immerser) => void) | null;
+  /** Initial event handlers keyed by event name. */
+  on?: Partial<EventHandlers>;
 };

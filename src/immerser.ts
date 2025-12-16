@@ -2,6 +2,7 @@ import mergeOptions from '@dubaua/merge-options';
 import Observable from '@dubaua/observable';
 import {
   CROPPED_FULL_ABSOLUTE_STYLES,
+  EVENT_NAMES,
   INTERACTIVE_STYLES,
   MESSAGE_PREFIX,
   NOT_INTERACTIVE_STYLES,
@@ -12,10 +13,23 @@ import {
   forEachNode,
   getLastScrollPosition,
   getNodeArray,
+  getOriginalHandler,
   isEmpty,
   showMessageWithDocumentationLink,
+  wrapOnceHandler,
 } from './utils';
-import { LayerState, Options, SolidClassnames } from './types';
+import type {
+  ActiveLayerChangeHandler,
+  BaseHandler,
+  EventHandlers,
+  EventName,
+  HandlerArgs,
+  HandlerByEventName,
+  LayerState,
+  LayersUpdateHandler,
+  Options,
+  SolidClassnames,
+} from './types';
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {
@@ -57,6 +71,14 @@ export default class Immerser {
   private _unsubscribeActiveLayerChange: (() => void) | null = null;
   private _unsubscribeSynchroHover: (() => void) | null = null;
   private _unsubscribeToggleBindOnResize: (() => void) | null = null;
+  private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
+    init: new Set(),
+    bind: new Set(),
+    unbind: new Set(),
+    destroy: new Set(),
+    activeLayerChange: new Set(),
+    layersUpdate: new Set(),
+  };
   private _onResize: (() => void) | null = null;
   private _onScroll: (() => void) | null = null;
   private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
@@ -70,11 +92,12 @@ export default class Immerser {
     this._init(userOptions);
   }
 
-  /** Bootstraps nodes, options, state, listeners and fires onInit callback if provided. */
+  /** Bootstraps nodes, options, state, listeners and emits init event. */
   private _init(userOptions?: Partial<Options>): void {
     this._setDomNodes();
     this._validateMarkup();
     this._mergeOptions(userOptions);
+    this._registerHandlersFromOptions();
     this._readClassnamesFromMarkup();
     this._validateSolidClassnameArray();
     this._initSectionIds();
@@ -83,7 +106,38 @@ export default class Immerser {
     this._toggleBindOnResizeObserver();
     this._setSizes();
     this._addScrollAndResizeListeners();
-    this._options.onInit?.(this);
+    this._emit('init', this);
+  }
+
+  /** Saves event handlers passed via options into internal registry. */
+  private _registerHandlersFromOptions(): void {
+    if (!this._options.on) {
+      return;
+    }
+    EVENT_NAMES.forEach((eventName) => {
+      const handler = this._options.on?.[eventName];
+      if (typeof handler === 'function') {
+        this.on(eventName, handler);
+      }
+    });
+  }
+
+  /** Executes registered event handlers with provided arguments. */
+  private _emit<K extends EventName>(eventName: K, ...args: HandlerArgs<K>): void {
+    const handlerSet = this._handlers[eventName];
+    handlerSet.forEach((handler: HandlerByEventName[K]) => {
+      try {
+        handler.apply(undefined, args);
+      } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+          showMessageWithDocumentationLink({
+            message: `handler for ${eventName} event failed`,
+            error,
+            docsHash: '#events',
+          });
+        }
+      }
+    });
   }
 
   /** Collects root, layer and solid nodes from DOM. */
@@ -291,6 +345,7 @@ export default class Immerser {
     this._onScroll = null;
     this._onSynchroHoverMouseOver = null;
     this._onSynchroHoverMouseOut = null;
+    EVENT_NAMES.forEach((eventName) => this._handlers[eventName].clear());
   }
 
   /** Builds masks, clones solids, applies classes and mounts generated markup. */
@@ -437,11 +492,9 @@ export default class Immerser {
       this._unsubscribeUpdatingHash = this._reactiveActiveLayer.subscribe(this._drawHash.bind(this));
     }
 
-    if (this._options.onActiveLayerChange) {
-      this._unsubscribeActiveLayerChange = this._reactiveActiveLayer.subscribe((nextIndex) => {
-        this._options.onActiveLayerChange(nextIndex, this);
-      });
-    }
+    this._unsubscribeActiveLayerChange = this._reactiveActiveLayer.subscribe((nextIndex) => {
+      this._emit('activeLayerChange', nextIndex, this);
+    });
 
     if (this._synchroHoverNodeArray.length > 0) {
       this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawSynchroHover.bind(this));
@@ -616,7 +669,7 @@ export default class Immerser {
       this._scrollFrameId = window.requestAnimationFrame(() => {
         const y = getLastScrollPosition().y;
         this._setLayersProgress(y);
-        this._options.onLayersUpdate?.(this._layerProgressArray, this);
+        this._emit('layersUpdate', this._layerProgressArray, this);
         this._draw(y);
         if (this._options.scrollAdjustThreshold > 0) {
           if (this._scrollAdjustTimerId) {
@@ -641,7 +694,7 @@ export default class Immerser {
   }
 
   /**
-   * Prepares markup, attaches listeners and triggers first draw; also fires onBind callback.
+   * Prepares markup, attaches listeners and triggers first draw; also emits bind event.
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
   public bind(): void {
@@ -652,11 +705,11 @@ export default class Immerser {
     this._isBound = true;
     this._setLayersProgress();
     this._draw();
-    this._options.onBind?.(this);
+    this._emit('bind', this);
   }
 
   /**
-   * Tears down generated markup and listeners, restores DOM, resets active layer and fires onUnbind.
+   * Tears down generated markup and listeners, restores DOM, resets active layer and emits unbind event.
    * Safe to call multiple times; no-op when already unbound.
    */
   public unbind(): void {
@@ -666,19 +719,19 @@ export default class Immerser {
     this._restoreOriginalSolidNodes();
     this._cleanupClonedMarkup();
     this._isBound = false;
-    this._options.onUnbind?.(this);
+    this._emit('unbind', this);
     this._reactiveActiveLayer.value = undefined;
   }
 
   /**
-   * Fully destroys immerser: unbinds, removes window listeners, runs onDestroy and clears all references.
+   * Fully destroys immerser: unbinds, removes window listeners, runs destroy event and clears all references.
    * Use when component is permanently removed.
    */
   public destroy(): void {
     this.unbind();
     this._unsubscribeToggleBindOnResize?.();
     this._removeScrollAndResizeListeners();
-    this._options.onDestroy?.(this);
+    this._emit('destroy', this);
     this._resetInternalState();
   }
 
@@ -716,6 +769,33 @@ export default class Immerser {
     this._draw();
   }
 
+  /** Register persistent event handler. */
+  public on<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
+    this._handlers[eventName].add(handler);
+  }
+
+  /** Register event handler that will be removed after first call. */
+  public once<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
+    this._handlers[eventName].add(
+      wrapOnceHandler(handler, (...args: HandlerArgs<K>) => {
+        this.off(eventName, handler);
+        handler.apply(undefined, args);
+      }),
+    );
+  }
+
+  /** Removes handler(s) for provided event. */
+  public off<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
+    const handlerSet = this._handlers[eventName];
+
+    handlerSet.forEach((storedHandler) => {
+      const original = getOriginalHandler(storedHandler);
+      if (storedHandler === handler || original === handler) {
+        handlerSet.delete(storedHandler);
+      }
+    });
+  }
+
   /** Current active layer index derived from scroll position. */
   public get activeIndex(): number {
     return this._reactiveActiveLayer.value;
@@ -738,4 +818,14 @@ export default class Immerser {
 }
 
 // for typedef generation needs
-export type { Options, SolidClassnames };
+export type {
+  ActiveLayerChangeHandler,
+  BaseHandler,
+  EventHandlers,
+  EventName,
+  HandlerByEventName,
+  LayersUpdateHandler,
+  Options,
+  SolidClassnames,
+};
+export { EVENT_NAMES };

@@ -718,20 +718,25 @@ yarn add immerser
   <span class="token literal-property property">pagerLinkActiveClassname</span><span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
   <span class="token literal-property property">scrollAdjustThreshold</span><span class="token operator">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
   <span class="token literal-property property">scrollAdjustDelay</span><span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
-  <span class="token function">onInit</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment">// <%=getTranslation('callback-on-init')%></span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token function">onBind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment">// <%=getTranslation('callback-on-bind')%></span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token function">onUnbind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment">// <%=getTranslation('callback-on-unbind')%></span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token function">onDestroy</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment">// <%=getTranslation('callback-on-destroy')%></span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token function">onActiveLayerChange</span><span class="token punctuation">(</span><span class="token parameter">activeIndex<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token comment">// <%=getTranslation('callback-on-active-layer-change')%></span>
+  <span class="token literal-property property">on</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token function">init</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-init')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">bind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-bind')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">unbind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-unbind')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">destroy</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-destroy')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">activeLayerChange</span><span class="token punctuation">(</span><span class="token parameter">activeIndex<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-active-layer-change')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">layersUpdate</span><span class="token punctuation">(</span><span class="token parameter">layersProgress<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-layers-update')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
@@ -840,40 +845,72 @@ yarn add immerser
       <td><%= getTranslation('option-isScrollHandled') %></td>
     </tr>
     <tr>
-      <td>onInit</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onInit') %></td>
+      <td>on</td>
+      <td class="token keyword">object</td>
+      <td class="token punctuation">{}</td>
+      <td><%= getTranslation('option-on') %></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- @end-build-source-code -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <h1><%= getTranslation('events-title') %></h1>
+              <%= getTranslation('events-content') %>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma"></div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta-gamma">
+            <div class="grid__content typography">
+              <div class="code-highlight code-highlight--contrast code-highlight--inline">
+                <!-- @build-source-code ./content/code/event-table.html raw -->
+<table>
+  <thead>
+    <tr>
+      <th class="token property"><%= getTranslation('event') %></th>
+      <th class="token property"><%= getTranslation('arguments') %></th>
+      <th class="token property"><%= getTranslation('description') %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>init</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-init') %></td>
     </tr>
     <tr>
-      <td>onBind</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onBind') %></td>
+      <td>bind</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-bind') %></td>
     </tr>
     <tr>
-      <td>onUnbind</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onUnbind') %></td>
+      <td>unbind</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-unbind') %></td>
     </tr>
     <tr>
-      <td>onDestroy</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onDestroy') %></td>
+      <td>destroy</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-destroy') %></td>
     </tr>
     <tr>
-      <td>onActiveLayerChange</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onActiveLayerChange') %></td>
+      <td>activeLayerChange</td>
+      <td class="nowrap"><span class="token parameter">layerIndex</span><span class="token operator">:</span> <span class="token class-name">number</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-activeLayerChange') %></td>
     </tr>
     <tr>
-      <td>onLayersUpdate</td>
-      <td class="token keyword">function</td>
-      <td class="token keyword">null</td>
-      <td><%= getTranslation('option-onLayersUpdate') %></td>
+      <td>layersUpdate</td>
+      <td class="nowrap"><span class="token parameter">layersProgress</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-layersUpdate') %></td>
     </tr>
   </tbody>
 </table>
@@ -900,7 +937,7 @@ yarn add immerser
 <table>
   <thead>
     <tr>
-      <th class="token property"><%= getTranslation('public-field-name') %></th>
+      <th class="token property"><%= getTranslation('name') %></th>
       <th class="token property"><%= getTranslation('type') %></th>
       <th class="token property"><%= getTranslation('description') %></th>
     </tr>
@@ -930,6 +967,21 @@ yarn add immerser
       <td>syncScroll</td>
       <td class="token keyword">method</td>
       <td><%= getTranslation('public-field-syncScroll') %></td>
+    </tr>
+    <tr>
+      <td>on</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-on') %></td>
+    </tr>
+    <tr>
+      <td>once</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-once') %></td>
+    </tr>
+    <tr>
+      <td>off</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-off') %></td>
     </tr>
     <tr>
       <td>activeIndex</td>

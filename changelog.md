@@ -1,3 +1,16 @@
+# 5.0.0
+
+## Breaking Changes
+
+- Replaced individual callback options (`onInit`, `onBind`, `onUnbind`, `onDestroy`, `onActiveLayerChange`, `onLayersUpdate`) with an `on` map keyed by event names (`init`, `bind`, `unbind`, `destroy`, `activeLayerChange`, `layersUpdate`).
+
+## Features
+
+- Added event emitter API with `on`, `once`, `off` methods and exported `EVENT_NAMES`; option `on` now accepts initial handlers.
+- Added per-layer progress calculation (normalized 0..1) based on viewport overlap.
+- Added `layersUpdate` event and per-layer progress callback support to track per-layer progress on scroll/render.
+- Added `layerProgressArray` getter exposing the latest per-layer progress values.
+
 # 4.0.0
 
 ## Breaking Changes

@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 6.18Kb gzipped.
+Immerser is written on typescript. Only 6.51Kb gzipped.
 
 ## Terms
 
@@ -31,7 +31,7 @@ yarn add immerser
 Or if you want to use immerser in browser as global variable:
 
 ```html
-<script src="https://unpkg.com/immerser@4.0.14/dist/immerser.min.js"></script>
+<script src="https://unpkg.com/immerser@5.0.0/dist/immerser.min.js"></script>
 ```
 
 ## Prepare Your Markup
@@ -174,20 +174,25 @@ const immerserInstance = new Immerser({
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,
   scrollAdjustDelay: 600,
-  onInit(immerser) {
-    // callback on init
-  },
-  onBind(immerser) {
-    // callback on bind
-  },
-  onUnbind(immerser) {
-    // callback on unbind
-  },
-  onDestroy(immerser) {
-    // callback on destroy
-  },
-  onActiveLayerChange(activeIndex, immerser) {
-    // callback on active layer change
+  on: {
+    init(immerser) {
+      // callback on init event
+    },
+    bind(immerser) {
+      // callback on bind event
+    },
+    unbind(immerser) {
+      // callback on unbind event
+    },
+    destroy(immerser) {
+      // callback on destroy event
+    },
+    activeLayerChange(activeIndex, immerser) {
+      // callback on active layer change event
+    },
+    layersUpdate(layersProgress, immerser) {
+      // callback on layers update event
+    },
   },
 });
 
@@ -217,12 +222,21 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
 | pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
 | isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
-| onInit | `function` | `null` | Fired after initialization. Accept an immerser instance as the only parameter |
-| onBind | `function` | `null` | Fired after binding DOM. Accept an immerser instance as the only parameter |
-| onUnbind | `function` | `null` | Fired after unbinding DOM. Accept an immerser instance as the only parameter |
-| onDestroy | `function` | `null` | Fired after destroy. Accept an immerser instance as the only parameter |
-| onActiveLayerChange | `function` | `null` | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second |
-| onLayersUpdate | `function` | `null` | Fired on each scroll update. Accepts an array of layer progress values (0..1) describing how much of the viewport each layer occupies, and an immerser instance |
+| on | `object` | `{}` | Initial event handlers map keyed by event name |
+
+
+# Events
+
+You can subscribe to events via the `on` option or by calling the `on` or `once` method on an immerser instance.
+
+| event | arguments | description |
+| - | - | - |
+| init | `immerser: Immerser` | Emitted after initialization. |
+| bind | `immerser: Immerser` | Emitted after binding DOM. |
+| unbind | `immerser: Immerser` | Emitted after unbinding DOM. |
+| destroy | `immerser: Immerser` | Emitted after destroy. |
+| activeLayerChange | `layerIndex: number`<br>`immerser: Immerser` | Emitted after active layer change. |
+| layersUpdate | `layersProgress: number[]`<br>`immerser: Immerser` | Emitted on each scroll update. |
 
 
 # Public fields and methods
@@ -234,6 +248,9 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |
 | render | `method` | Recalculates sizes and redraws masks |
 | syncScroll | `method` | Updates immerser when scroll is controlled externally (requires isScrollHandled = false) |
+| on | `method` | Registers a persistent immerser event handler |
+| once | `method` | Registers a one-time immerser event handler that is removed after the first call |
+| off | `method` | Removes a specific handler for the given immerser event |
 | activeIndex | `getter` | Index of the currently active layer, calculated from scroll position |
 | isBound | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
 | rootNode | `getter` | Root element the immerser instance is attached to |

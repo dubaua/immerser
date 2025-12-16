@@ -8,9 +8,4 @@
 | scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
 | pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
 | isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
-| onInit | `function` | `null` | Fired after initialization. Accept an immerser instance as the only parameter |
-| onBind | `function` | `null` | Fired after binding DOM. Accept an immerser instance as the only parameter |
-| onUnbind | `function` | `null` | Fired after unbinding DOM. Accept an immerser instance as the only parameter |
-| onDestroy | `function` | `null` | Fired after destroy. Accept an immerser instance as the only parameter |
-| onActiveLayerChange | `function` | `null` | Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second |
-| onLayersUpdate | `function` | `null` | Fired on each scroll update. Accepts an array of layer progress values (0..1) describing how much of the viewport each layer occupies, and an immerser instance |
+| on | `object` | `{}` | Initial event handlers map keyed by event name |

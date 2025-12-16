@@ -1,9 +1,10 @@
 import { easeSinInOut } from 'd3-ease';
 import Observable from '@dubaua/observable';
+import Immerser from 'immerser';
 import Animation from '../../../ogawa/src/animate';
 import { EmojiNodes, selectEmojiNodes } from './select-emoji-nodes';
 import { renderEmojiFace } from './render-emoji-face';
-import { layerConfigs, EmojiFaceConfig, deadConfig } from './config';
+import { EmojiFaceConfig, deadConfig, layerConfigs } from './config';
 import { mixConfigByProgress } from './mix-config-by-progress';
 import { renderHpBar } from './render-hp-bar';
 
@@ -31,52 +32,6 @@ const emojiState: EmojiState = {
   lastConfig: deadConfig,
   nodes: [],
 };
-
-emojiState.hp.subscribe((hp, prevHp) => {
-  const hasMissingHp = 0 < hp && hp < MaxHP;
-  const isDead = hp <= 0;
-  const isHit = prevHp !== undefined && hp < prevHp;
-
-  renderHpBars(hp, 1);
-
-  if (isDead) {
-    emojiState.regenAnimation?.pause().destroy();
-    emojiState.isDead.value = true;
-    return;
-  }
-
-  if (hasMissingHp && isHit) {
-    startDelayedRegen();
-  }
-});
-
-emojiState.isDead.subscribe((isDead) => {
-  if (isDead) {
-    new Animation({
-      duration: 320,
-      draw: (p) => {
-        const mixed = mixConfigByProgress([1 - p, p], [emojiState.lastConfig, deadConfig]);
-        emojiState.nodes.forEach((nodes) => renderEmojiFace(mixed, nodes));
-      },
-      onComplete: () => {
-        const buryAnimation = new Animation({
-          delay: 1000,
-          duration: 320,
-          draw: (p) => {
-            emojiState.nodes.forEach(({ face }) => {
-              if (face) {
-                face.style.transform = `translate(${p * 200}%,0)`;
-              }
-            });
-          },
-          onComplete: () => {
-            // тут потом будем чистить кучу всего.
-          },
-        });
-      },
-    });
-  }
-});
 
 function startDelayedRegen(): void {
   emojiState.regenAnimation?.pause().destroy();
@@ -115,7 +70,7 @@ function renderHpBars(hp: number, opacity: number) {
   });
 }
 
-export function initEmojiAnimation() {
+export function initEmojiAnimation(immerser: Immerser) {
   const faceNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-emoji-face]'));
 
   if (faceNodes.length === 0) {
@@ -154,14 +109,18 @@ export function initEmojiAnimation() {
       isRunning = spinAnimation.isRunning;
       spinAnimation.reset();
       if (!emojiState.isDead.value) {
-        faceNode.style.transform = `translateY(${facePressOffsetPx}px)`;
+        faceNodes.forEach((faceNode) => {
+          faceNode.style.transform = `translateY(${facePressOffsetPx}px)`;
+        });
       }
     });
 
     faceNode.addEventListener('mouseup', (e) => {
       e.stopPropagation();
 
-      faceNode.style.transform = '';
+      faceNodes.forEach((faceNode) => {
+        faceNode.style.transform = '';
+      });
 
       if (!emojiState.isDead.value && isRunning) {
         const damage = Math.round(Math.random() * 150) + 100; // TODO use rollDice
@@ -175,6 +134,8 @@ export function initEmojiAnimation() {
   });
 
   const handleLayersUpdate = (layersProgress: number[]) => {
+    console.log('layersUpdate', layersProgress, immerser);
+
     emojiState.lastConfig = mixConfigByProgress(layersProgress, layerConfigs);
 
     if (!emojiState.isDead.value) {
@@ -183,6 +144,53 @@ export function initEmojiAnimation() {
   };
 
   handleLayersUpdate([1, 0, 0, 0, 0]);
+
+  emojiState.hp.subscribe((hp, prevHp) => {
+    const hasMissingHp = 0 < hp && hp < MaxHP;
+    const isDead = hp <= 0;
+    const isHit = prevHp !== undefined && hp < prevHp;
+
+    renderHpBars(hp, 1);
+
+    if (isDead) {
+      emojiState.regenAnimation?.pause().destroy();
+      emojiState.isDead.value = true;
+      return;
+    }
+
+    if (hasMissingHp && isHit) {
+      startDelayedRegen();
+    }
+  });
+
+  emojiState.isDead.subscribe((isDead) => {
+    if (isDead) {
+      new Animation({
+        duration: 320,
+        draw: (p) => {
+          const mixed = mixConfigByProgress([1 - p, p], [emojiState.lastConfig, deadConfig]);
+          emojiState.nodes.forEach((nodes) => renderEmojiFace(mixed, nodes));
+        },
+        onComplete: () => {
+          const buryAnimation = new Animation({
+            delay: 1000,
+            duration: 320,
+            draw: (p) => {
+              emojiState.nodes.forEach(({ face }) => {
+                if (face) {
+                  face.style.transform = `translate(${p * 200}%,0)`;
+                }
+              });
+            },
+            onComplete: () => {
+              // тут потом будем чистить кучу всего.
+              immerser.off('layersUpdate', handleLayersUpdate);
+            },
+          });
+        },
+      });
+    }
+  });
 
   return { handleLayersUpdate };
 }

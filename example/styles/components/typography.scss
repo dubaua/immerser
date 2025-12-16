@@ -30,6 +30,12 @@
       vertical-align: bottom;
     }
   }
+  @at-root #{$contrast-surface} & {
+    p code {
+      background-color: $color-code-background--contrast;
+      color: $color-text--contrast;
+    }
+  }
   a {
     @include transition('color');
     color: inherit;

@@ -27,8 +27,7 @@ function requireTranslation(name) {
 function isPublic(member) {
   const modifiers = member.modifiers || [];
   return !modifiers.some(
-    (modifier) =>
-      modifier.kind === ts.SyntaxKind.PrivateKeyword || modifier.kind === ts.SyntaxKind.ProtectedKeyword,
+    (modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword || modifier.kind === ts.SyntaxKind.ProtectedKeyword,
   );
 }
 
@@ -64,11 +63,7 @@ function getPublicMembers() {
 
 function buildMarkdown(members) {
   const rows = members.map(({ name, kind }) => {
-    const desc = turndown
-      .turndown(requireTranslation(name))
-      .replace(/\s+/g, ' ')
-      .replace(/\|/g, '\\|')
-      .trim();
+    const desc = turndown.turndown(requireTranslation(name)).replace(/\s+/g, ' ').replace(/\|/g, '\\|').trim();
     return `| ${name} | \`${kind}\` | ${desc} |`;
   });
 
@@ -91,7 +86,7 @@ function buildHtml(members) {
     '<table>',
     '  <thead>',
     '    <tr>',
-    `      <th class="token property"><%= getTranslation('public-field-name') %></th>`,
+    `      <th class="token property"><%= getTranslation('name') %></th>`,
     `      <th class="token property"><%= getTranslation('type') %></th>`,
     `      <th class="token property"><%= getTranslation('description') %></th>`,
     '    </tr>',

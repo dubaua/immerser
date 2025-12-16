@@ -1,4 +1,4 @@
-import Immerser from '../src/immerser';
+import Immerser from 'immerser';
 import './styles/main.scss';
 import { initEmojiAnimation } from './emoji/animation';
 
@@ -9,8 +9,6 @@ declare global {
     immerserInstance?: Immerser;
   }
 }
-
-const { handleLayersUpdate } = initEmojiAnimation();
 
 const immerserInstance = new Immerser({
   solidClassnameArray: [
@@ -46,26 +44,28 @@ const immerserInstance = new Immerser({
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,
   scrollAdjustDelay: 600,
-  onInit(immerser) {
-    window.immerserInstance = immerser;
-    console.log('onInit', immerser);
-  },
-  onBind(immerser) {
-    console.log('onBind', immerser);
-  },
-  onUnbind(immerser) {
-    console.log('onUnbind', immerser);
-  },
-  onDestroy(immerser) {
-    console.log('onDestroy', immerser);
-  },
-  onActiveLayerChange(activeIndex, immerser) {
-    console.log('onActiveLayerChange', activeIndex, immerser);
-  },
-  onLayersUpdate(layersProgress, immerser) {
-    handleLayersUpdate(layersProgress);
+  on: {
+    init(immerser) {
+      window.immerserInstance = immerser;
+      console.log('init', immerser);
+    },
+    bind(immerser) {
+      console.log('bind', immerser);
+    },
+    unbind(immerser) {
+      console.log('unbind', immerser);
+    },
+    destroy(immerser) {
+      console.log('destroy', immerser);
+    },
+    activeLayerChange(activeIndex, immerser) {
+      console.log('activeLayerChange', activeIndex, immerser);
+    },
   },
 });
+
+const { handleLayersUpdate } = initEmojiAnimation(immerserInstance);
+immerserInstance.on('layersUpdate', handleLayersUpdate);
 
 const highlighterNodeList = document.querySelectorAll<HTMLElement>('[data-highlighter]');
 const highlighterAnimationClassname = 'highlighter-animation-active';
