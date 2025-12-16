@@ -1,7 +1,7 @@
 import { easeSinInOut } from 'd3-ease';
 import Observable from '@dubaua/observable';
 import Immerser from 'immerser';
-import Animation from '../../../ogawa/src/animate';
+import { Ogawa } from 'ogawa';
 import { EmojiNodes, selectEmojiNodes } from './select-emoji-nodes';
 import { renderEmojiFace } from './render-emoji-face';
 import { EmojiFaceConfig, deadConfig, layerConfigs } from './config';
@@ -16,8 +16,8 @@ const HPRegenDelayMS = 1400;
 type EmojiState = {
   hp: Observable<number>;
   hpRegen: number;
-  regenAnimation: Animation | null;
-  hpBarAnimation: Animation | null;
+  regenAnimation: Ogawa | null;
+  hpBarAnimation: Ogawa | null;
   isDead: Observable<boolean>;
   lastConfig: EmojiFaceConfig;
   nodes: EmojiNodes[];
@@ -40,7 +40,7 @@ function startDelayedRegen(): void {
   const duration = (missingHp / emojiState.hpRegen) * 1000;
   const startHp = emojiState.hp.value;
 
-  emojiState.regenAnimation = new Animation({
+  emojiState.regenAnimation = new Ogawa({
     duration,
     delay: HPRegenDelayMS,
     draw: (progress) => {
@@ -48,7 +48,7 @@ function startDelayedRegen(): void {
     },
     onComplete: () => {
       emojiState.regenAnimation?.destroy();
-      emojiState.hpBarAnimation = new Animation({
+      emojiState.hpBarAnimation = new Ogawa({
         delay: 2000,
         duration: 320,
         draw: (p) => {
@@ -79,7 +79,7 @@ export function initEmojiAnimation(immerser: Immerser) {
 
   emojiState.nodes = faceNodes.map((face) => selectEmojiNodes(face));
 
-  const spinAnimation = new Animation({
+  const spinAnimation = new Ogawa({
     autoStart: false,
     duration: emojiAnimationDurationMs,
     draw: (progress) => {
@@ -170,14 +170,14 @@ export function initEmojiAnimation(immerser: Immerser) {
 
   emojiState.isDead.subscribe((isDead) => {
     if (isDead) {
-      const fadeToDeadAnimation = new Animation({
+      const fadeToDeadAnimation = new Ogawa({
         duration: 320,
         draw: (p) => {
           const mixed = mixConfigByProgress([1 - p, p], [emojiState.lastConfig, deadConfig]);
           emojiState.nodes.forEach((nodes) => renderEmojiFace(mixed, nodes));
         },
         onComplete: () => {
-          const buryAnimation = new Animation({
+          const buryAnimation = new Ogawa({
             delay: 1000,
             duration: 320,
             draw: (p) => {
