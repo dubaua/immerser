@@ -101,9 +101,9 @@ export function initEmojiAnimation(immerser: Immerser) {
     },
   });
 
-  faceNodes.forEach((faceNode) => {
+  const faceNodeListeners = faceNodes.map((faceNode) => {
     let isRunning = false;
-    faceNode.addEventListener('mousedown', (e) => {
+    const onMouseDown = (e: MouseEvent) => {
       e.stopPropagation();
 
       isRunning = spinAnimation.isRunning;
@@ -113,9 +113,9 @@ export function initEmojiAnimation(immerser: Immerser) {
           faceNode.style.transform = `translateY(${facePressOffsetPx}px)`;
         });
       }
-    });
+    };
 
-    faceNode.addEventListener('mouseup', (e) => {
+    const onMouseUp = (e: MouseEvent) => {
       e.stopPropagation();
 
       faceNodes.forEach((faceNode) => {
@@ -130,7 +130,12 @@ export function initEmojiAnimation(immerser: Immerser) {
       if (!emojiState.isDead.value) {
         spinAnimation.run();
       }
-    });
+    };
+
+    faceNode.addEventListener('mousedown', onMouseDown);
+    faceNode.addEventListener('mouseup', onMouseUp);
+
+    return { faceNode, onMouseDown, onMouseUp };
   });
 
   const handleLayersUpdate = (layersProgress: number[]) => {
@@ -165,7 +170,7 @@ export function initEmojiAnimation(immerser: Immerser) {
 
   emojiState.isDead.subscribe((isDead) => {
     if (isDead) {
-      new Animation({
+      const fadeToDeadAnimation = new Animation({
         duration: 320,
         draw: (p) => {
           const mixed = mixConfigByProgress([1 - p, p], [emojiState.lastConfig, deadConfig]);
@@ -183,8 +188,51 @@ export function initEmojiAnimation(immerser: Immerser) {
               });
             },
             onComplete: () => {
-              // тут потом будем чистить кучу всего.
               immerser.off('layersUpdate', handleLayersUpdate);
+
+              faceNodeListeners.forEach(({ faceNode, onMouseDown, onMouseUp }) => {
+                faceNode.removeEventListener('mousedown', onMouseDown);
+                faceNode.removeEventListener('mouseup', onMouseUp);
+                faceNode.style.transform = '';
+              });
+
+              spinAnimation.pause().destroy();
+              emojiState.regenAnimation?.pause().destroy();
+              emojiState.regenAnimation = null;
+              emojiState.hpBarAnimation?.pause().destroy();
+              emojiState.hpBarAnimation = null;
+
+              emojiState.hp.reset();
+              emojiState.isDead.reset();
+
+              emojiState.nodes.forEach((nodes) => {
+                nodes.face = null;
+                nodes.mouthClipPath = null;
+                nodes.mouthShape = null;
+                nodes.mouthLine = null;
+                nodes.tongue = null;
+                nodes.leftEyeClosed = null;
+                nodes.rightEyeClosed = null;
+                nodes.leftEyeOpen = null;
+                nodes.rightEyeOpen = null;
+                nodes.leftBrow = null;
+                nodes.rightBrow = null;
+                nodes.glass = null;
+                nodes.hpBarOutline = null;
+                nodes.hpBarFill = null;
+                nodes.handInner = null;
+                nodes.handOuter = null;
+                nodes.rotator = null;
+              });
+              emojiState.nodes = [];
+              emojiState.lastConfig = deadConfig;
+
+              faceNodes.forEach((node) => node.remove());
+              faceNodes.length = 0;
+              faceNodeListeners.length = 0;
+
+              buryAnimation.destroy();
+              fadeToDeadAnimation.destroy();
             },
           });
         },
