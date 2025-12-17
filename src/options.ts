@@ -1,10 +1,28 @@
 import type { OptionConfig } from '@dubaua/merge-options';
-import { Options } from './types';
+import type { EventName, Options } from './types';
 
 const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
 
+/** @public All available immerser event names. */
+export const EVENT_NAMES = ['init', 'bind', 'unbind', 'destroy', 'activeLayerChange', 'layersUpdate'] as const;
+
 function classnameValidator(str: string): boolean {
   return typeof str === 'string' && str !== '' && CLASSNAME_REGEX.test(str);
+}
+
+function onOptionValidator(on?: Options['on']): boolean {
+  if (on === undefined) {
+    return true;
+  }
+  if (!on || typeof on !== 'object' || Array.isArray(on)) {
+    return false;
+  }
+  return Object.keys(on).every(
+    (eventName) =>
+      EVENT_NAMES.includes(eventName as EventName) &&
+      (on as Record<string, unknown>)[eventName] !== undefined &&
+      typeof (on as Record<string, unknown>)[eventName] === 'function',
+  );
 }
 
 export const OPTION_CONFIG: OptionConfig<Options> = {
@@ -48,30 +66,10 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },
-  onInit: {
-    default: null,
-    description: 'a function',
-    validator: (x) => typeof x === 'function',
-  },
-  onBind: {
-    default: null,
-    description: 'a function',
-    validator: (x) => typeof x === 'function',
-  },
-  onUnbind: {
-    default: null,
-    description: 'a function',
-    validator: (x) => typeof x === 'function',
-  },
-  onDestroy: {
-    default: null,
-    description: 'a function',
-    validator: (x) => typeof x === 'function',
-  },
-  onActiveLayerChange: {
-    default: null,
-    description: 'a function',
-    validator: (x) => typeof x === 'function',
+  on: {
+    default: {},
+    description: 'an object containing event handlers',
+    validator: onOptionValidator,
   },
 };
 

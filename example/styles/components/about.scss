@@ -13,10 +13,14 @@
   &--contrast {
     color: $color-text--contrast;
   }
-  span, a {
+  span,
+  a {
     display: inline-block;
     padding-left: $base;
     color: inherit;
+    &:last-child {
+      padding-right: $base;
+    }
     @include transition('color');
     @include from('lg') {
       padding-right: $base;

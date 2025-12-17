@@ -1,31 +1,42 @@
+@use '../shared/globals.scss' as *;
+
 .emoji {
   $emoji: &;
   position: relative;
   &__face {
     display: block;
+    overflow: visible;
+    cursor: pointer;
   }
   &__hand {
     position: absolute;
     left: 0;
     top: 0;
-  }
-  &[data-emoji-animating='true'] #{$emoji}__face {
-    animation: spinning 0.62s ease-in-out;
-  }
-  &[data-emoji-animating='true'] #{$emoji}__hand {
+    pointer-events: none;
+    touch-action: none;
     transform-origin: left bottom;
-    animation: hang 0.62s ease-in-out;
   }
-}
+  &__stroke-path {
+    stroke-width: 5;
+    stroke: $color-secondary;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
 
-@keyframes spinning {
-  100% {
-    transform: rotate(360deg);
+    &--thin {
+      stroke-width: 2;
+    }
   }
-}
-
-@keyframes hang {
-  50% {
-    transform: rotate(-3deg);
+  &__fill {
+    fill: $color-primary;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+  &--inverse {
+    #{$emoji}__stroke-path {
+      stroke: $color-primary;
+    }
+    #{$emoji}__fill {
+      fill: $color-secondary;
+    }
   }
 }

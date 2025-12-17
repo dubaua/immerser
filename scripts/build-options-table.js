@@ -48,6 +48,7 @@ const OPTION_CONFIG = loadOptionConfig();
 
 function inferType(optionName, config) {
   const value = config.default;
+  if (optionName === 'on') return 'object';
   if (Array.isArray(value)) return 'array';
   if (typeof value === 'boolean') return 'boolean';
   if (typeof value === 'number') return 'number';
@@ -61,6 +62,8 @@ function formatDefaultForHtml(type, value) {
   switch (type) {
     case 'array':
       return '<td class="token punctuation">[]</td>';
+    case 'object':
+      return '<td class="token punctuation">{}</td>';
     case 'boolean':
       return `<td class="token boolean">${value}</td>`;
     case 'number':
@@ -78,6 +81,8 @@ function formatDefaultForMarkdown(type, value) {
   switch (type) {
     case 'array':
       return '`[]`';
+    case 'object':
+      return '`{}`';
     case 'boolean':
     case 'number':
       return `\`${value}\``;

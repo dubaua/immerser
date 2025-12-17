@@ -39,19 +39,24 @@ const immerserInstance = new Immerser({
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,
   scrollAdjustDelay: 600,
-  onInit(immerser) {
-    // <%= getTranslation('callback-on-init') %>
-  },
-  onBind(immerser) {
-    // <%= getTranslation('callback-on-bind') %>
-  },
-  onUnbind(immerser) {
-    // <%= getTranslation('callback-on-unbind') %>
-  },
-  onDestroy(immerser) {
-    // <%= getTranslation('callback-on-destroy') %>
-  },
-  onActiveLayerChange(activeIndex, immerser) {
-    // <%= getTranslation('callback-on-active-layer-change') %>
+  on: {
+    init(immerser) {
+      // <%= getTranslation('callback-on-init') %>
+    },
+    bind(immerser) {
+      // <%= getTranslation('callback-on-bind') %>
+    },
+    unbind(immerser) {
+      // <%= getTranslation('callback-on-unbind') %>
+    },
+    destroy(immerser) {
+      // <%= getTranslation('callback-on-destroy') %>
+    },
+    activeLayerChange(activeIndex, immerser) {
+      // <%= getTranslation('callback-on-active-layer-change') %>
+    },
+    layersUpdate(layersProgress, immerser) {
+      // <%= getTranslation('callback-on-layers-update') %>
+    },
   },
 });

@@ -1,3 +1,30 @@
+/** @public Handler signature for active layer change events. */
+export declare type ActiveLayerChangeHandler = (layerIndex: number, immerser: Immerser) => void;
+
+/** @public Base handler signature for immerser lifecycle events. */
+export declare type BaseHandler = (immerser: Immerser) => void;
+
+/** @public All available immerser event names. */
+export declare const EVENT_NAMES: readonly ["init", "bind", "unbind", "destroy", "activeLayerChange", "layersUpdate"];
+
+/** @public Map of event names to handler signatures. */
+export declare type EventHandlers = {
+    [K in EventName]?: HandlerByEventName[K];
+};
+
+/** @public All available immerser event names. */
+export declare type EventName = (typeof EVENT_NAMES)[number];
+
+/** @public Map of immerser event names to handler signatures. */
+export declare type HandlerByEventName = {
+    init: BaseHandler;
+    bind: BaseHandler;
+    unbind: BaseHandler;
+    destroy: BaseHandler;
+    activeLayerChange: ActiveLayerChangeHandler;
+    layersUpdate: LayersUpdateHandler;
+};
+
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 declare class Immerser {
     private _options;
@@ -24,11 +51,13 @@ declare class Immerser {
     private _reactiveActiveLayer;
     private _reactiveWindowWidth;
     private _reactiveSynchroHoverId;
+    private _layerProgressArray;
     private _unsubscribeRedrawingPager;
     private _unsubscribeUpdatingHash;
     private _unsubscribeActiveLayerChange;
     private _unsubscribeSynchroHover;
     private _unsubscribeToggleBindOnResize;
+    private _handlers;
     private _onResize;
     private _onScroll;
     private _onSynchroHoverMouseOver;
@@ -38,8 +67,12 @@ declare class Immerser {
      * @param userOptions - overrides for defaults defined in OPTION_CONFIG if pass validation
      */
     constructor(userOptions?: Partial<Options>);
-    /** Bootstraps nodes, options, state, listeners and fires onInit callback if provided. */
+    /** Bootstraps nodes, options, state, listeners and emits init event. */
     private _init;
+    /** Saves event handlers passed via options into internal registry. */
+    private _registerHandlersFromOptions;
+    /** Executes registered event handlers with provided arguments. */
+    private _emit;
     /** Collects root, layer and solid nodes from DOM. */
     private _setDomNodes;
     /** Validates required markup presence and reports descriptive errors. */
@@ -87,6 +120,8 @@ declare class Immerser {
     /** Removes cloned markup or cleans up custom masks when unbinding. */
     private _cleanupClonedMarkup;
     private _removeScrollAndResizeListeners;
+    /** Calculates per-layer progress (0..1) based on which part of screen the layer overlaps. */
+    private _setLayersProgress;
     /** Applies transforms based on scroll position and updates active layer state. */
     private _draw;
     /** Adds or removes active pager classname according to current layer. */
@@ -102,17 +137,17 @@ declare class Immerser {
     /** RAF-throttled resize handler that recalculates sizes and redraws. */
     private _handleResize;
     /**
-     * Prepares markup, attaches listeners and triggers first draw; also fires onBind callback.
+     * Prepares markup, attaches listeners and triggers first draw; also emits bind event.
      * Intended to be idempotent for toggling immerser on when viewport width allows.
      */
     bind(): void;
     /**
-     * Tears down generated markup and listeners, restores DOM, resets active layer and fires onUnbind.
+     * Tears down generated markup and listeners, restores DOM, resets active layer and emits unbind event.
      * Safe to call multiple times; no-op when already unbound.
      */
     unbind(): void;
     /**
-     * Fully destroys immerser: unbinds, removes window listeners, runs onDestroy and clears all references.
+     * Fully destroys immerser: unbinds, removes window listeners, runs destroy event and clears all references.
      * Use when component is permanently removed.
      */
     destroy(): void;
@@ -131,14 +166,25 @@ declare class Immerser {
      * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
      */
     syncScroll(): void;
+    /** Register persistent event handler. */
+    on<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
+    /** Register event handler that will be removed after first call. */
+    once<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
+    /** Removes handler(s) for provided event. */
+    off<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
     /** Current active layer index derived from scroll position. */
     get activeIndex(): number;
     /** Indicates whether immerser is currently bound (markup cloned and listeners attached). */
     get isBound(): boolean;
     /** The root DOM node immerser is attached to. */
     get rootNode(): HTMLElement;
+    /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
+    get layerProgressArray(): readonly number[];
 }
 export default Immerser;
+
+/** @public Handler signature for layers update events. */
+export declare type LayersUpdateHandler = (layersProgress: number[], immerser: Immerser) => void;
 
 /** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
 export declare type Options = {
@@ -160,16 +206,8 @@ export declare type Options = {
      * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
      */
     isScrollHandled: boolean;
-    /** Callback fired after init; receives immerser instance. */
-    onInit: ((immerser: Immerser) => void) | null;
-    /** Callback fired after bind; receives immerser instance. */
-    onBind: ((immerser: Immerser) => void) | null;
-    /** Callback fired after unbind; receives immerser instance. */
-    onUnbind: ((immerser: Immerser) => void) | null;
-    /** Callback fired after destroy; receives immerser instance. */
-    onDestroy: ((immerser: Immerser) => void) | null;
-    /** Callback fired when active layer changes; receives next index and immerser instance. */
-    onActiveLayerChange: ((layerIndex: number, immerser: Immerser) => void) | null;
+    /** Initial event handlers keyed by event name. */
+    on?: Partial<EventHandlers>;
 };
 
 /** @public Map of solid id to classname. */

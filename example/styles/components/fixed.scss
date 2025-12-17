@@ -7,17 +7,17 @@
     display: block;
     top: $base * 2;
     bottom: $base * 2;
-    left: $col-width * 0.5;
-    right: $col-width * 0.5;
+    left: 0;
+    right: 0;
     z-index: 2;
 
     &__pager {
       position: absolute;
       top: 50%;
-      right: 0;
+      right: $col-width * 0.5;
       @include from('lg') {
         right: auto;
-        left: 0;
+        left: $col-width * 0.5;
       }
       transform: translate(0, -50%);
     }
@@ -25,32 +25,34 @@
     &__logo {
       position: absolute;
       top: 0;
-      left: 0;
+      left: $col-width * 0.5;
     }
 
     &__menu {
       position: absolute;
       top: 0;
-      right: 0;
+      right: $col-width * 0.5;
     }
 
     &__language {
       position: absolute;
       bottom: 0;
-      left: 0;
+      left: $col-width * 0.5;
     }
 
     &__about {
       position: absolute;
       bottom: 0;
-      right: 0;
+      right: $col-width * 0.5;
     }
 
     &__emoji {
       position: absolute;
       right: 0;
       top: 50%;
+      padding-right: $col-width * 0.5;
       transform: translate(0, -50%);
+      overflow: hidden;
     }
   }
 }

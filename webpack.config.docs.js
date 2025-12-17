@@ -14,7 +14,7 @@ const isDev = process.env.NODE_ENV !== 'production';
 module.exports = Object.keys(languages).map((language) => ({
   name: language,
   entry: {
-    main: path.resolve(__dirname, 'example/main.js'),
+    main: path.resolve(__dirname, 'example/main.ts'),
   },
   resolve: {
     alias: {
@@ -43,7 +43,26 @@ module.exports = Object.keys(languages).map((language) => ({
     rules: [
       {
         test: /\.(ts|js)$/,
-        use: ['babel-loader'],
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    modules: false,
+                    targets: {
+                      browsers: ['> 1%', 'last 2 versions', 'not ie <= 8', 'ie >= 11'],
+                    },
+                  },
+                ],
+                '@babel/preset-typescript',
+              ],
+              plugins: ['@babel/plugin-proposal-class-properties'],
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
       {

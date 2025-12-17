@@ -77,11 +77,12 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'initialize-immerser-title': 'Initialize Immerser',
   'initialize-immerser-content': `<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>`,
 
-  'callback-on-init': 'callback on init',
-  'callback-on-bind': 'callback on bind',
-  'callback-on-unbind': 'callback on unbind',
-  'callback-on-destroy': 'callback on destroy',
-  'callback-on-active-layer-change': 'callback on active layer change',
+  'callback-on-init': 'callback on init event',
+  'callback-on-bind': 'callback on bind event',
+  'callback-on-unbind': 'callback on unbind event',
+  'callback-on-destroy': 'callback on destroy event',
+  'callback-on-active-layer-change': 'callback on active layer change event',
+  'callback-on-layers-update': 'callback on layers update event',
 
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
@@ -100,9 +101,12 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 `,
 
   option: 'option',
+  event: 'event',
   type: 'type',
+  arguments: 'arguments',
   default: 'default',
   description: 'description',
+  name: 'name',
 
   'option-solidClassnameArray':
     'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
@@ -114,12 +118,32 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
   'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
   'option-isScrollHandled': "Binds scroll listener if true. Set to false if you're using remote scroll controller",
-  'option-onInit': 'Fired after initialization. Accept an immerser instance as the only parameter',
-  'option-onBind': 'Fired after binding DOM. Accept an immerser instance as the only parameter',
-  'option-onUnbind': 'Fired after unbinding DOM. Accept an immerser instance as the only parameter',
-  'option-onDestroy': 'Fired after destroy. Accept an immerser instance as the only parameter',
-  'option-onActiveLayerChange':
-    'Fired after active layer change. Accept active layer index as first parameter and an immerser instance as second',
+  'option-on': 'Initial event handlers map keyed by event name',
+  'events-title': 'Events',
+  'events-content':
+    '<p>You can subscribe to events via the <code>on</code> option or by calling the <code>on</code> or <code>once</code> method on an immerser instance.</p>',
+  'event-init': 'Emitted after initialization.',
+  'event-bind': 'Emitted after binding DOM.',
+  'event-unbind': 'Emitted after unbinding DOM.',
+  'event-destroy': 'Emitted after destroy.',
+  'event-activeLayerChange': 'Emitted after active layer change.',
+  'event-layersUpdate': 'Emitted on each scroll update.',
+
+  'public-fields-title': 'Public fields and methods',
+  'public-field-bind': 'Clones markup, attaches listeners, and starts internal logic',
+  'public-field-unbind': 'Remove generated markup and listeners, keeping the instance reusable',
+  'public-field-destroy':
+    'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
+  'public-field-render': 'Recalculates sizes and redraws masks',
+  'public-field-syncScroll': 'Updates immerser when scroll is controlled externally (requires isScrollHandled = false)',
+  'public-field-on': 'Registers a persistent immerser event handler',
+  'public-field-once': 'Registers a one-time immerser event handler that is removed after the first call',
+  'public-field-off': 'Removes a specific handler for the given immerser event',
+  'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
+  'public-field-isBound': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
+  'public-field-rootNode': 'Root element the immerser instance is attached to',
+  'public-field-layerProgressArray':
+    'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',
   'cloning-event-listeners-content': `
