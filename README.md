@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 6.51Kb gzipped.
+Immerser is written on typescript. Only 6.63Kb gzipped.
 
 ## Terms
 
@@ -31,7 +31,7 @@ yarn add immerser
 Or if you want to use immerser in browser as global variable:
 
 ```html
-<script src="https://unpkg.com/immerser@5.0.0/dist/immerser.min.js"></script>
+<script src="https://unpkg.com/immerser@5.1.0/dist/immerser.min.js"></script>
 ```
 
 ## Prepare Your Markup
@@ -222,6 +222,7 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 | scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
 | pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
 | isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
+| debug | `boolean` | `false` | Enables logging warnings and errors. Defaults to true in development, false otherwise |
 | on | `object` | `{}` | Initial event handlers map keyed by event name |
 
 
@@ -243,6 +244,7 @@ You can subscribe to events via the `on` option or by calling the `on` or `once`
 
 | name | kind | description |
 | - | - | - |
+| debug | `property` | Controls whether immerser reports warnings and errors |
 | bind | `method` | Clones markup, attaches listeners, and starts internal logic |
 | unbind | `method` | Remove generated markup and listeners, keeping the instance reusable |
 | destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |

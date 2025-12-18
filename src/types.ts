@@ -72,6 +72,8 @@ export type Options = {
    * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
    */
   isScrollHandled: boolean;
+  /** Enables runtime reporting of warnings and errors. */
+  debug?: boolean;
   /** Initial event handlers keyed by event name. */
   on?: Partial<EventHandlers>;
 };

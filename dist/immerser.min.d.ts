@@ -62,6 +62,8 @@ declare class Immerser {
     private _onScroll;
     private _onSynchroHoverMouseOver;
     private _onSynchroHoverMouseOut;
+    /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
+    debug: boolean;
     /**
      * Creates immerser instance and immediately runs setup with optional user options.
      * @param userOptions - overrides for defaults defined in OPTION_CONFIG if pass validation
@@ -73,6 +75,7 @@ declare class Immerser {
     private _registerHandlersFromOptions;
     /** Executes registered event handlers with provided arguments. */
     private _emit;
+    private _report;
     /** Collects root, layer and solid nodes from DOM. */
     private _setDomNodes;
     /** Validates required markup presence and reports descriptive errors. */
@@ -206,6 +209,8 @@ export declare type Options = {
      * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
      */
     isScrollHandled: boolean;
+    /** Enables runtime reporting of warnings and errors. */
+    debug?: boolean;
     /** Initial event handlers keyed by event name. */
     on?: Partial<EventHandlers>;
 };

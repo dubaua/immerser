@@ -118,6 +118,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
   'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
   'option-isScrollHandled': "Binds scroll listener if true. Set to false if you're using remote scroll controller",
+  'option-debug': 'Enables logging warnings and errors. Defaults to true in development, false otherwise',
   'option-on': 'Initial event handlers map keyed by event name',
   'events-title': 'Events',
   'events-content':
@@ -144,6 +145,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'public-field-rootNode': 'Root element the immerser instance is attached to',
   'public-field-layerProgressArray':
     'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
+  'public-field-debug': 'Controls whether immerser reports warnings and errors',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',
   'cloning-event-listeners-content': `
