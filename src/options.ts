@@ -3,6 +3,8 @@ import type { EventName, Options } from './types';
 
 const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
 
+export const INITIAL_DEBUG = process.env.NODE_ENV === 'development';
+
 /** @public All available immerser event names. */
 export const EVENT_NAMES = ['init', 'bind', 'unbind', 'destroy', 'activeLayerChange', 'layersUpdate'] as const;
 
@@ -63,6 +65,11 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
   },
   isScrollHandled: {
     default: true,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
+  debug: {
+    default: INITIAL_DEBUG,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },

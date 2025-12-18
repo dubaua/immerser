@@ -1,5 +1,3 @@
-import { MESSAGE_PREFIX } from './options';
-
 export function bindStyles(node: HTMLElement, styles: { [key: string]: string }): void {
   for (const rule in styles) {
     (node.style as any)[rule] = styles[rule];
@@ -28,29 +26,6 @@ export function getNodeArray<T extends Element = HTMLElement>({
   }
   const nodeList = parent.querySelectorAll<T>(selector);
   return Array.from(nodeList);
-}
-
-export function showMessageWithDocumentationLink({
-  message,
-  error,
-  isWarning = false,
-  docsHash = '',
-}: {
-  message: string;
-  error?: unknown;
-  isWarning?: boolean;
-  docsHash?: string;
-}): void {
-  const resultMessage = `${MESSAGE_PREFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
-  if (isWarning) {
-    if (error !== undefined) {
-      console.warn(resultMessage, error);
-    } else {
-      console.warn(resultMessage);
-    }
-  } else {
-    throw new Error(resultMessage, { cause: error });
-  }
 }
 
 export function isEmpty(obj?: Record<string, any> | null): boolean {

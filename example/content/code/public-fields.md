@@ -1,5 +1,6 @@
 | name | kind | description |
 | - | - | - |
+| debug | `property` | Controls whether immerser reports warnings and errors |
 | bind | `method` | Clones markup, attaches listeners, and starts internal logic |
 | unbind | `method` | Remove generated markup and listeners, keeping the instance reusable |
 | destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |

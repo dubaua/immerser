@@ -1,3 +1,9 @@
+# 5.1.0
+
+## Features
+
+- Added per-instance debug flag (public `debug` field and `debug` option) to control warning and error logs; defaults to `true` in development builds and `false` otherwise.
+
 # 5.0.0
 
 ## Breaking Changes
@@ -41,11 +47,12 @@ This changed because somebody might need text pager links or more complicated ma
 
 ## Breakpoints
 
-Now `fromViewportWidth` options is 0 by default. Its better to explicitly mark if you don't need init it on mobile screens. 
+Now `fromViewportWidth` options is 0 by default. Its better to explicitly mark if you don't need init it on mobile screens.
 
 ## Class Fields Changes
 
 ### Renamed or changed
+
 - `statemap` => `stateArray` - renamed
 - `immerserNode` => `rootNode` - renamed
 - `originalChildrenNodeList` => `originalSolidNodeArray` - now contains array of nodes instead of NodeList
@@ -54,6 +61,7 @@ Now `fromViewportWidth` options is 0 by default. Its better to explicitly mark i
 - `scrollTimerId` => `scrollFrameId` - renamed
 
 ### New
+
 - `stateIndexById` - a hashmap with layerId keys and layerIndex values
 - `scrollAdjustTimerId` - scroll adjust delay timer id
 - `selectors` - object of selectors
@@ -70,4 +78,5 @@ Now `fromViewportWidth` options is 0 by default. Its better to explicitly mark i
 - `onSynchroHoverMouseOut` - synchro hover mouse out callback
 
 ### Removed
+
 - `pagerNode`

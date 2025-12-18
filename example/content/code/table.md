@@ -8,4 +8,5 @@
 | scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
 | pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
 | isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
+| debug | `boolean` | `false` | Enables logging warnings and errors. Defaults to true in development, false otherwise |
 | on | `object` | `{}` | Initial event handlers map keyed by event name |

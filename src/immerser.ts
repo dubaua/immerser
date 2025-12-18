@@ -3,6 +3,7 @@ import Observable from '@dubaua/observable';
 import {
   CROPPED_FULL_ABSOLUTE_STYLES,
   EVENT_NAMES,
+  INITIAL_DEBUG,
   INTERACTIVE_STYLES,
   MESSAGE_PREFIX,
   NOT_INTERACTIVE_STYLES,
@@ -15,7 +16,6 @@ import {
   getNodeArray,
   getOriginalHandler,
   isEmpty,
-  showMessageWithDocumentationLink,
   wrapOnceHandler,
 } from './utils';
 import type {
@@ -84,6 +84,9 @@ export default class Immerser {
   private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
   private _onSynchroHoverMouseOut: (() => void) | null = null;
 
+  /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
+  public debug = INITIAL_DEBUG;
+
   /**
    * Creates immerser instance and immediately runs setup with optional user options.
    * @param userOptions - overrides for defaults defined in OPTION_CONFIG if pass validation
@@ -94,9 +97,10 @@ export default class Immerser {
 
   /** Bootstraps nodes, options, state, listeners and emits init event. */
   private _init(userOptions?: Partial<Options>): void {
+    this._mergeOptions(userOptions);
+    this.debug = this._options.debug;
     this._setDomNodes();
     this._validateMarkup();
-    this._mergeOptions(userOptions);
     this._registerHandlersFromOptions();
     this._readClassnamesFromMarkup();
     this._validateSolidClassnameArray();
@@ -129,15 +133,39 @@ export default class Immerser {
       try {
         handler.apply(undefined, args);
       } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-          showMessageWithDocumentationLink({
-            message: `handler for ${eventName} event failed`,
-            error,
-            docsHash: '#events',
-          });
-        }
+        this._report({
+          message: `handler for ${eventName} event failed`,
+          error,
+          docsHash: '#events',
+        });
       }
     });
+  }
+
+  private _report({
+    message,
+    error,
+    isWarning = false,
+    docsHash = '',
+  }: {
+    message: string;
+    error?: unknown;
+    isWarning?: boolean;
+    docsHash?: string;
+  }): void {
+    const resultMessage = `${MESSAGE_PREFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
+
+    if (isWarning) {
+      if (!this.debug) {
+        return;
+      }
+
+      error !== undefined ? console.warn(resultMessage, error) : console.warn(resultMessage);
+
+      return;
+    }
+
+    throw new Error(resultMessage, { cause: error });
   }
 
   /** Collects root, layer and solid nodes from DOM. */
@@ -150,19 +178,19 @@ export default class Immerser {
   /** Validates required markup presence and reports descriptive errors. */
   private _validateMarkup(): void {
     if (!this._rootNode) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: 'root node not found.',
         docsHash: '#prepare-your-markup',
       });
     }
     if (this._layerNodeArray.length === 0) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: 'layer nodes not found.',
         docsHash: '#prepare-your-markup',
       });
     }
     if (this._solidNodeArray.length === 0) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: 'solid nodes not found.',
         docsHash: '#prepare-your-markup',
       });
@@ -186,7 +214,7 @@ export default class Immerser {
         try {
           this._options.solidClassnameArray[layerIndex] = JSON.parse(layerNode.dataset.immerserLayerConfig);
         } catch (error) {
-          showMessageWithDocumentationLink({
+          this._report({
             message: 'Failed to parse JSON classname configuration.',
             error,
             docsHash: '#options',
@@ -201,7 +229,7 @@ export default class Immerser {
     const layerCount = this._layerNodeArray.length;
     const classnamesCount = this._options.solidClassnameArray.length;
     if (classnamesCount !== layerCount) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: 'solidClassnameArray length differs from count of layers',
         docsHash: '#options',
       });
@@ -247,9 +275,10 @@ export default class Immerser {
   private _validateClassnames(): void {
     const noClassnameConfigPassed = this._layerStateArray.every((state) => isEmpty(state.solidClassnames));
     if (noClassnameConfigPassed) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: 'immerser will do nothing without solid classname configuration.',
         docsHash: '#prepare-your-markup',
+        isWarning: true,
       });
     }
   }
@@ -417,7 +446,7 @@ export default class Immerser {
     this._isCustomMarkup = this._customMaskNodeArray.length === this._layerStateArray.length;
 
     if (this._customMaskNodeArray.length > 0 && !this._isCustomMarkup) {
-      showMessageWithDocumentationLink({
+      this._report({
         message: `You're trying use custom markup, but count of your immerser masks doesn't equal layers count.`,
         isWarning: true,
         docsHash: '#cloning-event-listeners',
@@ -756,13 +785,11 @@ export default class Immerser {
    */
   public syncScroll(): void {
     if (this._options.isScrollHandled) {
-      if (process.env.NODE_ENV !== 'production') {
-        showMessageWithDocumentationLink({
-          message: 'syncScroll requires the isScrollHandled flag set to false. Call ignored.',
-          isWarning: true,
-          docsHash: '#external-scroll-engine',
-        });
-      }
+      this._report({
+        message: 'syncScroll requires the isScrollHandled flag set to false. Call ignored.',
+        isWarning: true,
+        docsHash: '#external-scroll-engine',
+      });
       return;
     }
     this._setLayersProgress();
