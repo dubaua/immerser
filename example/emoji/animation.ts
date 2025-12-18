@@ -8,69 +8,69 @@ import { EmojiFaceConfig, deadConfig, layerConfigs } from './config';
 import { mixConfigByProgress } from './mix-config-by-progress';
 import { renderHpBar } from './render-hp-bar';
 
-const emojiAnimationDurationMs = 620;
-const facePressOffsetPx = 2;
-const MaxHP = 1000;
-const HPRegenDelayMS = 1400;
-
-type EmojiState = {
-  hp: Observable<number>;
-  hpRegen: number;
-  regenAnimation: Ogawa | null;
-  hpBarAnimation: Ogawa | null;
-  isDead: Observable<boolean>;
-  lastConfig: EmojiFaceConfig;
-  nodes: EmojiNodes[];
-};
-
-const emojiState: EmojiState = {
-  hp: new Observable(1000),
-  hpRegen: 333,
-  regenAnimation: null,
-  hpBarAnimation: null,
-  isDead: new Observable(false),
-  lastConfig: deadConfig,
-  nodes: [],
-};
-
-function startDelayedRegen(): void {
-  emojiState.regenAnimation?.pause().destroy();
-
-  const missingHp = MaxHP - emojiState.hp.value;
-  const duration = (missingHp / emojiState.hpRegen) * 1000;
-  const startHp = emojiState.hp.value;
-
-  emojiState.regenAnimation = new Ogawa({
-    duration,
-    delay: HPRegenDelayMS,
-    draw: (progress) => {
-      emojiState.hp.value = Math.min(MaxHP, startHp + missingHp * progress);
-    },
-    onComplete: () => {
-      emojiState.regenAnimation?.destroy();
-      emojiState.hpBarAnimation = new Ogawa({
-        delay: 2000,
-        duration: 320,
-        draw: (p) => {
-          renderHpBars(MaxHP, 1 - p);
-        },
-        onComplete: () => {
-          emojiState.regenAnimation?.destroy();
-        },
-      });
-    },
-  });
-}
-
-function renderHpBars(hp: number, opacity: number) {
-  emojiState.nodes.forEach((nodes) => {
-    if (nodes.hpBarOutline && nodes.hpBarFill) {
-      renderHpBar(hp, MaxHP, opacity, nodes.hpBarOutline, nodes.hpBarFill);
-    }
-  });
-}
-
 export function initEmojiAnimation(immerser: Immerser) {
+  const emojiAnimationDurationMs = 620;
+  const facePressOffsetPx = 2;
+  const MaxHP = 1000;
+  const HPRegenDelayMS = 1400;
+
+  type EmojiState = {
+    hp: Observable<number>;
+    hpRegen: number;
+    regenAnimation: Ogawa | null;
+    hpBarAnimation: Ogawa | null;
+    isDead: Observable<boolean>;
+    lastConfig: EmojiFaceConfig;
+    nodes: EmojiNodes[];
+  };
+
+  const emojiState: EmojiState = {
+    hp: new Observable(1000),
+    hpRegen: 333,
+    regenAnimation: null,
+    hpBarAnimation: null,
+    isDead: new Observable(false),
+    lastConfig: deadConfig,
+    nodes: [],
+  };
+
+  function startDelayedRegen(): void {
+    emojiState.regenAnimation?.pause().destroy();
+
+    const missingHp = MaxHP - emojiState.hp.value;
+    const duration = (missingHp / emojiState.hpRegen) * 1000;
+    const startHp = emojiState.hp.value;
+
+    emojiState.regenAnimation = new Ogawa({
+      duration,
+      delay: HPRegenDelayMS,
+      draw: (progress) => {
+        emojiState.hp.value = Math.min(MaxHP, startHp + missingHp * progress);
+      },
+      onComplete: () => {
+        emojiState.regenAnimation?.destroy();
+        emojiState.hpBarAnimation = new Ogawa({
+          delay: 2000,
+          duration: 320,
+          draw: (p) => {
+            renderHpBars(MaxHP, 1 - p);
+          },
+          onComplete: () => {
+            emojiState.regenAnimation?.destroy();
+          },
+        });
+      },
+    });
+  }
+
+  function renderHpBars(hp: number, opacity: number) {
+    emojiState.nodes.forEach((nodes) => {
+      if (nodes.hpBarOutline && nodes.hpBarFill) {
+        renderHpBar(hp, MaxHP, opacity, nodes.hpBarOutline, nodes.hpBarFill);
+      }
+    });
+  }
+
   const faceNodes = Array.from(document.querySelectorAll<HTMLElement>('[data-emoji-face]'));
 
   if (faceNodes.length === 0) {
