@@ -49,6 +49,7 @@ export function initEmojiAnimation(immerser: Immerser) {
       },
       onComplete: () => {
         emojiState.regenAnimation?.destroy();
+        emojiState.hpBarAnimation?.pause().destroy();
         emojiState.hpBarAnimation = new Ogawa({
           delay: 2000,
           duration: 320,
@@ -56,7 +57,7 @@ export function initEmojiAnimation(immerser: Immerser) {
             renderHpBars(MaxHP, 1 - p);
           },
           onComplete: () => {
-            emojiState.regenAnimation?.destroy();
+            emojiState.hpBarAnimation?.destroy();
           },
         });
       },
