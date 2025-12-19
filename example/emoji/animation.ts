@@ -7,6 +7,7 @@ import { renderEmojiFace } from './render-emoji-face';
 import { EmojiFaceConfig, deadConfig, layerConfigs } from './config';
 import { mixConfigByProgress } from './mix-config-by-progress';
 import { renderHpBar } from './render-hp-bar';
+import { initSulking } from './sulking/init-sulking';
 
 export function initEmojiAnimation(immerser: Immerser) {
   const emojiAnimationDurationMs = 620;
@@ -234,6 +235,7 @@ export function initEmojiAnimation(immerser: Immerser) {
 
               buryAnimation.destroy();
               fadeToDeadAnimation.destroy();
+              initSulking();
             },
           });
         },

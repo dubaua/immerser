@@ -1,0 +1,15 @@
+@use '../shared/globals.scss' as *;
+
+.sulk {
+  overflow: visible;
+  &__phrase {
+    position: absolute;
+    top: 39px;
+    right: $col-width * 0.5;
+    width: 250px;
+    text-align: right;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+  }
+}

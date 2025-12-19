@@ -32,6 +32,7 @@
     transform-origin: 50% 50%;
   }
   &--inverse {
+    color: $color-text--contrast;
     #{$emoji}__stroke-path {
       stroke: $color-primary;
     }
