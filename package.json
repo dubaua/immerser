@@ -78,6 +78,7 @@
     "build": "npm run lint && npm run build:options && npm run build:events && npm run build:public-fields && npm run build:readme && npm run build:docs:code && npm run build:lib && npm run build:docs && npm run build:post",
     "types": "tsc --emitDeclarationOnly && api-extractor run --local",
     "dev": "webpack serve --config ./webpack.config.docs.js --mode development --open",
+    "start": "npm run dev",
     "lint": "eslint ./src --ext .ts && eslint ./example/main.ts",
     "lint:fix": "eslint ./src --ext .ts --fix && eslint ./example/main.ts --fix"
   },
