@@ -191,4 +191,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'recipes-disable-scroll-handling-with-external-scroll':
     'turn off immerser scroll handling when using a custom engine',
   'recipes-sync-with-external-engine': 'subscribe to engine scroll event to run sync immerser',
+  'ai-usage-title': 'AI usage note',
+  'ai-usage-content': `<p>The core of the library was written in 2019 and significantly improved in 2022, before AI-assisted programming became a thing. In later iterations, AI was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.</p>
+<p>For me, AI is just another tool alongside linters, bundlers, and other means of speeding up and simplifying work. I am lazy, and my laziness pushes me toward inventing better tools.</p>
+<p>I use AI openly and consider it important to state this explicitly, because for some people it can be a deciding factor.</p>`,
 };

@@ -323,3 +323,11 @@ customScrollEngine.on('scroll', () => {
 });
 
 ```
+
+## AI usage note
+
+The core of the library was written in 2019 and significantly improved in 2022, before AI-assisted programming became a thing. In later iterations, AI was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.
+
+For me, AI is just another tool alongside linters, bundlers, and other means of speeding up and simplifying work. I am lazy, and my laziness pushes me toward inventing better tools.
+
+I use AI openly and consider it important to state this explicitly, because for some people it can be a deciding factor.

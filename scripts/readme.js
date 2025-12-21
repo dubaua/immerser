@@ -144,6 +144,10 @@ ${turndownService.turndown(en['external-scroll-engine-content'])}
 \`\`\`js
 ${externalScrollEngineCode}
 \`\`\`
+
+## ${en['ai-usage-title']}
+
+${turndownService.turndown(en['ai-usage-content'])}
 `;
 
 fs.writeFileSync(path.join(rootDir, 'README.md'), readmeContent);
