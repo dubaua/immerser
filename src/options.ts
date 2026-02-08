@@ -80,7 +80,7 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
   },
 };
 
-export const MESSAGE_PREFIX = '[immerser:]';
+export const MESSAGE_PREFIX = '[immerser]:';
 
 export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
   position: 'absolute',

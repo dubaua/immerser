@@ -204,7 +204,8 @@ export default class Immerser {
       userOptions,
       prefix: MESSAGE_PREFIX,
       suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
-    }) as Options;
+      strict: false,
+    });
   }
 
   /** Reads per-layer classname configs from data attributes if provided. */
@@ -472,7 +473,9 @@ export default class Immerser {
       return;
     }
     this._originalSolidNodeArray.forEach((childNode) => {
-      this._rootNode.removeChild(childNode);
+      if (this._rootNode.contains(childNode) && childNode.parentNode) {
+        childNode.parentNode.removeChild(childNode);
+      }
     });
   }
 
