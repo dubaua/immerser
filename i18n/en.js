@@ -56,7 +56,7 @@ and indicate active state.
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
 <p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration in
 <code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>. Otherwise, you can pass configuration as
-<code>solidClassnameArray</code> option to&nbsp;immerser. Config should contain JSON describing what class should be
+<code>solidClassnameArray</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
 applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 <p>Also feel free to&nbsp;add <code>data-immerser-pager</code> to&nbsp;create a pager for your layers.</p>
 `,
@@ -65,7 +65,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'apply-styles-content': `
 <p>
   Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;data attribute or&nbsp;options.
-  I&rsquo;m using <a href="https://en.bem.info/methodology/">BEM methodology</a> in&nbsp;this example.
+  I&rsquo;m using <a href="https://en.bem.info/methodology/"><abbr title="Block Element Modifier">BEM</abbr> methodology</a> in&nbsp;this example.
 </p>
 `,
 
@@ -87,7 +87,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
 <p>First, immerser gathers information about the layers, solids, window and document. Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer is&nbsp;partially and fully in&nbsp;viewport.</p>
-<p>After that immerser modifies DOM, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
+<p>After that immerser modifies <abbr title="Document Object Model">DOM</abbr>, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
 <p>Finally, immerser binds listeners to&nbsp;scroll and resize events. On&nbsp;resize, it&nbsp;will meter layers, the window and document heights again and recalculate the statemap.</p>
 <p>On&nbsp;scroll, immerser moves a&nbsp;mask of&nbsp;solids to&nbsp;show part of&nbsp;each solid group according to&nbsp;the layer below.</p>
 `,
@@ -124,8 +124,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'events-content':
     '<p>You can subscribe to events via the <code>on</code> option or by calling the <code>on</code> or <code>once</code> method on an immerser instance.</p>',
   'event-init': 'Emitted after initialization.',
-  'event-bind': 'Emitted after binding DOM.',
-  'event-unbind': 'Emitted after unbinding DOM.',
+  'event-bind': 'Emitted after binding <abbr title="Document Object Model">DOM</abbr>.',
+  'event-unbind': 'Emitted after unbinding <abbr title="Document Object Model">DOM</abbr>.',
   'event-destroy': 'Emitted after destroy.',
   'event-activeLayerChange': 'Emitted after active layer change.',
   'event-layersUpdate': 'Emitted on each scroll update.',
@@ -171,10 +171,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   <code>:hover</code> pseudoselector to&nbsp;style your interactive elements.
 </p>
 `,
-  'handle-dom-change-title': 'Handle DOM change',
+  'handle-dom-change-title': 'Handle <abbr title="Document Object Model">DOM</abbr> change',
   'handle-dom-change-content': `
 <p>
-  Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document 
+  Immerser is not aware of changes in <abbr title="Document Object Model">DOM</abbr>, if you dynamically add or remove nodes. If you change height of the document 
   and want immerser to recalculate and redraw solids, call <code>render</code> method on the immerser instance.
 </p>
 `,
@@ -186,13 +186,13 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
 </p>
 `,
-  'recipes-changing-dom': 'make any manipulations, that changes DOM flow',
+  'recipes-changing-dom': 'make any manipulations, that changes <abbr title="Document Object Model">DOM</abbr> flow',
   'recipes-redraw-immerser': 'then tell immerser redraw things',
   'recipes-disable-scroll-handling-with-external-scroll':
     'turn off immerser scroll handling when using a custom engine',
   'recipes-sync-with-external-engine': 'subscribe to engine scroll event to run sync immerser',
-  'ai-usage-title': 'AI usage note',
-  'ai-usage-content': `<p>The core of the library was written in 2019 and significantly improved in 2022, before AI-assisted programming became a thing. In later iterations, AI was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.</p>
-<p>For me, AI is just another tool alongside linters, bundlers, and other means of speeding up and simplifying work. I am lazy, and my laziness pushes me toward inventing better tools.</p>
-<p>I use AI openly and consider it important to state this explicitly, because for some people it can be a deciding factor.</p>`,
+  'ai-usage-title': '<abbr title="Artificial Intelligence">AI</abbr> usage note',
+  'ai-usage-content': `<p>The core of the library was written in 2019 and significantly improved in 2022, before <abbr title="Artificial Intelligence">AI</abbr>-assisted programming became a thing. In later iterations, <abbr title="Artificial Intelligence">AI</abbr> was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.</p>
+<p>For me, <abbr title="Artificial Intelligence">AI</abbr> is just another tool alongside linters, bundlers, and other means of speeding up and simplifying work. I am lazy, and my laziness pushes me toward inventing better tools.</p>
+<p>I use <abbr title="Artificial Intelligence">AI</abbr> openly and consider it important to state this explicitly, because for some people it can be a deciding factor.</p>`,
 };

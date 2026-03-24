@@ -22,7 +22,6 @@ $code-color-value--contrast: color.scale($color-highlight, $lightness: 62%, $sat
 $code-color-function: color.scale($color-accent, $lightness: 0%, $saturation: 0%);
 $code-color-function--contrast: color.scale($color-accent, $lightness: 30%, $saturation: -38%);
 
-
 $theme-prolog: $code-color-muted;
 $theme-doctype: $code-color-muted;
 $theme-comment: $code-color-muted;
@@ -68,7 +67,7 @@ $theme-variable: red;
   &--inline {
     margin-top: 0;
     padding-bottom: 0;
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
   }
   pre {
     margin: 0;
@@ -84,7 +83,7 @@ $theme-variable: red;
 code[class*='language-'],
 pre[class*='language-'] {
   background: none;
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 1em;
   text-align: left;
   white-space: pre;
@@ -234,23 +233,23 @@ pre[class*='language-'] {
   $theme-doctype: $code-color-muted--contrast;
   $theme-comment: $code-color-muted--contrast;
   $theme-cdata: $code-color-muted--contrast;
-  
+
   $theme-attr-name: $code-color-name--contrast;
   $theme-property: $code-color-name--contrast;
-  
+
   $theme-selector: $code-color-sintax--contrast;
   $theme-tag: $code-color-sintax--contrast;
   $theme-keyword: $code-color-sintax--contrast;
-  
+
   $theme-attr-value: $code-color-value--contrast;
   $theme-boolean: $code-color-value--contrast;
   $theme-string: $code-color-value--contrast;
   $theme-class-name: $code-color-value--contrast;
   $theme-number: $code-color-value--contrast;
-  
+
   $theme-punctuation: $code-color-punctuation--contrast;
   $theme-operator: $code-color-punctuation--contrast;
-  
+
   $theme-function: $code-color-function--contrast;
   $theme-deleted: $code-color-function--contrast;
   $theme-important: $code-color-function--contrast;
@@ -269,15 +268,15 @@ pre[class*='language-'] {
   .token.bold {
     font-weight: bold;
   }
-  
+
   .token.italic {
     font-style: italic;
   }
-  
+
   .token.entity {
     cursor: help;
   }
-  
+
   .token.atrule {
     color: $theme-atrule;
   }

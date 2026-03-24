@@ -26,7 +26,9 @@
       border-radius: 3px;
       margin: 0;
       padding: 4px 6px 2px;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 15px;
+      font-weight: lighter;
       vertical-align: bottom;
     }
   }
@@ -70,5 +72,12 @@
   }
   abbr[title] {
     text-decoration: none;
+    font-size: 0.875em;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-right: -0.1em;
+  }
+  h1 abbr[title] {
+    font-weight: inherit;
   }
 }
