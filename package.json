@@ -46,7 +46,7 @@
     "@zainulbr/i18n-webpack-plugin": "^2.0.3",
     "babel-loader": "^8.2.1",
     "css-loader": "^5.0.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "d3-ease": "^3.0.1",
     "eslint": "^8.57.1",
     "file-loader": "^6.2.0",
