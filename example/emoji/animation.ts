@@ -19,7 +19,7 @@ export function initEmojiAnimation(immerser: Immerser) {
     hp: Observable<number>;
     hpRegen: number;
     regenAnimation: Ogawa | null;
-    hpBarAnimation: Ogawa | null;
+    hpBarFadeOutAnimation: Ogawa | null;
     isDead: Observable<boolean>;
     lastConfig: EmojiFaceConfig;
     nodes: EmojiNodes[];
@@ -29,14 +29,21 @@ export function initEmojiAnimation(immerser: Immerser) {
     hp: new Observable(1000),
     hpRegen: 333,
     regenAnimation: null,
-    hpBarAnimation: null,
+    hpBarFadeOutAnimation: null,
     isDead: new Observable(false),
     lastConfig: deadConfig,
     nodes: [],
   };
 
+  function stopRegen(): void {
+    emojiState.regenAnimation?.destroy();
+    emojiState.regenAnimation = null;
+    emojiState.hpBarFadeOutAnimation?.destroy();
+    emojiState.hpBarFadeOutAnimation = null;
+  }
+
   function startDelayedRegen(): void {
-    emojiState.regenAnimation?.pause().destroy();
+    stopRegen();
 
     const missingHp = MaxHP - emojiState.hp.value;
     const duration = (missingHp / emojiState.hpRegen) * 1000;
@@ -49,17 +56,14 @@ export function initEmojiAnimation(immerser: Immerser) {
         emojiState.hp.value = Math.min(MaxHP, startHp + missingHp * progress);
       },
       onComplete: () => {
-        emojiState.regenAnimation?.destroy();
-        emojiState.hpBarAnimation?.pause().destroy();
-        emojiState.hpBarAnimation = new Ogawa({
+        stopRegen();
+        emojiState.hpBarFadeOutAnimation = new Ogawa({
           delay: 2000,
           duration: 320,
           draw: (p) => {
             renderHpBars(MaxHP, 1 - p);
           },
-          onComplete: () => {
-            emojiState.hpBarAnimation?.destroy();
-          },
+          onComplete: stopRegen,
         });
       },
     });
@@ -160,9 +164,13 @@ export function initEmojiAnimation(immerser: Immerser) {
     renderHpBars(hp, 1);
 
     if (isDead) {
-      emojiState.regenAnimation?.pause().destroy();
+      stopRegen();
       emojiState.isDead.value = true;
       return;
+    }
+
+    if (isHit) {
+      stopRegen();
     }
 
     if (hasMissingHp && isHit) {
@@ -199,10 +207,7 @@ export function initEmojiAnimation(immerser: Immerser) {
               });
 
               spinAnimation.pause().destroy();
-              emojiState.regenAnimation?.pause().destroy();
-              emojiState.regenAnimation = null;
-              emojiState.hpBarAnimation?.pause().destroy();
-              emojiState.hpBarAnimation = null;
+              stopRegen();
 
               emojiState.hp.reset();
               emojiState.isDead.reset();
