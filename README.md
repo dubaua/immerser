@@ -291,12 +291,12 @@ a._hover {
 }
 ```
 
-## Handle DOM change
+## Handle <abbr title="Document Object Model">DOM</abbr> change
 
 Immerser is not aware of changes in DOM, if you dynamically add or remove nodes. If you change height of the document and want immerser to recalculate and redraw solids, call `render` method on the immerser instance.
 
 ```js
-// make any manipulations, that changes DOM flow
+// make any manipulations, that changes <abbr title="Document Object Model">DOM</abbr> flow
 document.appendChild(someNode);
 document.removeChild(anotherNode);
 
@@ -324,9 +324,9 @@ customScrollEngine.on('scroll', () => {
 
 ```
 
-## AI usage note
+## <abbr title="Artificial Intelligence">AI</abbr> usage note
 
-The core of the library was written in 2019 and significantly improved in 2022, before AI-assisted programming became a thing. In later iterations, AI was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.
+The core of the library was written in 2019 and significantly improved in 2022, before AI\-assisted programming became a thing. In later iterations, AI was used as a supporting tool for infrastructure tasks, documentation updates, and generation of code generation.
 
 For me, AI is just another tool alongside linters, bundlers, and other means of speeding up and simplifying work. I am lazy, and my laziness pushes me toward inventing better tools.
 
