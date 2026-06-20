@@ -62,6 +62,7 @@
     "sass-loader": "^13.3.2",
     "turndown": "^7.0.0",
     "typescript": "^5.8.2",
+    "vitest": "^4.1.9",
     "webpack": "^5.95.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
@@ -79,6 +80,7 @@
     "types": "tsc --emitDeclarationOnly && api-extractor run --local",
     "dev": "webpack serve --config ./webpack.config.docs.js --mode development --open",
     "start": "npm run dev",
+    "test": "vitest run",
     "lint": "eslint ./src --ext .ts && eslint ./example/main.ts",
     "lint:fix": "eslint ./src --ext .ts --fix && eslint ./example/main.ts --fix"
   },
