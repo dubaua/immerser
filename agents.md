@@ -4,6 +4,8 @@
 
 - Every test block uses `it('...')`.
 - One data scenario per `it`. Only exception: checking multiple fields on the _same_ return value.
+- Every test file has one root `describe('functionName', ...)` named after the function under test.
+- Keep all tests for one function in the same file. Use nested `describe` blocks to group boundary cases, scenarios, or other contexts instead of creating separate test files for them.
 
 ## Docs & comments
 
