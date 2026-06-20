@@ -1,6 +1,6 @@
 import type { ILayerMetrics } from './types';
 
-/** Returns the nearest layer-edge scroll target when it falls within the adjustment threshold. */
+/** Returns the nearest layer-edge scroll target without clamping it to a scroll container's bounds. */
 export default function calculateScrollTarget({
   activeLayer,
   scrollAdjustThreshold,
