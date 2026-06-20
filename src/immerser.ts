@@ -1,5 +1,6 @@
 import mergeOptions from '@dubaua/merge-options';
 import Observable from '@dubaua/observable';
+import ImmerserEngine from './engine/immerser-engine';
 import {
   CROPPED_FULL_ABSOLUTE_STYLES,
   EVENT_NAMES,
@@ -18,6 +19,7 @@ import {
   isEmpty,
   wrapOnceHandler,
 } from './utils';
+import type { IEngineSnapshot } from './engine/types';
 import type {
   ActiveLayerChangeHandler,
   BaseHandler,
@@ -55,9 +57,7 @@ export default class Immerser {
   private _synchroHoverNodeArray: HTMLElement[] = [];
   private _isCustomMarkup = false;
   private _customMaskNodeArray: HTMLElement[] = [];
-  private _windowHeight = 0;
-  private _immerserTop = 0;
-  private _immerserHeight = 0;
+  private _engine!: ImmerserEngine;
   private _resizeFrameId: number | null = null;
   private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
@@ -98,6 +98,7 @@ export default class Immerser {
   /** Bootstraps nodes, options, state, listeners and emits init event. */
   private _init(userOptions?: Partial<Options>): void {
     this._mergeOptions(userOptions);
+    this._engine = new ImmerserEngine({ pagerThreshold: this._options.pagerThreshold });
     this.debug = this._options.debug;
     this._setDomNodes();
     this._validateMarkup();
@@ -256,13 +257,7 @@ export default class Immerser {
       const solidClassnames = this._options.solidClassnameArray[layerIndex];
       const { id } = layerNode;
       return {
-        beginEnter: 0,
-        beginLeave: 0,
-        endEnter: 0,
-        endLeave: 0,
         id,
-        layerBottom: 0,
-        layerTop: 0,
         maskInnerNode: null,
         maskNode: null,
         layerNode: layerNode,
@@ -299,28 +294,14 @@ export default class Immerser {
 
   /** Recalculates sizes and thresholds for each layer and updates window width observable. */
   private _setSizes(): void {
-    this._windowHeight = window.innerHeight;
-    this._immerserTop = (this._rootNode as HTMLElement).offsetTop;
-    this._immerserHeight = (this._rootNode as HTMLElement).offsetHeight;
-
-    this._layerStateArray = this._layerStateArray.map((state) => {
-      const layerTop = state.layerNode.offsetTop;
-      const layerBottom = layerTop + state.layerNode.offsetHeight;
-
-      const endEnter = layerTop - this._immerserTop;
-      const beginEnter = endEnter - this._immerserHeight;
-      const endLeave = layerBottom - this._immerserTop;
-      const beginLeave = endLeave - this._immerserHeight;
-
-      return {
-        ...state,
-        layerTop,
-        layerBottom,
-        beginEnter,
-        endEnter,
-        beginLeave,
-        endLeave,
-      } as LayerState;
+    this._engine.setLayout({
+      layers: this._layerStateArray.map(({ layerNode }) => ({
+        bottom: layerNode.offsetTop + layerNode.offsetHeight,
+        top: layerNode.offsetTop,
+      })),
+      rootHeight: (this._rootNode as HTMLElement).offsetHeight,
+      rootTop: (this._rootNode as HTMLElement).offsetTop,
+      viewportHeight: window.innerHeight,
     });
 
     this._reactiveWindowWidth.value = window.innerWidth;
@@ -355,9 +336,7 @@ export default class Immerser {
     this._synchroHoverNodeArray = [];
     this._isCustomMarkup = false;
     this._customMaskNodeArray = [];
-    this._windowHeight = 0;
-    this._immerserTop = 0;
-    this._immerserHeight = 0;
+    this._engine.reset();
     this._resizeFrameId = null;
     this._resizeObserver = null;
     this._scrollFrameId = null;
@@ -602,47 +581,20 @@ export default class Immerser {
     this._resizeObserver?.disconnect();
   }
 
-  /** Calculates per-layer progress (0..1) based on which part of screen the layer overlaps. */
-  private _setLayersProgress(scrollY?: number): void {
-    const y = scrollY ?? getLastScrollPosition().y;
-    const viewportBottom = y + this._windowHeight;
-
-    this._layerProgressArray = this._layerStateArray.map(({ layerTop, layerBottom }) => {
-      const layerHeight = layerBottom - layerTop;
-      const overlap = Math.min(layerBottom, viewportBottom) - Math.max(layerTop, y);
-      const overlapBase = Math.min(layerHeight, this._windowHeight);
-      return overlapBase <= 0 ? 0 : Math.max(0, Math.min(1, overlap / overlapBase));
-    });
+  private _calculate(scrollY?: number): IEngineSnapshot {
+    const snapshot = this._engine.calculate(scrollY ?? getLastScrollPosition().y);
+    this._layerProgressArray = [...snapshot.layerProgressArray];
+    return snapshot;
   }
 
   /** Applies transforms based on scroll position and updates active layer state. */
-  private _draw(scrollY?: number): void {
-    const y = scrollY !== undefined ? scrollY : getLastScrollPosition().y;
-    this._layerStateArray.forEach(
-      ({ beginEnter, endEnter, beginLeave, endLeave, maskNode, maskInnerNode, layerTop, layerBottom }, layerIndex) => {
-        let progress: number;
-
-        if (beginEnter > y) {
-          progress = this._immerserHeight;
-        } else if (beginEnter <= y && y < endEnter) {
-          progress = endEnter - y;
-        } else if (endEnter <= y && y < beginLeave) {
-          progress = 0;
-        } else if (beginLeave <= y && y < endLeave) {
-          progress = beginLeave - y;
-        } else {
-          progress = -this._immerserHeight;
-        }
-
-        maskNode.style.transform = `translateY(${progress}px)`;
-        maskInnerNode.style.transform = `translateY(${-progress}px)`;
-
-        const pagerScrollActivePoint = y + this._windowHeight * (1 - this._options.pagerThreshold);
-        if (layerTop <= pagerScrollActivePoint && pagerScrollActivePoint < layerBottom) {
-          this._reactiveActiveLayer.value = layerIndex;
-        }
-      },
-    );
+  private _draw(snapshot: IEngineSnapshot): void {
+    this._layerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
+      const transform = snapshot.transforms[layerIndex];
+      maskNode.style.transform = `translateY(${transform.maskTranslateY}px)`;
+      maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
+    });
+    this._reactiveActiveLayer.value = snapshot.activeIndex;
   }
 
   /** Adds or removes active pager classname according to current layer. */
@@ -677,17 +629,10 @@ export default class Immerser {
 
   /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
   private _adjustScroll(): void {
-    const { layerTop, layerBottom } = this._layerStateArray[this._reactiveActiveLayer.value as number];
     const { x, y } = getLastScrollPosition();
-    const topThreshold = Math.abs(y - layerTop);
-    const bottomThreshold = Math.abs(y + this._windowHeight - layerBottom);
-
-    if (topThreshold !== 0 && bottomThreshold !== 0) {
-      if (topThreshold <= bottomThreshold && topThreshold <= this._options.scrollAdjustThreshold) {
-        window.scrollTo(x, layerTop);
-      } else if (bottomThreshold <= topThreshold && bottomThreshold <= this._options.scrollAdjustThreshold) {
-        window.scrollTo(x, layerBottom - this._windowHeight);
-      }
+    const scrollTarget = this._engine.calculateScrollTarget(y, this._options.scrollAdjustThreshold);
+    if (scrollTarget !== null) {
+      window.scrollTo(x, scrollTarget);
     }
   }
 
@@ -700,9 +645,9 @@ export default class Immerser {
       }
       this._scrollFrameId = window.requestAnimationFrame(() => {
         const y = getLastScrollPosition().y;
-        this._setLayersProgress(y);
+        const snapshot = this._calculate(y);
         this._emit('layersUpdate', this._layerProgressArray, this);
-        this._draw(y);
+        this._draw(snapshot);
         if (this._options.scrollAdjustThreshold > 0) {
           if (this._scrollAdjustTimerId) {
             clearTimeout(this._scrollAdjustTimerId);
@@ -735,8 +680,7 @@ export default class Immerser {
     this._initHoverSynchro();
     this._attachCallbacks();
     this._isBound = true;
-    this._setLayersProgress();
-    this._draw();
+    this._draw(this._calculate());
     this._emit('bind', this);
   }
 
@@ -752,6 +696,7 @@ export default class Immerser {
     this._cleanupClonedMarkup();
     this._isBound = false;
     this._emit('unbind', this);
+    this._engine.resetActiveIndex();
     this._reactiveActiveLayer.value = undefined;
   }
 
@@ -775,8 +720,7 @@ export default class Immerser {
    */
   public render(): void {
     this._setSizes();
-    this._setLayersProgress();
-    this._draw();
+    this._draw(this._calculate());
   }
 
   /**
@@ -795,8 +739,7 @@ export default class Immerser {
       });
       return;
     }
-    this._setLayersProgress();
-    this._draw();
+    this._draw(this._calculate());
   }
 
   /** Register persistent event handler. */

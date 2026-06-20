@@ -1,15 +1,9 @@
 import type Immerser from './immerser';
 import { EVENT_NAMES } from './options';
 
-/** @internal Runtime metrics for each layer. */
+/** @internal Runtime DOM state for each layer. */
 export type LayerState = {
-  beginEnter: number;
-  beginLeave: number;
-  endEnter: number;
-  endLeave: number;
   id: string;
-  layerBottom: number;
-  layerTop: number;
   maskInnerNode: HTMLElement | null;
   maskNode: HTMLElement | null;
   layerNode: HTMLElement;
