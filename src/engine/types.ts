@@ -3,8 +3,8 @@ export interface IEngineOptions {
 }
 
 export interface ILayerMetrics {
-  bottom: number;
   top: number;
+  bottom: number;
 }
 
 export interface ILayoutMetrics {
