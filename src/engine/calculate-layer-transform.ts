@@ -21,7 +21,7 @@ export default function calculateLayerTransform(
   }
 
   return {
-    innerTranslateY: -progress,
+    innerTranslateY: progress === 0 ? 0 : -progress,
     maskTranslateY: progress,
   };
 }
