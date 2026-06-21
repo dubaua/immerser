@@ -1,6 +1,7 @@
 import Observable from '@dubaua/observable';
 import GeneratedMarkupStrategy from './markup-strategies/generated-markup-strategy';
 import ManagedMarkupStrategy from './markup-strategies/managed-markup-strategy';
+import { ImmerserSelectors } from './selectors';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
 import { MarkupModes } from '../options';
@@ -21,15 +22,7 @@ export default class ImmerserDomAdapter {
   private readonly _callbacks: IImmerserDomAdapterCallbacks;
   private readonly _engine: ImmerserEngine;
   private readonly _options: DomAdapterOptions;
-  private _selectors = {
-    root: '[data-immerser]',
-    layer: '[data-immerser-layer]',
-    solid: '[data-immerser-solid]',
-    pagerLink: '[data-immerser-pager-link]',
-    mask: '[data-immerser-mask]',
-    maskInner: '[data-immerser-mask-inner]',
-    synchroHover: '[data-immerser-synchro-hover]',
-  };
+  private _selectors = ImmerserSelectors;
   private _layerStateArray: IDomLayerState[] = [];
   private _layerStateIndexById: Record<string, number> = {};
   private _isBound = false;
