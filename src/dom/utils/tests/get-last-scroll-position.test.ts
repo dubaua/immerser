@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it } from 'vitest';
+import mockScrollMetrics, { restoreScrollMetrics } from '../../tests/mock-scroll-metrics';
 import getLastScrollPosition from '../get-last-scroll-position';
-import mockScrollMetrics, { restoreScrollMetrics } from './mock-scroll-metrics';
 
 describe('getLastScrollPosition', () => {
   afterEach(restoreScrollMetrics);
