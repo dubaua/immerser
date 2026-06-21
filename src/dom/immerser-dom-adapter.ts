@@ -3,7 +3,7 @@ import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } fr
 import assignInlineStyles from './utils/assign-inline-styles';
 import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
-import queryElementArray from './utils/query-element-array.js';
+import queryElementArray from './utils/query-element-array';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
