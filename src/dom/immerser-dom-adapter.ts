@@ -584,11 +584,15 @@ export default class ImmerserDomAdapter {
    * Safe to call multiple times; no-op when already unbound.
    */
   public unbind(): void {
+    if (!this._isBound) {
+      return;
+    }
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
     this._clearCustomSectionIds();
     this._restoreOriginalSolidNodes();
     this._cleanupClonedMarkup();
+    this._maskNodeArray = [];
     this._isBound = false;
     this._callbacks.onUnbind();
     this._engine.resetActiveIndex();
