@@ -1,8 +1,9 @@
 import Observable from '@dubaua/observable';
-import { CROPPED_FULL_ABSOLUTE_STYLES, INTERACTIVE_STYLES, NOT_INTERACTIVE_STYLES } from '../options';
 import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty } from '../utils';
+import { CROPPED_FULL_ABSOLUTE_STYLES, INTERACTIVE_STYLES, NOT_INTERACTIVE_STYLES } from './styles';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
+  DomAdapterOptions,
   IDomLayerState,
   IImmerserDomAdapterCallbacks,
   IImmerserDomAdapterParams,
@@ -10,12 +11,11 @@ import type {
   ISnapshotTransition,
 } from './types';
 import type ImmerserEngine from '../engine/immerser-engine';
-import type { Options } from '../types';
 
 export default class ImmerserDomAdapter {
   private readonly _callbacks: IImmerserDomAdapterCallbacks;
   private readonly _engine: ImmerserEngine;
-  private readonly _options: Options;
+  private readonly _options: DomAdapterOptions;
   private _selectors = {
     root: '[data-immerser]',
     layer: '[data-immerser-layer]',

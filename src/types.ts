@@ -1,5 +1,5 @@
 import type Immerser from './immerser';
-import { EVENT_NAMES } from './options';
+import { EVENT_NAMES } from './events';
 
 /** @public Map of solid id to classname. */
 export interface SolidClassnames {

@@ -1,12 +1,8 @@
 import mergeOptions from '@dubaua/merge-options';
 import ImmerserDomAdapter from './dom/immerser-dom-adapter';
 import ImmerserEngine from './engine/immerser-engine';
-import {
-  EVENT_NAMES,
-  INITIAL_DEBUG,
-  MESSAGE_PREFIX,
-  OPTION_CONFIG,
-} from './options';
+import { EVENT_NAMES } from './events';
+import { INITIAL_DEBUG, OPTION_CONFIG } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils';
 import type { IReportParams } from './dom/types';
 import type {
@@ -20,6 +16,8 @@ import type {
   Options,
   SolidClassnames,
 } from './types';
+
+const MESSAGE_PREFIX = '[immerser]:';
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {

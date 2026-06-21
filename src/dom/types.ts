@@ -2,6 +2,17 @@ import type ImmerserEngine from '../engine/immerser-engine';
 import type { IEngineSnapshot } from '../engine/types';
 import type { Options, SolidClassnames } from '../types';
 
+export type DomAdapterOptions = Pick<
+  Options,
+  | 'fromViewportWidth'
+  | 'hasToUpdateHash'
+  | 'isScrollHandled'
+  | 'pagerLinkActiveClassname'
+  | 'scrollAdjustDelay'
+  | 'scrollAdjustThreshold'
+  | 'solidClassnameArray'
+>;
+
 export interface IDomLayerState {
   id: string;
   layerNode: HTMLElement;
@@ -29,7 +40,7 @@ export interface IImmerserDomAdapterCallbacks {
 export interface IImmerserDomAdapterParams {
   callbacks: IImmerserDomAdapterCallbacks;
   engine: ImmerserEngine;
-  options: Options;
+  options: DomAdapterOptions;
 }
 
 export interface ISnapshotTransition {
