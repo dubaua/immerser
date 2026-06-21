@@ -3,7 +3,7 @@ import { CROPPED_FULL_ABSOLUTE_STYLES, INTERACTIVE_STYLES, NOT_INTERACTIVE_STYLE
 import assignInlineStyles from './utils/assign-inline-styles';
 import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
-import getNodeArray from './utils/get-node-array';
+import queryElementArray from './utils/query-element-array.js';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
@@ -79,8 +79,8 @@ export default class ImmerserDomAdapter {
   /** Collects root, layer and solid nodes from DOM. */
   private _setDomNodes(): void {
     this._rootNode = document.querySelector<HTMLElement>(this._selectors.root);
-    this._layerNodeArray = getNodeArray({ selector: this._selectors.layer });
-    this._solidNodeArray = getNodeArray({ selector: this._selectors.solid, parent: this._rootNode });
+    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer });
+    this._solidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
   }
 
   /** Validates required markup presence and reports descriptive errors. */
@@ -253,7 +253,7 @@ export default class ImmerserDomAdapter {
   private _createMarkup(): void {
     assignInlineStyles(this._rootNode as HTMLElement, NOT_INTERACTIVE_STYLES);
     this._initCustomMarkup();
-    this._originalSolidNodeArray = getNodeArray({ selector: this._selectors.solid, parent: this._rootNode });
+    this._originalSolidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
 
     this._layerStateArray = this._layerStateArray.map((state, stateIndex) => {
       // create or assign existing markup, bind styles
@@ -285,7 +285,7 @@ export default class ImmerserDomAdapter {
       });
 
       // assign class modifiers to cloned solids
-      const clonedSolidNodeList = getNodeArray<HTMLElement>({
+      const clonedSolidNodeList = queryElementArray<HTMLElement>({
         selector: this._selectors.solid,
         parent: maskInnerNode,
       });
@@ -314,7 +314,7 @@ export default class ImmerserDomAdapter {
 
   /** Validates and prepares custom masks, binding interactive styles to their children. */
   private _initCustomMarkup(): void {
-    this._customMaskNodeArray = getNodeArray({ selector: this._selectors.mask, parent: this._rootNode });
+    this._customMaskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
     this._isCustomMarkup = this._customMaskNodeArray.length === this._layerStateArray.length;
 
     if (this._customMaskNodeArray.length > 0 && !this._isCustomMarkup) {
@@ -352,7 +352,7 @@ export default class ImmerserDomAdapter {
 
   /** Parses pager links and maps them to layer indexes using href hash. */
   private _initPagerLinks(): void {
-    this._pagerLinkNodeArray = getNodeArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
+    this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
     this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
       const { href } = pagerLinkNode as HTMLAnchorElement;
       if (href) {
@@ -367,7 +367,7 @@ export default class ImmerserDomAdapter {
 
   /** Sets up synchro hover listeners and reactive updates. */
   private _initHoverSynchro(): void {
-    this._synchroHoverNodeArray = getNodeArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
+    this._synchroHoverNodeArray = queryElementArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
 
     this._onSynchroHoverMouseOver = (e: MouseEvent): void => {
       const target = e.target as HTMLElement;
@@ -435,7 +435,10 @@ export default class ImmerserDomAdapter {
           return;
         }
         immerserMaskInnerNode.removeAttribute('style');
-        const clonedSolidNodeArray = getNodeArray({ selector: this._selectors.solid, parent: immerserMaskInnerNode });
+        const clonedSolidNodeArray = queryElementArray({
+          selector: this._selectors.solid,
+          parent: immerserMaskInnerNode,
+        });
         clonedSolidNodeArray.forEach((clonedSolidNode) => {
           if ((clonedSolidNode as any).__immerserCloned) {
             immerserMaskInnerNode.removeChild(clonedSolidNode);

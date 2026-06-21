@@ -1,4 +1,4 @@
-export default function getNodeArray<T extends Element = HTMLElement>({
+export default function queryElementArray<T extends Element = HTMLElement>({
   selector,
   parent = document,
 }: {
