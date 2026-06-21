@@ -11,10 +11,14 @@ import type {
 } from './types';
 
 export default class ImmerserEngine {
-  private _activeIndex = -1;
   private _layerStateArray: ILayerCalculation[] = [];
   private _layout: ILayoutMetrics | null = null;
   private readonly _options: IEngineOptions;
+  private _snapshot: IEngineSnapshot = {
+    activeIndex: -1,
+    layerProgressArray: [],
+    transforms: [],
+  };
 
   constructor(options: IEngineOptions) {
     this._options = options;
@@ -23,6 +27,12 @@ export default class ImmerserEngine {
   public setLayout(layout: ILayoutMetrics): void {
     this._layout = layout;
     this._layerStateArray = calculateLayerStateArray(layout);
+    if (this._snapshot.layerProgressArray.length === 0) {
+      this._snapshot = {
+        ...this._snapshot,
+        layerProgressArray: layout.layers.map(() => 0),
+      };
+    }
   }
 
   public calculate(scrollY: number): IEngineSnapshot {
@@ -36,19 +46,20 @@ export default class ImmerserEngine {
     const transforms = this._layerStateArray.map((layer) =>
       calculateLayerTransform(layer, scrollY, this._layout.rootHeight),
     );
-    this._activeIndex = calculateActiveIndex(
+    const activeIndex = calculateActiveIndex(
       this._layerStateArray,
       scrollY,
       this._layout.viewportHeight,
       this._options.pagerThreshold,
-      this._activeIndex,
+      this._snapshot.activeIndex,
     );
 
-    return {
-      activeIndex: this._activeIndex,
+    this._snapshot = {
+      activeIndex,
       layerProgressArray,
       transforms,
     };
+    return this._snapshot;
   }
 
   public calculateScrollTarget(scrollY: number, scrollAdjustThreshold: number): number | null {
@@ -56,7 +67,7 @@ export default class ImmerserEngine {
       throw new Error('ImmerserEngine layout is not set.');
     }
 
-    const activeLayer = this._layerStateArray[this._activeIndex];
+    const activeLayer = this._layerStateArray[this._snapshot.activeIndex];
     if (!activeLayer) {
       return null;
     }
@@ -70,12 +81,23 @@ export default class ImmerserEngine {
   }
 
   public resetActiveIndex(): void {
-    this._activeIndex = -1;
+    this._snapshot = {
+      ...this._snapshot,
+      activeIndex: -1,
+    };
   }
 
   public reset(): void {
-    this.resetActiveIndex();
     this._layerStateArray = [];
     this._layout = null;
+    this._snapshot = {
+      activeIndex: -1,
+      layerProgressArray: [],
+      transforms: [],
+    };
+  }
+
+  public get snapshot(): IEngineSnapshot {
+    return this._snapshot;
   }
 }

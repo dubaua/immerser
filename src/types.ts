@@ -1,15 +1,6 @@
 import type Immerser from './immerser';
 import { EVENT_NAMES } from './options';
 
-/** @internal Runtime DOM state for each layer. */
-export type LayerState = {
-  id: string;
-  maskInnerNode: HTMLElement | null;
-  maskNode: HTMLElement | null;
-  layerNode: HTMLElement;
-  solidClassnames: SolidClassnames | null;
-};
-
 /** @public Map of solid id to classname. */
 export interface SolidClassnames {
   [key: string]: string;
