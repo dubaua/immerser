@@ -7,9 +7,12 @@ const turndownService = new TurndownService();
 const rootDir = path.join(__dirname, '..');
 
 function getTranslationFromTemplate(fileContent) {
-  return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) =>
-    Object.prototype.hasOwnProperty.call(en, capture) ? en[capture] : 'TRANSLATION_NOT_FOUND!',
-  );
+  return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) => {
+    if (!Object.prototype.hasOwnProperty.call(en, capture)) {
+      throw new Error(`Missing translation for "${capture}" in i18n/en.js`);
+    }
+    return en[capture];
+  });
 }
 
 const markupCode = getTranslationFromTemplate(

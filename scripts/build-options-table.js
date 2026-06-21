@@ -10,6 +10,7 @@ const rootDir = path.join(__dirname, '..');
 const htmlOutPath = path.join(rootDir, 'example', 'content', 'code', 'table.html');
 const mdOutPath = path.join(rootDir, 'example', 'content', 'code', 'table.md');
 const optionsPath = path.join(rootDir, 'src', 'options.ts');
+const typeScriptModuleCache = new Map();
 
 function translationKey(optionName) {
   return `option-${optionName}`;
@@ -24,27 +25,57 @@ function requireTranslation(optionName) {
   return value;
 }
 
-function loadOptionConfig() {
-  const src = fs
-    .readFileSync(optionsPath, 'utf8')
-    // Drop type-only imports and unused runtime imports.
-    .replace(/import\s+type\s+{[^}]+}\s+from\s+['"][^'"]+['"];?\s*/g, '')
-    .replace(/import\s+{[^}]+}\s+from\s+['"]\.\/types['"];?\s*/g, '')
-    .replace(/import\s+{[^}]+}\s+from\s+['"]@dubaua\/merge-options['"];?\s*/g, '')
-    // Rewire export to CommonJS for eval and strip type annotation.
-    .replace(/export\s+const\s+OPTION_CONFIG\s*:\s*[^=]+=/, 'exports.OPTION_CONFIG =');
+function loadTypeScriptModule(modulePath) {
+  if (typeScriptModuleCache.has(modulePath)) {
+    return typeScriptModuleCache.get(modulePath).exports;
+  }
 
-  const transpiled = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
+  const src = fs.readFileSync(modulePath, 'utf8');
+  const transpiled = ts.transpileModule(src, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+    fileName: modulePath,
+    reportDiagnostics: true,
+  });
+  if (transpiled.diagnostics.length > 0) {
+    const diagnostics = transpiled.diagnostics
+      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+      .join('\n');
+    throw new Error(`Could not transpile ${modulePath}:\n${diagnostics}`);
+  }
+  const moduleInstance = { exports: {} };
+  typeScriptModuleCache.set(modulePath, moduleInstance);
 
-  const moduleExports = {};
-  const moduleInstance = { exports: moduleExports };
+  const localRequire = (request) => {
+    if (!request.startsWith('.')) {
+      return require(request);
+    }
+
+    const resolvedPath = path.resolve(path.dirname(modulePath), request);
+    const typeScriptPath = path.extname(resolvedPath) ? resolvedPath : `${resolvedPath}.ts`;
+    if (path.extname(typeScriptPath) === '.ts' && fs.existsSync(typeScriptPath)) {
+      return loadTypeScriptModule(typeScriptPath);
+    }
+    return require(resolvedPath);
+  };
+
   const fn = new Function('exports', 'require', 'module', '__filename', '__dirname', transpiled.outputText);
-  fn(moduleExports, require, moduleInstance, optionsPath, path.dirname(optionsPath));
+  fn(moduleInstance.exports, localRequire, moduleInstance, modulePath, path.dirname(modulePath));
 
-  return moduleInstance.exports.OPTION_CONFIG;
+  return moduleInstance.exports;
 }
 
-const OPTION_CONFIG = loadOptionConfig();
+function loadOptionConfig() {
+  const optionConfig = loadTypeScriptModule(optionsPath).OptionConfig;
+  if (!optionConfig || typeof optionConfig !== 'object' || Array.isArray(optionConfig)) {
+    throw new Error('OptionConfig export not found in src/options.ts');
+  }
+  if (Object.keys(optionConfig).length === 0) {
+    throw new Error('OptionConfig does not contain any options');
+  }
+  return optionConfig;
+}
+
+const OptionConfig = loadOptionConfig();
 
 function inferType(optionName, config) {
   const value = config.default;
@@ -102,7 +133,7 @@ function getDescriptionMarkdown(optionName) {
 }
 
 function buildHtml() {
-  const rows = Object.entries(OPTION_CONFIG).map(([name, config]) => {
+  const rows = Object.entries(OptionConfig).map(([name, config]) => {
     requireTranslation(name);
     const type = inferType(name, config);
     const defaultCell = formatDefaultForHtml(type, config.default);
@@ -135,7 +166,7 @@ function buildHtml() {
 }
 
 function buildMarkdown() {
-  const rows = Object.entries(OPTION_CONFIG).map(([name, config]) => {
+  const rows = Object.entries(OptionConfig).map(([name, config]) => {
     const type = inferType(name, config);
     const def = formatDefaultForMarkdown(type, config.default);
     const desc = getDescriptionMarkdown(name);

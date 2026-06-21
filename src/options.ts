@@ -1,15 +1,13 @@
-import type { OptionConfig } from '@dubaua/merge-options';
+import type { OptionConfig as MergeOptionConfig } from '@dubaua/merge-options';
+import { EventNames } from './events';
 import type { EventName, Options } from './types';
 
-const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
+const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
 
-export const INITIAL_DEBUG = process.env.NODE_ENV === 'development';
-
-/** @public All available immerser event names. */
-export const EVENT_NAMES = ['init', 'bind', 'unbind', 'destroy', 'activeLayerChange', 'layersUpdate'] as const;
+export const InitialDebug = process.env.NODE_ENV === 'development';
 
 function classnameValidator(str: string): boolean {
-  return typeof str === 'string' && str !== '' && CLASSNAME_REGEX.test(str);
+  return typeof str === 'string' && str !== '' && ClassnameRegex.test(str);
 }
 
 function onOptionValidator(on?: Options['on']): boolean {
@@ -21,13 +19,13 @@ function onOptionValidator(on?: Options['on']): boolean {
   }
   return Object.keys(on).every(
     (eventName) =>
-      EVENT_NAMES.includes(eventName as EventName) &&
+      EventNames.includes(eventName as EventName) &&
       (on as Record<string, unknown>)[eventName] !== undefined &&
       typeof (on as Record<string, unknown>)[eventName] === 'function',
   );
 }
 
-export const OPTION_CONFIG: OptionConfig<Options> = {
+export const OptionConfig: MergeOptionConfig<Options> = {
   solidClassnameArray: {
     default: [],
     description: 'non empty array of objects',
@@ -69,7 +67,7 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     validator: (x) => typeof x === 'boolean',
   },
   debug: {
-    default: INITIAL_DEBUG,
+    default: InitialDebug,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },
@@ -78,25 +76,4 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     description: 'an object containing event handlers',
     validator: onOptionValidator,
   },
-};
-
-export const MESSAGE_PREFIX = '[immerser]:';
-
-export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
-  position: 'absolute',
-  top: '0',
-  right: '0',
-  bottom: '0',
-  left: '0',
-  overflow: 'hidden',
-};
-
-export const NOT_INTERACTIVE_STYLES: Record<string, string> = {
-  pointerEvents: 'none',
-  touchAction: 'none',
-};
-
-export const INTERACTIVE_STYLES: Record<string, string> = {
-  pointerEvents: 'all',
-  touchAction: 'auto',
 };

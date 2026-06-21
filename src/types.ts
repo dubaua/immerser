@@ -1,20 +1,5 @@
 import type Immerser from './immerser';
-import { EVENT_NAMES } from './options';
-
-/** @internal Runtime metrics for each layer. */
-export type LayerState = {
-  beginEnter: number;
-  beginLeave: number;
-  endEnter: number;
-  endLeave: number;
-  id: string;
-  layerBottom: number;
-  layerTop: number;
-  maskInnerNode: HTMLElement | null;
-  maskNode: HTMLElement | null;
-  layerNode: HTMLElement;
-  solidClassnames: SolidClassnames | null;
-};
+import { EventNames } from './events';
 
 /** @public Map of solid id to classname. */
 export interface SolidClassnames {
@@ -22,7 +7,7 @@ export interface SolidClassnames {
 }
 
 /** @public All available immerser event names. */
-export type EventName = (typeof EVENT_NAMES)[number];
+export type EventName = (typeof EventNames)[number];
 
 /** @public Base handler signature for immerser lifecycle events. */
 export type BaseHandler = (immerser: Immerser) => void;
