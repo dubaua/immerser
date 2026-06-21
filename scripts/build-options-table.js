@@ -31,7 +31,17 @@ function loadTypeScriptModule(modulePath) {
   }
 
   const src = fs.readFileSync(modulePath, 'utf8');
-  const transpiled = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
+  const transpiled = ts.transpileModule(src, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+    fileName: modulePath,
+    reportDiagnostics: true,
+  });
+  if (transpiled.diagnostics.length > 0) {
+    const diagnostics = transpiled.diagnostics
+      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+      .join('\n');
+    throw new Error(`Could not transpile ${modulePath}:\n${diagnostics}`);
+  }
   const moduleInstance = { exports: {} };
   typeScriptModuleCache.set(modulePath, moduleInstance);
 
@@ -55,7 +65,14 @@ function loadTypeScriptModule(modulePath) {
 }
 
 function loadOptionConfig() {
-  return loadTypeScriptModule(optionsPath).OptionConfig;
+  const optionConfig = loadTypeScriptModule(optionsPath).OptionConfig;
+  if (!optionConfig || typeof optionConfig !== 'object' || Array.isArray(optionConfig)) {
+    throw new Error('OptionConfig export not found in src/options.ts');
+  }
+  if (Object.keys(optionConfig).length === 0) {
+    throw new Error('OptionConfig does not contain any options');
+  }
+  return optionConfig;
 }
 
 const OptionConfig = loadOptionConfig();
