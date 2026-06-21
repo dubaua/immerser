@@ -41,6 +41,7 @@ export default class ImmerserDomAdapter {
   private _synchroHoverNodeArray: HTMLElement[] = [];
   private _isCustomMarkup = false;
   private _customMaskNodeArray: HTMLElement[] = [];
+  private _managedStyleSnapshots: Array<{ node: HTMLElement; styles: Record<string, string> }> = [];
   private _resizeFrameId: number | null = null;
   private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
@@ -235,6 +236,7 @@ export default class ImmerserDomAdapter {
     this._synchroHoverNodeArray = [];
     this._isCustomMarkup = false;
     this._customMaskNodeArray = [];
+    this._managedStyleSnapshots = [];
     this._engine.reset();
     this._resizeFrameId = null;
     this._resizeObserver = null;
@@ -250,16 +252,77 @@ export default class ImmerserDomAdapter {
     this._onSynchroHoverMouseOut = null;
   }
 
+  /** Prepares markup using the configured ownership mode. */
   private _prepareMarkup(): void {
     if (this._options.markupMode === MarkupModes.Managed) {
-      this._report({
-        message: 'managed markup mode is not implemented yet.',
-        docsHash: '#options',
-      });
+      this._connectManagedMarkup();
       return;
     }
 
     this._createGeneratedMarkup();
+  }
+
+  /** Connects existing managed masks without changing their children. */
+  private _connectManagedMarkup(): void {
+    const maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+    if (maskNodeArray.length !== this._layerStateArray.length) {
+      this._report({
+        message: 'managed markup mask count differs from count of layers.',
+        docsHash: '#prepare-your-markup',
+      });
+    }
+
+    const maskInnerNodeArray = maskNodeArray.map((maskNode, maskIndex) => {
+      const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
+      if (!maskInnerNode) {
+        this._report({
+          message: `managed markup mask-inner not found for mask at index ${maskIndex}.`,
+          docsHash: '#prepare-your-markup',
+        });
+      }
+      return maskInnerNode as HTMLElement;
+    });
+
+    this._layerStateArray = this._layerStateArray.map((state, stateIndex) => {
+      const maskNode = maskNodeArray[stateIndex];
+      const maskInnerNode = maskInnerNodeArray[stateIndex];
+      this._applyManagedStyles(maskNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+      this._applyManagedStyles(maskInnerNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+      return { ...state, maskNode, maskInnerNode };
+    });
+    this._maskNodeArray = maskNodeArray;
+  }
+
+  /** Applies managed runtime styles while preserving their previous values. */
+  private _applyManagedStyles(node: HTMLElement, styles: Record<string, string>): void {
+    const previousStyles = Object.keys(styles).reduce<Record<string, string>>((result, rule) => {
+      result[rule] = Reflect.get(node.style, rule);
+      return result;
+    }, {});
+    this._managedStyleSnapshots.push({ node, styles: previousStyles });
+    assignInlineStyles(node, styles);
+  }
+
+  /** Restores styles changed during managed markup binding. */
+  private _cleanupManagedMarkup(): void {
+    this._managedStyleSnapshots.forEach(({ node, styles }) => assignInlineStyles(node, styles));
+    this._managedStyleSnapshots = [];
+  }
+
+  /** Cleans markup using the configured ownership mode. */
+  private _cleanupMarkup(): void {
+    if (this._options.markupMode === MarkupModes.Managed) {
+      this._cleanupManagedMarkup();
+      return;
+    }
+
+    this._cleanupGeneratedMarkup();
+  }
+
+  /** Restores original solids and removes generated markup. */
+  private _cleanupGeneratedMarkup(): void {
+    this._restoreOriginalSolidNodes();
+    this._cleanupClonedMarkup();
   }
 
   /** Builds masks, clones solids, applies classes and mounts generated markup. */
@@ -603,8 +666,7 @@ export default class ImmerserDomAdapter {
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
     this._clearCustomSectionIds();
-    this._restoreOriginalSolidNodes();
-    this._cleanupClonedMarkup();
+    this._cleanupMarkup();
     this._maskNodeArray = [];
     this._isBound = false;
     this._callbacks.onUnbind();

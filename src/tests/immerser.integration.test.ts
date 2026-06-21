@@ -16,6 +16,12 @@ type SetupMarkupResult = {
   solids: HTMLElement[];
 };
 
+type SetupManagedMarkupResult = SetupMarkupResult & {
+  clientChildren: HTMLElement[];
+  maskInners: HTMLElement[];
+  masks: HTMLElement[];
+};
+
 function setElementMetrics(element: HTMLElement, { height, top }: { height: number; top: number }): void {
   Object.defineProperties(element, {
     offsetHeight: { configurable: true, value: height },
@@ -51,6 +57,40 @@ function setupMarkup(): SetupMarkupResult {
   setElementMetrics(layers[1], { height: 200, top: 200 });
 
   return { layers, root, solids };
+}
+
+function setupManagedMarkup({
+  maskCount = 2,
+  missingMaskInnerIndex = -1,
+}: { maskCount?: number; missingMaskInnerIndex?: number } = {}): SetupManagedMarkupResult {
+  const masksMarkup = Array.from({ length: maskCount }, (_, maskIndex) => {
+    const children = `
+      <span data-client-child="${maskIndex}">Client child</span>
+      <a data-immerser-solid="logo">Logo ${maskIndex}</a>
+    `;
+    return missingMaskInnerIndex === maskIndex
+      ? `<div data-immerser-mask>${children}</div>`
+      : `<div data-immerser-mask><div data-immerser-mask-inner>${children}</div></div>`;
+  }).join('');
+
+  document.body.innerHTML = `
+    <div data-immerser>${masksMarkup}</div>
+    <section data-immerser-layer id="first-layer"></section>
+    <section data-immerser-layer id="second-layer"></section>
+  `;
+
+  const root = document.querySelector<HTMLElement>('[data-immerser]') as HTMLElement;
+  const layers = Array.from(document.querySelectorAll<HTMLElement>('[data-immerser-layer]'));
+  const masks = Array.from(root.querySelectorAll<HTMLElement>(MaskSelector));
+  const maskInners = Array.from(root.querySelectorAll<HTMLElement>(MaskInnerSelector));
+  const solids = Array.from(root.querySelectorAll<HTMLElement>(SolidSelector));
+  const clientChildren = Array.from(root.querySelectorAll<HTMLElement>('[data-client-child]'));
+
+  setElementMetrics(root, { height: 400, top: 0 });
+  setElementMetrics(layers[0], { height: 200, top: 0 });
+  setElementMetrics(layers[1], { height: 200, top: 200 });
+
+  return { clientChildren, layers, maskInners, masks, root, solids };
 }
 
 function createImmerser(
@@ -116,10 +156,110 @@ describe('Immerser', () => {
     warn.mockRestore();
   });
 
-  it('fails fast when markupMode is managed', () => {
-    setupMarkup();
+  describe('managed markup', () => {
+    it('connects existing masks and mask-inner nodes when bound', () => {
+      const { maskInners, masks, root } = setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
 
-    expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow('managed markup mode is not implemented yet');
+      expect(immerser.isBound).toBe(true);
+      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
+
+      immerser.destroy();
+    });
+
+    it('keeps managed solids and client-owned children untouched when bound', () => {
+      const { clientChildren, maskInners, root, solids } = setupManagedMarkup();
+      const childArrays = maskInners.map((maskInner) => Array.from(maskInner.children));
+      const solidParents = solids.map((solid) => solid.parentNode);
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+
+      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
+      expect(maskInners.map((maskInner) => Array.from(maskInner.children))).toEqual(childArrays);
+      expect(solids.map((solid) => solid.parentNode)).toEqual(solidParents);
+
+      immerser.destroy();
+    });
+
+    it('applies runtime styles to managed masks and mask-inner nodes', () => {
+      const { maskInners, masks } = setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+
+      expect(masks.every((mask) => mask.style.position === 'absolute')).toBe(true);
+      expect(maskInners.every((maskInner) => maskInner.style.position === 'absolute')).toBe(true);
+      expect(masks.every((mask) => mask.style.transform.startsWith('translateY('))).toBe(true);
+      expect(maskInners.every((maskInner) => maskInner.style.transform.startsWith('translateY('))).toBe(true);
+
+      immerser.destroy();
+    });
+
+    it('keeps managed markup and removes adapter-owned styles when unbound', () => {
+      const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
+      masks[0].style.position = 'relative';
+      masks[0].style.transform = 'scale(1)';
+      maskInners[0].style.overflow = 'visible';
+      maskInners[0].style.transform = 'scale(2)';
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+
+      immerser.unbind();
+
+      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
+      expect(masks[0].style.position).toBe('relative');
+      expect(masks[0].style.transform).toBe('scale(1)');
+      expect(maskInners[0].style.overflow).toBe('visible');
+      expect(maskInners[0].style.transform).toBe('scale(2)');
+      expect(masks[1].style.transform).toBe('');
+      expect(maskInners[1].style.transform).toBe('');
+    });
+
+    it('fails clearly when managed mask count differs from layer count', () => {
+      setupManagedMarkup({ maskCount: 1 });
+
+      expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow(
+        'managed markup mask count differs from count of layers',
+      );
+    });
+
+    it('fails clearly when a managed mask-inner is missing', () => {
+      setupManagedMarkup({ missingMaskInnerIndex: 1 });
+
+      expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow(
+        'managed markup mask-inner not found for mask at index 1',
+      );
+    });
+
+    it('keeps managed markup stable across repeated bind and unbind cycles', () => {
+      const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+
+      immerser.unbind();
+      immerser.bind();
+      immerser.unbind();
+
+      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
+    });
+
+    it('keeps external managed markup intact when destroyed', () => {
+      const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+
+      immerser.destroy();
+
+      expect(immerser.isBound).toBe(false);
+      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
+      expect(masks.every((mask) => mask.style.transform === '')).toBe(true);
+      expect(maskInners.every((maskInner) => maskInner.style.transform === '')).toBe(true);
+    });
   });
 
   it('restores the original DOM when unbound', () => {
