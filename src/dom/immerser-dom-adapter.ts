@@ -5,6 +5,7 @@ import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
 import { MarkupModes } from '../options';
+import validateSolidClassnameArray from '../validate-solid-classname-array';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
@@ -99,7 +100,7 @@ export default class ImmerserDomAdapter {
         docsHash: '#prepare-your-markup',
       });
     }
-    if (this._solidNodeArray.length === 0) {
+    if (this._options.markupMode === MarkupModes.Generated && this._solidNodeArray.length === 0) {
       this._report({
         message: 'solid nodes not found.',
         docsHash: '#prepare-your-markup',
@@ -109,6 +110,9 @@ export default class ImmerserDomAdapter {
 
   /** Reads per-layer classname configs from data attributes if provided. */
   private _readClassnamesFromMarkup(): void {
+    if (this._options.markupMode === MarkupModes.Managed) {
+      return;
+    }
     this._layerNodeArray.forEach((layerNode, layerIndex) => {
       if (layerNode.dataset.immerserLayerConfig) {
         try {
@@ -126,11 +130,16 @@ export default class ImmerserDomAdapter {
 
   /** Ensures classname configuration length matches layers count. */
   private _validateSolidClassnameArray(): void {
-    const layerCount = this._layerNodeArray.length;
-    const classnamesCount = this._options.solidClassnameArray.length;
-    if (classnamesCount !== layerCount) {
+    if (this._options.markupMode === MarkupModes.Managed) {
+      return;
+    }
+    const validationResult = validateSolidClassnameArray(
+      this._options.solidClassnameArray,
+      this._layerNodeArray.length,
+    );
+    if (validationResult.isValid === false) {
       this._report({
-        message: 'solidClassnameArray length differs from count of layers',
+        message: validationResult.message,
         docsHash: '#options',
       });
     }
@@ -166,6 +175,9 @@ export default class ImmerserDomAdapter {
 
   /** Verifies solid classnames are configured; otherwise warns via showError. */
   private _validateClassnames(): void {
+    if (this._options.markupMode === MarkupModes.Managed) {
+      return;
+    }
     // TODO validate every classname as a non-empty DOM token because invalid values make classList.add throw.
     const noClassnameConfigPassed = this._layerStateArray.every(
       ({ solidClassnames }) => !solidClassnames || Object.keys(solidClassnames).length === 0,

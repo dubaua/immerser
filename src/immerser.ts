@@ -5,6 +5,10 @@ import { EventNames } from './events';
 import { InitialDebug, type MarkupMode, MarkupModes, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import type { IReportParams } from './dom/types';
+import validateSolidClassnameArray, {
+  type SolidClassnameArrayValidationFailureReason,
+  type SolidClassnameArrayValidationResult,
+} from './validate-solid-classname-array';
 import type {
   ActiveLayerChangeHandler,
   BaseHandler,
@@ -230,5 +234,7 @@ export type {
   MarkupMode,
   Options,
   SolidClassnames,
+  SolidClassnameArrayValidationFailureReason,
+  SolidClassnameArrayValidationResult,
 };
-export { EventNames, MarkupModes };
+export { EventNames, MarkupModes, validateSolidClassnameArray };

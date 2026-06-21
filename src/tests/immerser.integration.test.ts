@@ -60,13 +60,14 @@ function setupMarkup(): SetupMarkupResult {
 }
 
 function setupManagedMarkup({
+  hasSolids = true,
   maskCount = 2,
   missingMaskInnerIndex = -1,
-}: { maskCount?: number; missingMaskInnerIndex?: number } = {}): SetupManagedMarkupResult {
+}: { hasSolids?: boolean; maskCount?: number; missingMaskInnerIndex?: number } = {}): SetupManagedMarkupResult {
   const masksMarkup = Array.from({ length: maskCount }, (_, maskIndex) => {
     const children = `
       <span data-client-child="${maskIndex}">Client child</span>
-      <a data-immerser-solid="logo">Logo ${maskIndex}</a>
+      ${hasSolids ? `<a data-immerser-solid="logo">Logo ${maskIndex}</a>` : ''}
     `;
     return missingMaskInnerIndex === maskIndex
       ? `<div data-immerser-mask>${children}</div>`
@@ -161,6 +162,17 @@ describe('Immerser', () => {
   });
 
   describe('managed markup', () => {
+    it('binds without generated solid classname configuration', () => {
+      const { masks } = setupManagedMarkup({ hasSolids: false });
+
+      const immerser = new Immerser({ debug: false, markupMode: MarkupModes.Managed });
+
+      expect(immerser.isBound).toBe(true);
+      expect(masks.every((mask) => mask.style.transform.startsWith('translateY('))).toBe(true);
+
+      immerser.destroy();
+    });
+
     it('cancels a pending scroll frame when unbound', () => {
       const cancelAnimationFrame = vi.spyOn(window, 'cancelAnimationFrame');
       vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(17);
