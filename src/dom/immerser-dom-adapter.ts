@@ -537,6 +537,37 @@ export default class ImmerserDomAdapter {
     this._resizeObserver?.disconnect();
   }
 
+  /** Cancels the pending scroll animation frame. */
+  private _cancelScrollFrame(): void {
+    if (this._scrollFrameId !== null) {
+      window.cancelAnimationFrame(this._scrollFrameId);
+      this._scrollFrameId = null;
+    }
+  }
+
+  /** Cancels the pending resize animation frame. */
+  private _cancelResizeFrame(): void {
+    if (this._resizeFrameId !== null) {
+      window.cancelAnimationFrame(this._resizeFrameId);
+      this._resizeFrameId = null;
+    }
+  }
+
+  /** Clears the pending scroll-adjust timer. */
+  private _clearScrollAdjustTimer(): void {
+    if (this._scrollAdjustTimerId !== null) {
+      clearTimeout(this._scrollAdjustTimerId);
+      this._scrollAdjustTimerId = null;
+    }
+  }
+
+  /** Cancels deferred runtime work before bound markup is cleaned. */
+  private _cancelScheduledRuntimeWork(): void {
+    this._cancelScrollFrame();
+    this._cancelResizeFrame();
+    this._clearScrollAdjustTimer();
+  }
+
   /**
    * Captures the active index before calculation replaces the engine's current snapshot.
    * Returning both values prevents callers from reading the new index as if it were the previous one.
@@ -609,20 +640,14 @@ export default class ImmerserDomAdapter {
   /** RAF-throttled scroll handler that draws and optionally snaps scroll. */
   private _handleScroll(): void {
     if (this._isBound) {
-      if (this._scrollFrameId) {
-        window.cancelAnimationFrame(this._scrollFrameId);
-        this._scrollFrameId = null;
-      }
+      this._cancelScrollFrame();
       this._scrollFrameId = window.requestAnimationFrame(() => {
         const y = getLastScrollPosition().y;
         const { previousActiveIndex, snapshot } = this._calculateSnapshotTransition(y);
         this._callbacks.onLayersUpdate([...snapshot.layerProgressArray]);
         this._draw(snapshot, previousActiveIndex);
         if (this._options.scrollAdjustThreshold > 0) {
-          if (this._scrollAdjustTimerId) {
-            clearTimeout(this._scrollAdjustTimerId);
-            this._scrollAdjustTimerId = null;
-          }
+          this._clearScrollAdjustTimer();
           this._scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this._options.scrollAdjustDelay);
         }
       });
@@ -631,10 +656,7 @@ export default class ImmerserDomAdapter {
 
   /** RAF-throttled resize handler that recalculates sizes and redraws. */
   private _handleResize(): void {
-    if (this._resizeFrameId) {
-      window.cancelAnimationFrame(this._resizeFrameId);
-      this._resizeFrameId = null;
-    }
+    this._cancelResizeFrame();
     this._resizeFrameId = window.requestAnimationFrame(() => {
       this.render();
     });
@@ -663,6 +685,7 @@ export default class ImmerserDomAdapter {
     if (!this._isBound) {
       return;
     }
+    this._cancelScheduledRuntimeWork();
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
     this._clearCustomSectionIds();

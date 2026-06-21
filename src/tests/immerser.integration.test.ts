@@ -114,7 +114,11 @@ describe('Immerser', () => {
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: 100 });
   });
 
-  afterEach(restoreScrollMetrics);
+  afterEach(() => {
+    restoreScrollMetrics();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   it('uses generated markup by default and detaches original solids when bound', () => {
     const { root, solids } = setupMarkup();
@@ -157,6 +161,53 @@ describe('Immerser', () => {
   });
 
   describe('managed markup', () => {
+    it('cancels a pending scroll frame when unbound', () => {
+      const cancelAnimationFrame = vi.spyOn(window, 'cancelAnimationFrame');
+      vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(17);
+      setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      window.dispatchEvent(new Event('scroll'));
+
+      immerser.unbind();
+
+      expect(cancelAnimationFrame).toHaveBeenCalledWith(17);
+    });
+
+    it('cancels a pending resize frame when unbound', () => {
+      const cancelAnimationFrame = vi.spyOn(window, 'cancelAnimationFrame');
+      vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(23);
+      setupManagedMarkup();
+      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      window.dispatchEvent(new Event('resize'));
+
+      immerser.unbind();
+
+      expect(cancelAnimationFrame).toHaveBeenCalledWith(23);
+    });
+
+    it('clears a pending scroll-adjust timer when unbound', () => {
+      vi.useFakeTimers();
+      let frameCallback: FrameRequestCallback | undefined;
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameCallback = callback;
+        return 31;
+      });
+      const clearTimeout = vi.spyOn(window, 'clearTimeout');
+      setupManagedMarkup();
+      const immerser = new Immerser({
+        debug: false,
+        markupMode: MarkupModes.Managed,
+        scrollAdjustThreshold: 1,
+        solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+      });
+      window.dispatchEvent(new Event('scroll'));
+      frameCallback?.(0);
+
+      immerser.unbind();
+
+      expect(clearTimeout).toHaveBeenCalledOnce();
+    });
+
     it('connects existing masks and mask-inner nodes when bound', () => {
       const { maskInners, masks, root } = setupManagedMarkup();
       const immerser = createImmerser(undefined, MarkupModes.Managed);
