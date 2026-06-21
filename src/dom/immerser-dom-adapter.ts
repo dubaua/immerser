@@ -4,7 +4,6 @@ import assignInlineStyles from './utils/assign-inline-styles';
 import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import getNodeArray from './utils/get-node-array';
-import isEmpty from './utils/is-empty';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
@@ -165,7 +164,10 @@ export default class ImmerserDomAdapter {
 
   /** Verifies solid classnames are configured; otherwise warns via showError. */
   private _validateClassnames(): void {
-    const noClassnameConfigPassed = this._layerStateArray.every((state) => isEmpty(state.solidClassnames));
+    // TODO validate every classname as a non-empty DOM token because invalid values make classList.add throw.
+    const noClassnameConfigPassed = this._layerStateArray.every(
+      ({ solidClassnames }) => !solidClassnames || Object.keys(solidClassnames).length === 0,
+    );
     if (noClassnameConfigPassed) {
       this._report({
         message: 'immerser will do nothing without solid classname configuration.',
