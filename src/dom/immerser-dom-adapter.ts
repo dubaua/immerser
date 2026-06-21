@@ -1,7 +1,6 @@
 import Observable from '@dubaua/observable';
-import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
-import assignInlineStyles from './utils/assign-inline-styles';
-import forEachNode from './utils/for-each-node';
+import GeneratedMarkupStrategy from './markup-strategies/generated-markup-strategy';
+import ManagedMarkupStrategy from './markup-strategies/managed-markup-strategy';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
 import { MarkupModes } from '../options';
@@ -16,6 +15,7 @@ import type {
   ISnapshotTransition,
 } from './types';
 import type ImmerserEngine from '../engine/immerser-engine';
+import type { IMarkupStrategy } from './markup-strategies/types';
 
 export default class ImmerserDomAdapter {
   private readonly _callbacks: IImmerserDomAdapterCallbacks;
@@ -37,12 +37,8 @@ export default class ImmerserDomAdapter {
   private _layerNodeArray: HTMLElement[] = [];
   private _solidNodeArray: HTMLElement[] = [];
   private _pagerLinkNodeArray: HTMLElement[] = [];
-  private _originalSolidNodeArray: HTMLElement[] = [];
-  private _maskNodeArray: HTMLElement[] = [];
   private _synchroHoverNodeArray: HTMLElement[] = [];
-  private _isCustomMarkup = false;
-  private _customMaskNodeArray: HTMLElement[] = [];
-  private _managedStyleSnapshots: Array<{ node: HTMLElement; styles: Record<string, string> }> = [];
+  private _markupStrategy: IMarkupStrategy | null = null;
   private _resizeFrameId: number | null = null;
   private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
@@ -56,12 +52,14 @@ export default class ImmerserDomAdapter {
   private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
   private _onSynchroHoverMouseOut: (() => void) | null = null;
 
+  /** Stores the runtime collaborators required by the browser adapter. */
   constructor({ callbacks, engine, options }: IImmerserDomAdapterParams) {
     this._callbacks = callbacks;
     this._engine = engine;
     this._options = options;
   }
 
+  /** Discovers DOM state, validates configuration and starts responsive runtime handling. */
   public initialize(): void {
     this._setDomNodes();
     this._validateMarkup();
@@ -70,11 +68,26 @@ export default class ImmerserDomAdapter {
     this._initSectionIds();
     this._initLayerStateArray();
     this._validateClassnames();
+    this._initMarkupStrategy();
     this._toggleBindOnResizeObserver();
     this._setSizes();
     this._addScrollAndResizeListeners();
   }
 
+  /** Selects the structural markup owner after layer state has been prepared. */
+  private _initMarkupStrategy(): void {
+    const params = {
+      report: this._report.bind(this),
+      rootNode: this._rootNode as HTMLElement,
+      selectors: this._selectors,
+    };
+    this._markupStrategy =
+      this._options.markupMode === MarkupModes.Managed
+        ? new ManagedMarkupStrategy(params)
+        : new GeneratedMarkupStrategy(params);
+  }
+
+  /** Routes adapter diagnostics through the configured reporting callback. */
   private _report(params: IReportParams): void {
     this._callbacks.report(params);
   }
@@ -243,12 +256,8 @@ export default class ImmerserDomAdapter {
     this._layerNodeArray = [];
     this._solidNodeArray = [];
     this._pagerLinkNodeArray = [];
-    this._originalSolidNodeArray = [];
-    this._maskNodeArray = [];
     this._synchroHoverNodeArray = [];
-    this._isCustomMarkup = false;
-    this._customMaskNodeArray = [];
-    this._managedStyleSnapshots = [];
+    this._markupStrategy = null;
     this._engine.reset();
     this._resizeFrameId = null;
     this._resizeObserver = null;
@@ -266,176 +275,12 @@ export default class ImmerserDomAdapter {
 
   /** Prepares markup using the configured ownership mode. */
   private _prepareMarkup(): void {
-    if (this._options.markupMode === MarkupModes.Managed) {
-      this._connectManagedMarkup();
-      return;
-    }
-
-    this._createGeneratedMarkup();
-  }
-
-  /** Connects existing managed masks without changing their children. */
-  private _connectManagedMarkup(): void {
-    const maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
-    if (maskNodeArray.length !== this._layerStateArray.length) {
-      this._report({
-        message: 'managed markup mask count differs from count of layers.',
-        docsHash: '#prepare-your-markup',
-      });
-    }
-
-    const maskInnerNodeArray = maskNodeArray.map((maskNode, maskIndex) => {
-      const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
-      if (!maskInnerNode) {
-        this._report({
-          message: `managed markup mask-inner not found for mask at index ${maskIndex}.`,
-          docsHash: '#prepare-your-markup',
-        });
-      }
-      return maskInnerNode as HTMLElement;
-    });
-
-    this._layerStateArray = this._layerStateArray.map((state, stateIndex) => {
-      const maskNode = maskNodeArray[stateIndex];
-      const maskInnerNode = maskInnerNodeArray[stateIndex];
-      this._applyManagedStyles(maskNode, { ...CroppedFullAbsoluteStyles, transform: '' });
-      this._applyManagedStyles(maskInnerNode, { ...CroppedFullAbsoluteStyles, transform: '' });
-      return { ...state, maskNode, maskInnerNode };
-    });
-    this._maskNodeArray = maskNodeArray;
-  }
-
-  /** Applies managed runtime styles while preserving their previous values. */
-  private _applyManagedStyles(node: HTMLElement, styles: Record<string, string>): void {
-    const previousStyles = Object.keys(styles).reduce<Record<string, string>>((result, rule) => {
-      result[rule] = Reflect.get(node.style, rule);
-      return result;
-    }, {});
-    this._managedStyleSnapshots.push({ node, styles: previousStyles });
-    assignInlineStyles(node, styles);
-  }
-
-  /** Restores styles changed during managed markup binding. */
-  private _cleanupManagedMarkup(): void {
-    this._managedStyleSnapshots.forEach(({ node, styles }) => assignInlineStyles(node, styles));
-    this._managedStyleSnapshots = [];
+    this._layerStateArray = this._markupStrategy.prepare(this._layerStateArray);
   }
 
   /** Cleans markup using the configured ownership mode. */
   private _cleanupMarkup(): void {
-    if (this._options.markupMode === MarkupModes.Managed) {
-      this._cleanupManagedMarkup();
-      return;
-    }
-
-    this._cleanupGeneratedMarkup();
-  }
-
-  /** Restores original solids and removes generated markup. */
-  private _cleanupGeneratedMarkup(): void {
-    this._restoreOriginalSolidNodes();
-    this._cleanupClonedMarkup();
-  }
-
-  /** Builds masks, clones solids, applies classes and mounts generated markup. */
-  private _createGeneratedMarkup(): void {
-    assignInlineStyles(this._rootNode as HTMLElement, NotInteractiveStyles);
-    this._initCustomMarkup();
-    this._originalSolidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
-
-    this._layerStateArray = this._layerStateArray.map((state, stateIndex) => {
-      // create or assign existing markup, bind styles
-      const maskNode = this._isCustomMarkup ? this._customMaskNodeArray[stateIndex] : document.createElement('div');
-      assignInlineStyles(maskNode, CroppedFullAbsoluteStyles);
-
-      let maskInnerNode = this._isCustomMarkup
-        ? maskNode.querySelector<HTMLElement>(this._selectors.maskInner)
-        : document.createElement('div');
-      if (!maskInnerNode) {
-        maskInnerNode = document.createElement('div');
-      }
-      assignInlineStyles(maskInnerNode, CroppedFullAbsoluteStyles);
-
-      // mark created masks with data attributes
-      if (!this._isCustomMarkup) {
-        maskNode.dataset.immerserMask = '';
-        maskInnerNode.dataset.immerserMaskInner = '';
-      }
-
-      // clone solids to innerMask
-      this._originalSolidNodeArray.forEach((childNode) => {
-        const clonedChildNode = childNode.cloneNode(true);
-        if (clonedChildNode instanceof HTMLElement) {
-          assignInlineStyles(clonedChildNode, InteractiveStyles);
-          (clonedChildNode as any).__immerserCloned = true;
-          maskInnerNode.appendChild(clonedChildNode);
-        }
-      });
-
-      // assign class modifiers to cloned solids
-      const clonedSolidNodeList = queryElementArray<HTMLElement>({
-        selector: this._selectors.solid,
-        parent: maskInnerNode,
-      });
-      forEachNode(clonedSolidNodeList, (clonedSolidNode) => {
-        const solidId = clonedSolidNode.dataset.immerserSolid;
-        if (state.solidClassnames && Object.prototype.hasOwnProperty.call(state.solidClassnames, solidId)) {
-          clonedSolidNode.classList.add(state.solidClassnames[solidId]);
-        }
-      });
-
-      // a11y
-      if (stateIndex !== 0) {
-        maskNode.setAttribute('aria-hidden', 'true');
-      }
-
-      maskNode.appendChild(maskInnerNode);
-      this._rootNode.appendChild(maskNode);
-
-      this._maskNodeArray.push(maskNode);
-
-      return { ...state, maskNode, maskInnerNode };
-    });
-
-    this._detachOriginalSolidNodes();
-  }
-
-  /** Validates and prepares custom masks, binding interactive styles to their children. */
-  private _initCustomMarkup(): void {
-    this._customMaskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
-    this._isCustomMarkup = this._customMaskNodeArray.length === this._layerStateArray.length;
-
-    if (this._customMaskNodeArray.length > 0 && !this._isCustomMarkup) {
-      this._report({
-        message: `You're trying use custom markup, but count of your immerser masks doesn't equal layers count.`,
-        isWarning: true,
-        docsHash: '#cloning-event-listeners',
-      });
-    }
-
-    this._customMaskNodeArray.forEach((customMaskNode) => {
-      const maskInnerNode = customMaskNode.querySelector<HTMLElement>(this._selectors.maskInner);
-      if (!maskInnerNode) {
-        return;
-      }
-      Array.from(maskInnerNode.children).forEach((child) => {
-        if (child instanceof HTMLElement) {
-          assignInlineStyles(child, InteractiveStyles);
-        }
-      });
-    });
-  }
-
-  /** Removes original solid nodes from root after clones are in place. */
-  private _detachOriginalSolidNodes(): void {
-    if (!this._rootNode) {
-      return;
-    }
-    this._originalSolidNodeArray.forEach((childNode) => {
-      if (this._rootNode.contains(childNode) && childNode.parentNode) {
-        childNode.parentNode.removeChild(childNode);
-      }
-    });
+    this._markupStrategy.cleanup(this._layerStateArray);
   }
 
   /** Parses pager links and maps them to layer indexes using href hash. */
@@ -502,44 +347,7 @@ export default class ImmerserDomAdapter {
     });
   }
 
-  /** Restores original solid nodes back into the root node. */
-  private _restoreOriginalSolidNodes(): void {
-    if (!this._rootNode) {
-      return;
-    }
-    this._originalSolidNodeArray.forEach((childNode) => {
-      this._rootNode.appendChild(childNode);
-    });
-  }
-
-  /** Removes cloned markup or cleans up custom masks when unbinding. */
-  private _cleanupClonedMarkup(): void {
-    this._maskNodeArray.forEach((immerserMaskNode) => {
-      if (this._isCustomMarkup) {
-        immerserMaskNode.removeAttribute('style');
-        immerserMaskNode.removeAttribute('aria-hidden');
-        const immerserMaskInnerNode = immerserMaskNode.querySelector<HTMLElement>(this._selectors.maskInner);
-        if (!immerserMaskInnerNode) {
-          return;
-        }
-        immerserMaskInnerNode.removeAttribute('style');
-        const clonedSolidNodeArray = queryElementArray({
-          selector: this._selectors.solid,
-          parent: immerserMaskInnerNode,
-        });
-        clonedSolidNodeArray.forEach((clonedSolidNode) => {
-          if ((clonedSolidNode as any).__immerserCloned) {
-            immerserMaskInnerNode.removeChild(clonedSolidNode);
-          }
-        });
-      } else {
-        if (this._rootNode) {
-          this._rootNode.removeChild(immerserMaskNode);
-        }
-      }
-    });
-  }
-
+  /** Removes browser listeners that outlive individual bind cycles. */
   private _removeScrollAndResizeListeners(): void {
     if (this._options.isScrollHandled) {
       window.removeEventListener('scroll', this._onScroll!, false);
@@ -702,7 +510,6 @@ export default class ImmerserDomAdapter {
     this._removeSyncroHoverListeners();
     this._clearCustomSectionIds();
     this._cleanupMarkup();
-    this._maskNodeArray = [];
     this._isBound = false;
     this._callbacks.onUnbind();
     this._engine.resetActiveIndex();
@@ -752,18 +559,22 @@ export default class ImmerserDomAdapter {
     this._draw(snapshot, previousActiveIndex);
   }
 
+  /** Returns the active layer index from the latest engine snapshot. */
   public get activeIndex(): number {
     return this._engine.snapshot.activeIndex;
   }
 
+  /** Indicates whether markup and bound runtime behavior are currently active. */
   public get isBound(): boolean {
     return this._isBound;
   }
 
+  /** Exposes the root element connected during initialization. */
   public get rootNode(): HTMLElement {
     return this._rootNode;
   }
 
+  /** Returns per-layer progress values from the latest engine snapshot. */
   public get layerProgressArray(): readonly number[] {
     return this._engine.snapshot.layerProgressArray;
   }
