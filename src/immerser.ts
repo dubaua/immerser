@@ -2,7 +2,7 @@ import mergeOptions from '@dubaua/merge-options';
 import ImmerserDomAdapter from './dom/immerser-dom-adapter';
 import ImmerserEngine from './engine/immerser-engine';
 import { EventNames } from './events';
-import { InitialDebug, OptionConfig } from './options';
+import { InitialDebug, type MarkupMode, MarkupModes, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import type { IReportParams } from './dom/types';
 import type {
@@ -227,7 +227,8 @@ export type {
   EventName,
   HandlerByEventName,
   LayersUpdateHandler,
+  MarkupMode,
   Options,
   SolidClassnames,
 };
-export { EventNames };
+export { EventNames, MarkupModes };

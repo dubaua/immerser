@@ -4,6 +4,7 @@ import assignInlineStyles from './utils/assign-inline-styles';
 import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
+import { MarkupModes } from '../options';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
@@ -249,8 +250,20 @@ export default class ImmerserDomAdapter {
     this._onSynchroHoverMouseOut = null;
   }
 
+  private _prepareMarkup(): void {
+    if (this._options.markupMode === MarkupModes.Managed) {
+      this._report({
+        message: 'managed markup mode is not implemented yet.',
+        docsHash: '#options',
+      });
+      return;
+    }
+
+    this._createGeneratedMarkup();
+  }
+
   /** Builds masks, clones solids, applies classes and mounts generated markup. */
-  private _createMarkup(): void {
+  private _createGeneratedMarkup(): void {
     assignInlineStyles(this._rootNode as HTMLElement, NotInteractiveStyles);
     this._initCustomMarkup();
     this._originalSolidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
@@ -569,7 +582,7 @@ export default class ImmerserDomAdapter {
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
   public bind(): void {
-    this._createMarkup();
+    this._prepareMarkup();
     this._initPagerLinks();
     this._initHoverSynchro();
     this._attachCallbacks();

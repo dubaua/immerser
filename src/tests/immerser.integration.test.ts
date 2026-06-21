@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import mockScrollMetrics, { restoreScrollMetrics } from '../dom/tests/mock-scroll-metrics';
 import Immerser from '../immerser';
+import { type MarkupMode, MarkupModes } from '../options';
 import type { ActiveLayerChangeHandler } from '../types';
 
 const MaskSelector = '[data-immerser-mask]';
@@ -52,9 +53,13 @@ function setupMarkup(): SetupMarkupResult {
   return { layers, root, solids };
 }
 
-function createImmerser(onActiveLayerChange?: ActiveLayerChangeHandler): Immerser {
+function createImmerser(
+  onActiveLayerChange?: ActiveLayerChangeHandler,
+  markupMode?: MarkupMode,
+): Immerser {
   return new Immerser({
     debug: false,
+    ...(markupMode === undefined ? {} : { markupMode }),
     solidClassnameArray: [
       { logo: 'logo-first', menu: 'menu-first' },
       { logo: 'logo-second', menu: 'menu-second' },
@@ -71,7 +76,7 @@ describe('Immerser', () => {
 
   afterEach(restoreScrollMetrics);
 
-  it('creates generated markup and detaches original solids when bound', () => {
+  it('uses generated markup by default and detaches original solids when bound', () => {
     const { root, solids } = setupMarkup();
     const immerser = createImmerser();
     const masks = Array.from(root.querySelectorAll<HTMLElement>(MaskSelector));
@@ -84,6 +89,37 @@ describe('Immerser', () => {
     expect(solids.every((solid) => solid.parentNode === null)).toBe(true);
 
     immerser.destroy();
+  });
+
+  it('creates generated markup when markupMode is generated', () => {
+    const { root, solids } = setupMarkup();
+    const immerser = createImmerser(undefined, MarkupModes.Generated);
+
+    expect(immerser.isBound).toBe(true);
+    expect(root.querySelectorAll(MaskSelector)).toHaveLength(2);
+    expect(root.querySelectorAll(MaskInnerSelector)).toHaveLength(2);
+    expect(root.querySelectorAll(SolidSelector)).toHaveLength(4);
+    expect(solids.every((solid) => solid.parentNode === null)).toBe(true);
+
+    immerser.destroy();
+  });
+
+  it('rejects invalid markupMode values through options validation', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { root } = setupMarkup();
+    const immerser = createImmerser(undefined, 'invalid' as MarkupMode);
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Expected markupMode to be either generated or managed'));
+    expect(root.querySelectorAll(MaskSelector)).toHaveLength(2);
+
+    immerser.destroy();
+    warn.mockRestore();
+  });
+
+  it('fails fast when markupMode is managed', () => {
+    setupMarkup();
+
+    expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow('managed markup mode is not implemented yet');
   });
 
   it('restores the original DOM when unbound', () => {

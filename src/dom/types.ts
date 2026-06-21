@@ -4,6 +4,7 @@ import type { Options, SolidClassnames } from '../types';
 
 export type DomAdapterOptions = Pick<
   Options,
+  | 'markupMode'
   | 'fromViewportWidth'
   | 'hasToUpdateHash'
   | 'isScrollHandled'
