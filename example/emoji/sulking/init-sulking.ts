@@ -8,7 +8,7 @@ export function initSulking() {
   const phrases = isRu ? phrasesRu : phrasesEn;
   const { requiredPhrases, randomPhrases } = phrases;
 
-  const MOVE_LIMIT = 128;
+  const MoveLimit = 128;
 
   type SulkingState = {
     nodes: HTMLElement[];
@@ -128,7 +128,7 @@ export function initSulking() {
     const onMouseMove = () => {
       sulkingState.moveCounter += 1;
 
-      if (sulkingState.moveCounter < MOVE_LIMIT) {
+      if (sulkingState.moveCounter < MoveLimit) {
         return;
       }
 

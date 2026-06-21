@@ -1,8 +1,8 @@
 import mergeOptions from '@dubaua/merge-options';
 import ImmerserDomAdapter from './dom/immerser-dom-adapter';
 import ImmerserEngine from './engine/immerser-engine';
-import { EVENT_NAMES } from './events';
-import { INITIAL_DEBUG, OPTION_CONFIG } from './options';
+import { EventNames } from './events';
+import { InitialDebug, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import type { IReportParams } from './dom/types';
 import type {
@@ -17,7 +17,7 @@ import type {
   SolidClassnames,
 } from './types';
 
-const MESSAGE_PREFIX = '[immerser]:';
+const MessagePrefix = '[immerser]:';
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {
@@ -32,11 +32,11 @@ export default class Immerser {
   };
 
   /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
-  public debug = INITIAL_DEBUG;
+  public debug = InitialDebug;
 
   /**
    * Creates immerser instance and immediately runs setup with optional user options.
-   * @param userOptions - overrides for defaults defined in OPTION_CONFIG if pass validation
+   * @param userOptions - overrides for defaults defined in OptionConfig if pass validation
    */
   constructor(userOptions?: Partial<Options>) {
     this._init(userOptions);
@@ -67,9 +67,9 @@ export default class Immerser {
   /** Merges user options with defaults and attaches helper metadata to messages. */
   private _mergeOptions(userOptions?: Partial<Options>): Options {
     return mergeOptions({
-      optionConfig: OPTION_CONFIG,
+      optionConfig: OptionConfig,
       userOptions,
-      prefix: MESSAGE_PREFIX,
+      prefix: MessagePrefix,
       suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
       strict: false,
     });
@@ -80,7 +80,7 @@ export default class Immerser {
     if (!options.on) {
       return;
     }
-    EVENT_NAMES.forEach((eventName) => {
+    EventNames.forEach((eventName) => {
       const handler = options.on?.[eventName];
       if (typeof handler === 'function') {
         this.on(eventName, handler);
@@ -110,7 +110,7 @@ export default class Immerser {
     isWarning = false,
     docsHash = '',
   }: IReportParams): void {
-    const resultMessage = `${MESSAGE_PREFIX} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
+    const resultMessage = `${MessagePrefix} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
 
     if (isWarning) {
       if (!this.debug) {
@@ -147,7 +147,7 @@ export default class Immerser {
    */
   public destroy(): void {
     this._adapter.destroy();
-    EVENT_NAMES.forEach((eventName) => this._handlers[eventName].clear());
+    EventNames.forEach((eventName) => this._handlers[eventName].clear());
   }
 
   /**
@@ -230,4 +230,4 @@ export type {
   Options,
   SolidClassnames,
 };
-export { EVENT_NAMES };
+export { EventNames };

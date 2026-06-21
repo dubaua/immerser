@@ -1,4 +1,4 @@
-export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
+export const CroppedFullAbsoluteStyles: Record<string, string> = {
   position: 'absolute',
   top: '0',
   right: '0',
@@ -7,12 +7,12 @@ export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
   overflow: 'hidden',
 };
 
-export const NOT_INTERACTIVE_STYLES: Record<string, string> = {
+export const NotInteractiveStyles: Record<string, string> = {
   pointerEvents: 'none',
   touchAction: 'none',
 };
 
-export const INTERACTIVE_STYLES: Record<string, string> = {
+export const InteractiveStyles: Record<string, string> = {
   pointerEvents: 'all',
   touchAction: 'auto',
 };

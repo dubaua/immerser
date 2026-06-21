@@ -55,10 +55,10 @@ function loadTypeScriptModule(modulePath) {
 }
 
 function loadOptionConfig() {
-  return loadTypeScriptModule(optionsPath).OPTION_CONFIG;
+  return loadTypeScriptModule(optionsPath).OptionConfig;
 }
 
-const OPTION_CONFIG = loadOptionConfig();
+const OptionConfig = loadOptionConfig();
 
 function inferType(optionName, config) {
   const value = config.default;
@@ -116,7 +116,7 @@ function getDescriptionMarkdown(optionName) {
 }
 
 function buildHtml() {
-  const rows = Object.entries(OPTION_CONFIG).map(([name, config]) => {
+  const rows = Object.entries(OptionConfig).map(([name, config]) => {
     requireTranslation(name);
     const type = inferType(name, config);
     const defaultCell = formatDefaultForHtml(type, config.default);
@@ -149,7 +149,7 @@ function buildHtml() {
 }
 
 function buildMarkdown() {
-  const rows = Object.entries(OPTION_CONFIG).map(([name, config]) => {
+  const rows = Object.entries(OptionConfig).map(([name, config]) => {
     const type = inferType(name, config);
     const def = formatDefaultForMarkdown(type, config.default);
     const desc = getDescriptionMarkdown(name);

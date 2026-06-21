@@ -1,5 +1,5 @@
 import Observable from '@dubaua/observable';
-import { CROPPED_FULL_ABSOLUTE_STYLES, INTERACTIVE_STYLES, NOT_INTERACTIVE_STYLES } from './styles';
+import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
 import assignInlineStyles from './utils/assign-inline-styles';
 import forEachNode from './utils/for-each-node';
 import getLastScrollPosition from './utils/get-last-scroll-position';
@@ -251,14 +251,14 @@ export default class ImmerserDomAdapter {
 
   /** Builds masks, clones solids, applies classes and mounts generated markup. */
   private _createMarkup(): void {
-    assignInlineStyles(this._rootNode as HTMLElement, NOT_INTERACTIVE_STYLES);
+    assignInlineStyles(this._rootNode as HTMLElement, NotInteractiveStyles);
     this._initCustomMarkup();
     this._originalSolidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
 
     this._layerStateArray = this._layerStateArray.map((state, stateIndex) => {
       // create or assign existing markup, bind styles
       const maskNode = this._isCustomMarkup ? this._customMaskNodeArray[stateIndex] : document.createElement('div');
-      assignInlineStyles(maskNode, CROPPED_FULL_ABSOLUTE_STYLES);
+      assignInlineStyles(maskNode, CroppedFullAbsoluteStyles);
 
       let maskInnerNode = this._isCustomMarkup
         ? maskNode.querySelector<HTMLElement>(this._selectors.maskInner)
@@ -266,7 +266,7 @@ export default class ImmerserDomAdapter {
       if (!maskInnerNode) {
         maskInnerNode = document.createElement('div');
       }
-      assignInlineStyles(maskInnerNode, CROPPED_FULL_ABSOLUTE_STYLES);
+      assignInlineStyles(maskInnerNode, CroppedFullAbsoluteStyles);
 
       // mark created masks with data attributes
       if (!this._isCustomMarkup) {
@@ -278,7 +278,7 @@ export default class ImmerserDomAdapter {
       this._originalSolidNodeArray.forEach((childNode) => {
         const clonedChildNode = childNode.cloneNode(true);
         if (clonedChildNode instanceof HTMLElement) {
-          assignInlineStyles(clonedChildNode, INTERACTIVE_STYLES);
+          assignInlineStyles(clonedChildNode, InteractiveStyles);
           (clonedChildNode as any).__immerserCloned = true;
           maskInnerNode.appendChild(clonedChildNode);
         }
@@ -332,7 +332,7 @@ export default class ImmerserDomAdapter {
       }
       Array.from(maskInnerNode.children).forEach((child) => {
         if (child instanceof HTMLElement) {
-          assignInlineStyles(child, INTERACTIVE_STYLES);
+          assignInlineStyles(child, InteractiveStyles);
         }
       });
     });

@@ -1,5 +1,5 @@
 import type Immerser from './immerser';
-import { EVENT_NAMES } from './events';
+import { EventNames } from './events';
 
 /** @public Map of solid id to classname. */
 export interface SolidClassnames {
@@ -7,7 +7,7 @@ export interface SolidClassnames {
 }
 
 /** @public All available immerser event names. */
-export type EventName = (typeof EVENT_NAMES)[number];
+export type EventName = (typeof EventNames)[number];
 
 /** @public Base handler signature for immerser lifecycle events. */
 export type BaseHandler = (immerser: Immerser) => void;
