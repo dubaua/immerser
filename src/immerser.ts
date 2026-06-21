@@ -3,7 +3,7 @@ import ImmerserDomAdapter from './dom/immerser-dom-adapter';
 import ImmerserEngine from './engine/immerser-engine';
 import { EVENT_NAMES } from './events';
 import { INITIAL_DEBUG, OPTION_CONFIG } from './options';
-import { getOriginalHandler, wrapOnceHandler } from './utils';
+import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import type { IReportParams } from './dom/types';
 import type {
   ActiveLayerChangeHandler,

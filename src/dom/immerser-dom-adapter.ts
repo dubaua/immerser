@@ -1,6 +1,10 @@
 import Observable from '@dubaua/observable';
-import { bindStyles, forEachNode, getLastScrollPosition, getNodeArray, isEmpty } from '../utils';
 import { CROPPED_FULL_ABSOLUTE_STYLES, INTERACTIVE_STYLES, NOT_INTERACTIVE_STYLES } from './styles';
+import bindStyles from './utils/bind-styles';
+import forEachNode from './utils/for-each-node';
+import getLastScrollPosition from './utils/get-last-scroll-position';
+import getNodeArray from './utils/get-node-array';
+import isEmpty from './utils/is-empty';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomAdapterOptions,
