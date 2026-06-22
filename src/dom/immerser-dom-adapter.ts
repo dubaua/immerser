@@ -320,7 +320,7 @@ export default class ImmerserDomAdapter {
     }));
 
     this._onSynchroHoverMouseOver = (e: MouseEvent): void => {
-      const target = e.target as HTMLElement;
+      const target = e.currentTarget as HTMLElement;
       const synchroHoverId = target.dataset.immerserSynchroHover;
       this._reactiveSynchroHoverId.value = synchroHoverId;
     };

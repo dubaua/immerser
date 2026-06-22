@@ -282,6 +282,24 @@ describe('Immerser', () => {
     expect(root.outerHTML).toBe(initialOuterHtml);
   });
 
+  it('synchronizes hover when mouseover originates from a nested element', () => {
+    const { root } = setupMarkup();
+    const logo = root.querySelector<HTMLElement>('[data-immerser-solid="logo"]') as HTMLElement;
+    logo.dataset.immerserSynchroHover = 'logo';
+    logo.innerHTML = '<span data-logo-child>Logo</span>';
+    const immerser = createImmerser();
+    const synchroHoverNodes = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-immerser-synchro-hover="logo"]'),
+    );
+    const nestedLogoNode = synchroHoverNodes[0].querySelector<HTMLElement>('[data-logo-child]') as HTMLElement;
+
+    nestedLogoNode.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+
+    expect(synchroHoverNodes.every((node) => node.classList.contains('_hover'))).toBe(true);
+
+    immerser.destroy();
+  });
+
   it('keeps generated and restored DOM stable across repeated bind and unbind cycles', () => {
     const { root, solids } = setupMarkup();
     const immerser = createImmerser();
