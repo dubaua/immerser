@@ -525,6 +525,9 @@ export default class ImmerserDomAdapter {
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
   public bind(): void {
+    if (this._isBound) {
+      return;
+    }
     this._prepareMarkup();
     this._initPagerLinks();
     this._initHoverSynchro();

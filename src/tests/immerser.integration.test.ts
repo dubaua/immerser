@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import GeneratedMarkupStrategy from '../dom/markup-strategies/generated-markup-strategy';
 import { ImmerserSelectors } from '../dom/selectors';
 import mockScrollMetrics, { restoreScrollMetrics } from '../dom/tests/mock-scroll-metrics';
 import setupManagedMarkup from '../dom/tests/setup-managed-markup.factory';
@@ -296,6 +297,49 @@ describe('Immerser', () => {
     expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(0);
     expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(2);
     expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
+  });
+
+  it('does nothing when bind is called while already bound', () => {
+    const addEventListener = vi.spyOn(window, 'addEventListener');
+    const prepare = vi.spyOn(GeneratedMarkupStrategy.prototype, 'prepare');
+    const onBind = vi.fn();
+    const { root } = setupMarkup();
+    const immerser = new Immerser({
+      debug: false,
+      on: { bind: onBind },
+      solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+    });
+    const windowListenerCount = addEventListener.mock.calls.length;
+
+    immerser.bind();
+    immerser.bind();
+
+    expect(prepare).toHaveBeenCalledOnce();
+    expect(addEventListener).toHaveBeenCalledTimes(windowListenerCount);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(4);
+    expect(onBind).toHaveBeenCalledOnce();
+
+    immerser.destroy();
+  });
+
+  it('cleans generated markup once when unbind is called repeatedly', () => {
+    const cleanup = vi.spyOn(GeneratedMarkupStrategy.prototype, 'cleanup');
+    const onUnbind = vi.fn();
+    const { root, solids } = setupMarkup();
+    const immerser = new Immerser({
+      debug: false,
+      on: { unbind: onUnbind },
+      solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+    });
+
+    immerser.unbind();
+    immerser.unbind();
+
+    expect(cleanup).toHaveBeenCalledOnce();
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(0);
+    expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
+    expect(onUnbind).toHaveBeenCalledOnce();
   });
 
   it('cleans generated markup and restores public state when destroyed', () => {
