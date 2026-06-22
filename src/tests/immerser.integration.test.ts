@@ -1,33 +1,13 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ImmerserSelectors } from '../dom/selectors';
 import mockScrollMetrics, { restoreScrollMetrics } from '../dom/tests/mock-scroll-metrics';
+import setupManagedMarkup from '../dom/tests/setup-managed-markup.factory';
+import setupMarkup from '../dom/tests/setup-markup.factory';
 import Immerser from '../immerser';
 import { type MarkupMode, MarkupModes } from '../options';
 import type { ActiveLayerChangeHandler } from '../types';
-
-const MaskSelector = '[data-immerser-mask]';
-const MaskInnerSelector = '[data-immerser-mask-inner]';
-const SolidSelector = '[data-immerser-solid]';
-
-type SetupMarkupResult = {
-  layers: HTMLElement[];
-  root: HTMLElement;
-  solids: HTMLElement[];
-};
-
-type SetupManagedMarkupResult = SetupMarkupResult & {
-  clientChildren: HTMLElement[];
-  maskInners: HTMLElement[];
-  masks: HTMLElement[];
-};
-
-function setElementMetrics(element: HTMLElement, { height, top }: { height: number; top: number }): void {
-  Object.defineProperties(element, {
-    offsetHeight: { configurable: true, value: height },
-    offsetTop: { configurable: true, value: top },
-  });
-}
 
 function setScrollY(scrollY: number): void {
   mockScrollMetrics({
@@ -36,62 +16,6 @@ function setScrollY(scrollY: number): void {
     scrollX: 0,
     scrollY,
   });
-}
-
-function setupMarkup(): SetupMarkupResult {
-  document.body.innerHTML = `
-    <div data-immerser>
-      <a data-immerser-solid="logo">Logo</a>
-      <button data-immerser-solid="menu">Menu</button>
-    </div>
-    <section data-immerser-layer id="first-layer"></section>
-    <section data-immerser-layer id="second-layer"></section>
-  `;
-
-  const root = document.querySelector<HTMLElement>('[data-immerser]') as HTMLElement;
-  const layers = Array.from(document.querySelectorAll<HTMLElement>('[data-immerser-layer]'));
-  const solids = Array.from(root.querySelectorAll<HTMLElement>(SolidSelector));
-
-  setElementMetrics(root, { height: 400, top: 0 });
-  setElementMetrics(layers[0], { height: 200, top: 0 });
-  setElementMetrics(layers[1], { height: 200, top: 200 });
-
-  return { layers, root, solids };
-}
-
-function setupManagedMarkup({
-  hasSolids = true,
-  maskCount = 2,
-  missingMaskInnerIndex = -1,
-}: { hasSolids?: boolean; maskCount?: number; missingMaskInnerIndex?: number } = {}): SetupManagedMarkupResult {
-  const masksMarkup = Array.from({ length: maskCount }, (_, maskIndex) => {
-    const children = `
-      <span data-client-child="${maskIndex}">Client child</span>
-      ${hasSolids ? `<a data-immerser-solid="logo">Logo ${maskIndex}</a>` : ''}
-    `;
-    return missingMaskInnerIndex === maskIndex
-      ? `<div data-immerser-mask>${children}</div>`
-      : `<div data-immerser-mask><div data-immerser-mask-inner>${children}</div></div>`;
-  }).join('');
-
-  document.body.innerHTML = `
-    <div data-immerser>${masksMarkup}</div>
-    <section data-immerser-layer id="first-layer"></section>
-    <section data-immerser-layer id="second-layer"></section>
-  `;
-
-  const root = document.querySelector<HTMLElement>('[data-immerser]') as HTMLElement;
-  const layers = Array.from(document.querySelectorAll<HTMLElement>('[data-immerser-layer]'));
-  const masks = Array.from(root.querySelectorAll<HTMLElement>(MaskSelector));
-  const maskInners = Array.from(root.querySelectorAll<HTMLElement>(MaskInnerSelector));
-  const solids = Array.from(root.querySelectorAll<HTMLElement>(SolidSelector));
-  const clientChildren = Array.from(root.querySelectorAll<HTMLElement>('[data-client-child]'));
-
-  setElementMetrics(root, { height: 400, top: 0 });
-  setElementMetrics(layers[0], { height: 200, top: 0 });
-  setElementMetrics(layers[1], { height: 200, top: 200 });
-
-  return { clientChildren, layers, maskInners, masks, root, solids };
 }
 
 function createImmerser(
@@ -116,6 +40,7 @@ describe('Immerser', () => {
   });
 
   afterEach(() => {
+    document.body.innerHTML = '';
     restoreScrollMetrics();
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -124,13 +49,13 @@ describe('Immerser', () => {
   it('uses generated markup by default and detaches original solids when bound', () => {
     const { root, solids } = setupMarkup();
     const immerser = createImmerser();
-    const masks = Array.from(root.querySelectorAll<HTMLElement>(MaskSelector));
+    const masks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.mask));
 
     expect(immerser.isBound).toBe(true);
     expect(masks).toHaveLength(2);
-    expect(root.querySelectorAll(MaskInnerSelector)).toHaveLength(2);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(4);
-    expect(masks.every((mask) => mask.querySelectorAll(SolidSelector).length === 2)).toBe(true);
+    expect(root.querySelectorAll(ImmerserSelectors.maskInner)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(4);
+    expect(masks.every((mask) => mask.querySelectorAll(ImmerserSelectors.solid).length === 2)).toBe(true);
     expect(solids.every((solid) => solid.parentNode === null)).toBe(true);
 
     immerser.destroy();
@@ -141,9 +66,9 @@ describe('Immerser', () => {
     const immerser = createImmerser(undefined, MarkupModes.Generated);
 
     expect(immerser.isBound).toBe(true);
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(2);
-    expect(root.querySelectorAll(MaskInnerSelector)).toHaveLength(2);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(4);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.maskInner)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(4);
     expect(solids.every((solid) => solid.parentNode === null)).toBe(true);
 
     immerser.destroy();
@@ -155,7 +80,7 @@ describe('Immerser', () => {
     const immerser = createImmerser(undefined, 'invalid' as MarkupMode);
 
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('Expected markupMode to be either generated or managed'));
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
 
     immerser.destroy();
     warn.mockRestore();
@@ -225,8 +150,8 @@ describe('Immerser', () => {
       const immerser = createImmerser(undefined, MarkupModes.Managed);
 
       expect(immerser.isBound).toBe(true);
-      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
-      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.mask))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.maskInner))).toEqual(maskInners);
 
       immerser.destroy();
     });
@@ -237,7 +162,7 @@ describe('Immerser', () => {
       const solidParents = solids.map((solid) => solid.parentNode);
       const immerser = createImmerser(undefined, MarkupModes.Managed);
 
-      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
       expect(maskInners.map((maskInner) => Array.from(maskInner.children))).toEqual(childArrays);
       expect(solids.map((solid) => solid.parentNode)).toEqual(solidParents);
@@ -267,9 +192,9 @@ describe('Immerser', () => {
 
       immerser.unbind();
 
-      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
-      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
-      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.mask))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.maskInner))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
       expect(masks[0].style.position).toBe('relative');
       expect(masks[0].style.transform).toBe('scale(1)');
@@ -303,9 +228,9 @@ describe('Immerser', () => {
       immerser.bind();
       immerser.unbind();
 
-      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
-      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
-      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.mask))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.maskInner))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
     });
 
@@ -316,9 +241,9 @@ describe('Immerser', () => {
       immerser.destroy();
 
       expect(immerser.isBound).toBe(false);
-      expect(Array.from(root.querySelectorAll(MaskSelector))).toEqual(masks);
-      expect(Array.from(root.querySelectorAll(MaskInnerSelector))).toEqual(maskInners);
-      expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.mask))).toEqual(masks);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.maskInner))).toEqual(maskInners);
+      expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
       expect(masks.every((mask) => mask.style.transform === '')).toBe(true);
       expect(maskInners.every((maskInner) => maskInner.style.transform === '')).toBe(true);
@@ -332,9 +257,28 @@ describe('Immerser', () => {
     immerser.unbind();
 
     expect(immerser.isBound).toBe(false);
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(0);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(2);
-    expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(0);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(2);
+    expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
+  });
+
+  it('restores adapter-owned pager and synchro-hover mutations when unbound', () => {
+    const { root } = setupMarkup();
+    root.insertAdjacentHTML(
+      'beforeend',
+      `
+        <a data-immerser-pager-link href="#first-layer" class="pager-link-active" data-immerser-layer-index="99"></a>
+        <a data-immerser-pager-link href="#second-layer" class="pager-link-active"></a>
+        <span data-immerser-synchro-hover="logo" class="_hover"></span>
+        <span data-immerser-synchro-hover="logo"></span>
+      `,
+    );
+    const initialOuterHtml = root.outerHTML;
+    const immerser = createImmerser();
+
+    immerser.unbind();
+
+    expect(root.outerHTML).toBe(initialOuterHtml);
   });
 
   it('keeps generated and restored DOM stable across repeated bind and unbind cycles', () => {
@@ -344,14 +288,14 @@ describe('Immerser', () => {
     immerser.unbind();
     immerser.bind();
 
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(2);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(4);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(4);
 
     immerser.unbind();
 
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(0);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(2);
-    expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(0);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(2);
+    expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
   });
 
   it('cleans generated markup and restores public state when destroyed', () => {
@@ -362,9 +306,9 @@ describe('Immerser', () => {
 
     expect(immerser.isBound).toBe(false);
     expect(immerser.activeIndex).toBe(-1);
-    expect(root.querySelectorAll(MaskSelector)).toHaveLength(0);
-    expect(root.querySelectorAll(SolidSelector)).toHaveLength(2);
-    expect(Array.from(root.querySelectorAll(SolidSelector))).toEqual(solids);
+    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(0);
+    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(2);
+    expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
   });
 
   it('emits active layer changes with the public callback argument order', () => {

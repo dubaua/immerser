@@ -8,7 +8,11 @@ export default class ManagedMarkupStrategy implements IMarkupStrategy {
   private readonly _report: IMarkupStrategyParams['report'];
   private readonly _rootNode: HTMLElement;
   private readonly _selectors: IMarkupSelectors;
-  private _styleSnapshots: Array<{ node: HTMLElement; styles: Record<string, string> }> = [];
+  private _styleSnapshots: Array<{
+    hadStyleAttribute: boolean;
+    node: HTMLElement;
+    styles: Record<string, string>;
+  }> = [];
 
   constructor({ report, rootNode, selectors }: IMarkupStrategyParams) {
     this._report = report;
@@ -18,23 +22,30 @@ export default class ManagedMarkupStrategy implements IMarkupStrategy {
 
   /** Connects client-owned masks to layer states without changing their children. */
   public prepare(layerStateArray: IDomLayerState[]): IDomLayerState[] {
+    if (this._styleSnapshots.length > 0) {
+      this.cleanup();
+    }
     const maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
     if (maskNodeArray.length !== layerStateArray.length) {
+      const message = 'managed markup mask count differs from count of layers.';
       this._report({
-        message: 'managed markup mask count differs from count of layers.',
+        message,
         docsHash: '#prepare-your-markup',
       });
+      throw new Error(message);
     }
 
     const maskInnerNodeArray = maskNodeArray.map((maskNode, maskIndex) => {
       const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
       if (!maskInnerNode) {
+        const message = `managed markup mask-inner not found for mask at index ${maskIndex}.`;
         this._report({
-          message: `managed markup mask-inner not found for mask at index ${maskIndex}.`,
+          message,
           docsHash: '#prepare-your-markup',
         });
+        throw new Error(message);
       }
-      return maskInnerNode as HTMLElement;
+      return maskInnerNode;
     });
 
     return layerStateArray.map((state, stateIndex) => {
@@ -46,9 +57,14 @@ export default class ManagedMarkupStrategy implements IMarkupStrategy {
     });
   }
 
-  /** Restores inline styles changed while managed markup was bound. */
+  /** Restores strategy-owned inline style properties changed during managed binding. */
   public cleanup(): void {
-    this._styleSnapshots.forEach(({ node, styles }) => assignInlineStyles(node, styles));
+    this._styleSnapshots.slice().reverse().forEach(({ hadStyleAttribute, node, styles }) => {
+      assignInlineStyles(node, styles);
+      if (!hadStyleAttribute && node.getAttribute('style') === '') {
+        node.removeAttribute('style');
+      }
+    });
     this._styleSnapshots = [];
   }
 
@@ -58,7 +74,11 @@ export default class ManagedMarkupStrategy implements IMarkupStrategy {
       result[rule] = Reflect.get(node.style, rule);
       return result;
     }, {});
-    this._styleSnapshots.push({ node, styles: previousStyles });
+    this._styleSnapshots.push({
+      hadStyleAttribute: node.hasAttribute('style'),
+      node,
+      styles: previousStyles,
+    });
     assignInlineStyles(node, styles);
   }
 }
