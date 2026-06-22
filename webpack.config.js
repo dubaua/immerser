@@ -32,7 +32,7 @@ module.exports = {
       new TerserPlugin({
         terserOptions: {
           mangle: {
-            reserved: ['Immerser'],
+            reserved: ['Immerser', 'ImmerserDomController', 'ImmerserMarkupController', 'ImmerserEngine'],
           },
         },
       }),

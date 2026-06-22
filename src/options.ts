@@ -6,15 +6,6 @@ const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
 
 export const InitialDebug = process.env.NODE_ENV === 'development';
 
-/** @public Supported markup preparation modes. */
-export const MarkupModes = {
-  Generated: 'generated',
-  Managed: 'managed',
-} as const;
-
-/** @public Markup preparation mode derived from MarkupModes. */
-export type MarkupMode = (typeof MarkupModes)[keyof typeof MarkupModes];
-
 function classnameValidator(str: string): boolean {
   return typeof str === 'string' && str !== '' && ClassnameRegex.test(str);
 }
@@ -35,11 +26,6 @@ function onOptionValidator(on?: Options['on']): boolean {
 }
 
 export const OptionConfig: MergeOptionConfig<Options> = {
-  markupMode: {
-    default: MarkupModes.Generated,
-    description: `either ${MarkupModes.Generated} or ${MarkupModes.Managed}`,
-    validator: (x) => x === MarkupModes.Generated || x === MarkupModes.Managed,
-  },
   solidClassnameArray: {
     default: [],
     description: 'non empty array of objects',

@@ -1,6 +1,5 @@
 import type Immerser from './immerser';
 import { EventNames } from './events';
-import type { MarkupMode } from './options';
 
 /** @public Map of solid id to classname. */
 export interface SolidClassnames {
@@ -40,8 +39,6 @@ export type EventHandlers = { [K in EventName]?: HandlerByEventName[K] };
 
 /** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
 export type Options = {
-  /** Determines whether immerser generates markup or connects to managed markup. */
-  markupMode: MarkupMode;
   /** Per-layer map of solid id → classname; can be overridden per layer via data-immerser-layer-config. */
   solidClassnameArray: SolidClassnames[];
   /** Minimal viewport width (px) at which immerser binds; below it will unbind. */

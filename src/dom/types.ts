@@ -2,9 +2,8 @@ import type ImmerserEngine from '../engine/immerser-engine';
 import type { IEngineSnapshot } from '../engine/types';
 import type { Options, SolidClassnames } from '../types';
 
-export type DomAdapterOptions = Pick<
+export type DomControllerOptions = Pick<
   Options,
-  | 'markupMode'
   | 'fromViewportWidth'
   | 'hasToUpdateHash'
   | 'isScrollHandled'
@@ -29,7 +28,7 @@ export interface IReportParams {
   message: string;
 }
 
-export interface IImmerserDomAdapterCallbacks {
+export interface IImmerserDomControllerCallbacks {
   onActiveLayerChange(layerIndex: number): void;
   onBind(): void;
   onDestroy(): void;
@@ -38,10 +37,10 @@ export interface IImmerserDomAdapterCallbacks {
   report(params: IReportParams): void;
 }
 
-export interface IImmerserDomAdapterParams {
-  callbacks: IImmerserDomAdapterCallbacks;
+export interface IImmerserDomControllerParams {
+  callbacks: IImmerserDomControllerCallbacks;
   engine: ImmerserEngine;
-  options: DomAdapterOptions;
+  options: DomControllerOptions;
 }
 
 export interface ISnapshotTransition {

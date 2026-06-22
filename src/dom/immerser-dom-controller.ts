@@ -1,22 +1,19 @@
 import Observable from '@dubaua/observable';
-import GeneratedMarkupStrategy from './markup-strategies/generated-markup-strategy';
-import ManagedMarkupStrategy from './markup-strategies/managed-markup-strategy';
+import ImmerserMarkupController from './immerser-markup-controller';
 import { ImmerserSelectors } from './selectors';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
-import { MarkupModes } from '../options';
 import validateSolidClassnameArray from '../validate-solid-classname-array';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
-  DomAdapterOptions,
+  DomControllerOptions,
   IDomLayerState,
-  IImmerserDomAdapterCallbacks,
-  IImmerserDomAdapterParams,
+  IImmerserDomControllerCallbacks,
+  IImmerserDomControllerParams,
   IReportParams,
   ISnapshotTransition,
 } from './types';
 import type ImmerserEngine from '../engine/immerser-engine';
-import type { IMarkupStrategy } from './markup-strategies/types';
 
 type PagerLinkSnapshot = {
   hadActiveClass: boolean;
@@ -29,22 +26,21 @@ type SynchroHoverSnapshot = {
   node: HTMLElement;
 };
 
-export default class ImmerserDomAdapter {
-  private readonly _callbacks: IImmerserDomAdapterCallbacks;
+export default class ImmerserDomController {
+  private readonly _callbacks: IImmerserDomControllerCallbacks;
   private readonly _engine: ImmerserEngine;
-  private readonly _options: DomAdapterOptions;
+  private readonly _options: DomControllerOptions;
   private _selectors = ImmerserSelectors;
   private _layerStateArray: IDomLayerState[] = [];
   private _layerStateIndexById: Record<string, number> = {};
   private _isBound = false;
   private _rootNode: HTMLElement | null = null;
   private _layerNodeArray: HTMLElement[] = [];
-  private _solidNodeArray: HTMLElement[] = [];
   private _pagerLinkNodeArray: HTMLElement[] = [];
   private _pagerLinkSnapshots: PagerLinkSnapshot[] = [];
   private _synchroHoverNodeArray: HTMLElement[] = [];
   private _synchroHoverSnapshots: SynchroHoverSnapshot[] = [];
-  private _markupStrategy: IMarkupStrategy | null = null;
+  private _markupController: ImmerserMarkupController | null = null;
   private _resizeFrameId: number | null = null;
   private _resizeObserver: ResizeObserver | null = null;
   private _scrollFrameId: number | null = null;
@@ -58,8 +54,8 @@ export default class ImmerserDomAdapter {
   private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
   private _onSynchroHoverMouseOut: (() => void) | null = null;
 
-  /** Stores the runtime collaborators required by the browser adapter. */
-  constructor({ callbacks, engine, options }: IImmerserDomAdapterParams) {
+  /** Stores the runtime collaborators required by the DOM controller. */
+  constructor({ callbacks, engine, options }: IImmerserDomControllerParams) {
     this._callbacks = callbacks;
     this._engine = engine;
     this._options = options;
@@ -73,27 +69,22 @@ export default class ImmerserDomAdapter {
     this._validateSolidClassnameArray();
     this._initSectionIds();
     this._initLayerStateArray();
-    this._validateClassnames();
-    this._initMarkupStrategy();
+    this._initMarkupController();
     this._toggleBindOnResizeObserver();
     this._setSizes();
     this._addScrollAndResizeListeners();
   }
 
-  /** Selects the structural markup owner after layer state has been prepared. */
-  private _initMarkupStrategy(): void {
-    const params = {
+  /** Creates the controller that derives markup ownership from the current DOM. */
+  private _initMarkupController(): void {
+    this._markupController = new ImmerserMarkupController({
       report: this._report.bind(this),
       rootNode: this._rootNode as HTMLElement,
       selectors: this._selectors,
-    };
-    this._markupStrategy =
-      this._options.markupMode === MarkupModes.Managed
-        ? new ManagedMarkupStrategy(params)
-        : new GeneratedMarkupStrategy(params);
+    });
   }
 
-  /** Routes adapter diagnostics through the configured reporting callback. */
+  /** Routes DOM controller diagnostics through the configured reporting callback. */
   private _report(params: IReportParams): void {
     this._callbacks.report(params);
   }
@@ -102,7 +93,6 @@ export default class ImmerserDomAdapter {
   private _setDomNodes(): void {
     this._rootNode = document.querySelector<HTMLElement>(this._selectors.root);
     this._layerNodeArray = queryElementArray({ selector: this._selectors.layer });
-    this._solidNodeArray = queryElementArray({ selector: this._selectors.solid, parent: this._rootNode });
   }
 
   /** Validates required markup presence and reports descriptive errors. */
@@ -119,19 +109,10 @@ export default class ImmerserDomAdapter {
         docsHash: '#prepare-your-markup',
       });
     }
-    if (this._options.markupMode === MarkupModes.Generated && this._solidNodeArray.length === 0) {
-      this._report({
-        message: 'solid nodes not found.',
-        docsHash: '#prepare-your-markup',
-      });
-    }
   }
 
   /** Reads per-layer classname configs from data attributes if provided. */
   private _readClassnamesFromMarkup(): void {
-    if (this._options.markupMode === MarkupModes.Managed) {
-      return;
-    }
     this._layerNodeArray.forEach((layerNode, layerIndex) => {
       if (layerNode.dataset.immerserLayerConfig) {
         try {
@@ -149,7 +130,7 @@ export default class ImmerserDomAdapter {
 
   /** Ensures classname configuration length matches layers count. */
   private _validateSolidClassnameArray(): void {
-    if (this._options.markupMode === MarkupModes.Managed) {
+    if (this._options.solidClassnameArray.length === 0) {
       return;
     }
     const validationResult = validateSolidClassnameArray(
@@ -190,24 +171,6 @@ export default class ImmerserDomAdapter {
         solidClassnames,
       } as IDomLayerState;
     });
-  }
-
-  /** Verifies solid classnames are configured; otherwise warns via showError. */
-  private _validateClassnames(): void {
-    if (this._options.markupMode === MarkupModes.Managed) {
-      return;
-    }
-    // TODO validate every classname as a non-empty DOM token because invalid values make classList.add throw.
-    const noClassnameConfigPassed = this._layerStateArray.every(
-      ({ solidClassnames }) => !solidClassnames || Object.keys(solidClassnames).length === 0,
-    );
-    if (noClassnameConfigPassed) {
-      this._report({
-        message: 'immerser will do nothing without solid classname configuration.',
-        docsHash: '#prepare-your-markup',
-        isWarning: true,
-      });
-    }
   }
 
   /** Subscribes to window width changes to bind/unbind based on breakpoint. */
@@ -260,12 +223,11 @@ export default class ImmerserDomAdapter {
     this._isBound = false;
     this._rootNode = null;
     this._layerNodeArray = [];
-    this._solidNodeArray = [];
     this._pagerLinkNodeArray = [];
     this._pagerLinkSnapshots = [];
     this._synchroHoverNodeArray = [];
     this._synchroHoverSnapshots = [];
-    this._markupStrategy = null;
+    this._markupController = null;
     this._engine.reset();
     this._resizeFrameId = null;
     this._resizeObserver = null;
@@ -281,14 +243,14 @@ export default class ImmerserDomAdapter {
     this._onSynchroHoverMouseOut = null;
   }
 
-  /** Prepares markup using the configured ownership mode. */
+  /** Prepares markup from the current DOM structure. */
   private _prepareMarkup(): void {
-    this._layerStateArray = this._markupStrategy.prepare(this._layerStateArray);
+    this._layerStateArray = this._markupController.prepare(this._layerStateArray);
   }
 
-  /** Cleans markup using the configured ownership mode. */
+  /** Restores markup according to controller-recorded ownership. */
   private _cleanupMarkup(): void {
-    this._markupStrategy.cleanup(this._layerStateArray);
+    this._markupController.cleanup();
   }
 
   /** Parses pager links and maps them to layer indexes using href hash. */

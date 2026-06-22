@@ -105,8 +105,6 @@ module.exports = {
   description: 'описание',
   name: 'название',
 
-  'option-markupMode':
-    'Определяет, генерируется ли разметка Immerser’ом или управляется извне, обычно через обёртку рендер-фреймворка',
   'option-solidClassnameArray':
     'Массив настроек слоев. Конфигурация, переданная в data-immerser-layer-config перезапишет эту настройку для соответствующего слоя. Пример конфигурации <a href="#initialize-immerser">показан выше</a>',
   'option-fromViewportWidth': 'Минимальная ширина окна для инициализации иммёрсера',

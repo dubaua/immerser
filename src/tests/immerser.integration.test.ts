@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import GeneratedMarkupStrategy from '../dom/markup-strategies/generated-markup-strategy';
+import ImmerserMarkupController from '../dom/immerser-markup-controller';
 import { ImmerserSelectors } from '../dom/selectors';
 import mockScrollMetrics, { restoreScrollMetrics } from '../dom/tests/mock-scroll-metrics';
 import setupManagedMarkup from '../dom/tests/setup-managed-markup.factory';
 import setupMarkup from '../dom/tests/setup-markup.factory';
 import Immerser from '../immerser';
-import { type MarkupMode, MarkupModes } from '../options';
 import type { ActiveLayerChangeHandler } from '../types';
 
 function setScrollY(scrollY: number): void {
@@ -19,13 +18,9 @@ function setScrollY(scrollY: number): void {
   });
 }
 
-function createImmerser(
-  onActiveLayerChange?: ActiveLayerChangeHandler,
-  markupMode?: MarkupMode,
-): Immerser {
+function createImmerser(onActiveLayerChange?: ActiveLayerChangeHandler): Immerser {
   return new Immerser({
     debug: false,
-    ...(markupMode === undefined ? {} : { markupMode }),
     solidClassnameArray: [
       { logo: 'logo-first', menu: 'menu-first' },
       { logo: 'logo-second', menu: 'menu-second' },
@@ -62,36 +57,11 @@ describe('Immerser', () => {
     immerser.destroy();
   });
 
-  it('creates generated markup when markupMode is generated', () => {
-    const { root, solids } = setupMarkup();
-    const immerser = createImmerser(undefined, MarkupModes.Generated);
-
-    expect(immerser.isBound).toBe(true);
-    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
-    expect(root.querySelectorAll(ImmerserSelectors.maskInner)).toHaveLength(2);
-    expect(root.querySelectorAll(ImmerserSelectors.solid)).toHaveLength(4);
-    expect(solids.every((solid) => solid.parentNode === null)).toBe(true);
-
-    immerser.destroy();
-  });
-
-  it('rejects invalid markupMode values through options validation', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const { root } = setupMarkup();
-    const immerser = createImmerser(undefined, 'invalid' as MarkupMode);
-
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Expected markupMode to be either generated or managed'));
-    expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
-
-    immerser.destroy();
-    warn.mockRestore();
-  });
-
-  describe('managed markup', () => {
+  describe('existing markup', () => {
     it('binds without generated solid classname configuration', () => {
       const { masks } = setupManagedMarkup({ hasSolids: false });
 
-      const immerser = new Immerser({ debug: false, markupMode: MarkupModes.Managed });
+      const immerser = new Immerser({ debug: false });
 
       expect(immerser.isBound).toBe(true);
       expect(masks.every((mask) => mask.style.transform.startsWith('translateY('))).toBe(true);
@@ -103,7 +73,7 @@ describe('Immerser', () => {
       const cancelAnimationFrame = vi.spyOn(window, 'cancelAnimationFrame');
       vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(17);
       setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
       window.dispatchEvent(new Event('scroll'));
 
       immerser.unbind();
@@ -115,7 +85,7 @@ describe('Immerser', () => {
       const cancelAnimationFrame = vi.spyOn(window, 'cancelAnimationFrame');
       vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(23);
       setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
       window.dispatchEvent(new Event('resize'));
 
       immerser.unbind();
@@ -134,7 +104,6 @@ describe('Immerser', () => {
       setupManagedMarkup();
       const immerser = new Immerser({
         debug: false,
-        markupMode: MarkupModes.Managed,
         scrollAdjustThreshold: 1,
         solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
       });
@@ -148,7 +117,7 @@ describe('Immerser', () => {
 
     it('connects existing masks and mask-inner nodes when bound', () => {
       const { maskInners, masks, root } = setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       expect(immerser.isBound).toBe(true);
       expect(Array.from(root.querySelectorAll(ImmerserSelectors.mask))).toEqual(masks);
@@ -161,7 +130,7 @@ describe('Immerser', () => {
       const { clientChildren, maskInners, root, solids } = setupManagedMarkup();
       const childArrays = maskInners.map((maskInner) => Array.from(maskInner.children));
       const solidParents = solids.map((solid) => solid.parentNode);
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
@@ -173,7 +142,7 @@ describe('Immerser', () => {
 
     it('applies runtime styles to managed masks and mask-inner nodes', () => {
       const { maskInners, masks } = setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       expect(masks.every((mask) => mask.style.position === 'absolute')).toBe(true);
       expect(maskInners.every((maskInner) => maskInner.style.position === 'absolute')).toBe(true);
@@ -183,13 +152,13 @@ describe('Immerser', () => {
       immerser.destroy();
     });
 
-    it('keeps managed markup and removes adapter-owned styles when unbound', () => {
+    it('keeps existing markup and clears controller-owned styles when unbound', () => {
       const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
       masks[0].style.position = 'relative';
       masks[0].style.transform = 'scale(1)';
       maskInners[0].style.overflow = 'visible';
       maskInners[0].style.transform = 'scale(2)';
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       immerser.unbind();
 
@@ -197,33 +166,29 @@ describe('Immerser', () => {
       expect(Array.from(root.querySelectorAll(ImmerserSelectors.maskInner))).toEqual(maskInners);
       expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
       expect(Array.from(root.querySelectorAll('[data-client-child]'))).toEqual(clientChildren);
-      expect(masks[0].style.position).toBe('relative');
-      expect(masks[0].style.transform).toBe('scale(1)');
-      expect(maskInners[0].style.overflow).toBe('visible');
-      expect(maskInners[0].style.transform).toBe('scale(2)');
-      expect(masks[1].style.transform).toBe('');
-      expect(maskInners[1].style.transform).toBe('');
+      expect(masks.every((mask) => mask.getAttribute('style') === null)).toBe(true);
+      expect(maskInners.every((maskInner) => maskInner.getAttribute('style') === null)).toBe(true);
     });
 
     it('fails clearly when managed mask count differs from layer count', () => {
       setupManagedMarkup({ maskCount: 1 });
 
-      expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow(
-        'managed markup mask count differs from count of layers',
+      expect(() => createImmerser()).toThrow(
+        'existing markup mask count differs from count of layers',
       );
     });
 
     it('fails clearly when a managed mask-inner is missing', () => {
       setupManagedMarkup({ missingMaskInnerIndex: 1 });
 
-      expect(() => createImmerser(undefined, MarkupModes.Managed)).toThrow(
-        'managed markup mask-inner not found for mask at index 1',
+      expect(() => createImmerser()).toThrow(
+        'existing markup mask-inner not found for mask at index 1',
       );
     });
 
     it('keeps managed markup stable across repeated bind and unbind cycles', () => {
       const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       immerser.unbind();
       immerser.bind();
@@ -237,7 +202,7 @@ describe('Immerser', () => {
 
     it('keeps external managed markup intact when destroyed', () => {
       const { clientChildren, maskInners, masks, root, solids } = setupManagedMarkup();
-      const immerser = createImmerser(undefined, MarkupModes.Managed);
+      const immerser = createImmerser();
 
       immerser.destroy();
 
@@ -274,12 +239,18 @@ describe('Immerser', () => {
         <span data-immerser-synchro-hover="logo"></span>
       `,
     );
-    const initialOuterHtml = root.outerHTML;
     const immerser = createImmerser();
 
     immerser.unbind();
 
-    expect(root.outerHTML).toBe(initialOuterHtml);
+    const pagerLinks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.pagerLink));
+    const synchroHoverNodes = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.synchroHover));
+    expect(pagerLinks[0].classList).toContain('pager-link-active');
+    expect(pagerLinks[0].dataset.immerserLayerIndex).toBe('99');
+    expect(pagerLinks[1].classList).toContain('pager-link-active');
+    expect(pagerLinks[1].getAttribute('data-immerser-layer-index')).toBe(null);
+    expect(synchroHoverNodes[0].classList).toContain('_hover');
+    expect(synchroHoverNodes[1].classList).not.toContain('_hover');
   });
 
   it('synchronizes hover when mouseover originates from a nested element', () => {
@@ -319,7 +290,7 @@ describe('Immerser', () => {
 
   it('does nothing when bind is called while already bound', () => {
     const addEventListener = vi.spyOn(window, 'addEventListener');
-    const prepare = vi.spyOn(GeneratedMarkupStrategy.prototype, 'prepare');
+    const prepare = vi.spyOn(ImmerserMarkupController.prototype, 'prepare');
     const onBind = vi.fn();
     const { root } = setupMarkup();
     const immerser = new Immerser({
@@ -342,7 +313,7 @@ describe('Immerser', () => {
   });
 
   it('cleans generated markup once when unbind is called repeatedly', () => {
-    const cleanup = vi.spyOn(GeneratedMarkupStrategy.prototype, 'cleanup');
+    const cleanup = vi.spyOn(ImmerserMarkupController.prototype, 'cleanup');
     const onUnbind = vi.fn();
     const { root, solids } = setupMarkup();
     const immerser = new Immerser({

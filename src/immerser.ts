@@ -1,8 +1,8 @@
 import mergeOptions from '@dubaua/merge-options';
-import ImmerserDomAdapter from './dom/immerser-dom-adapter';
+import ImmerserDomController from './dom/immerser-dom-controller';
 import ImmerserEngine from './engine/immerser-engine';
 import { EventNames } from './events';
-import { InitialDebug, type MarkupMode, MarkupModes, OptionConfig } from './options';
+import { InitialDebug, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import type { IReportParams } from './dom/types';
 import validateSolidClassnameArray, {
@@ -25,7 +25,7 @@ const MessagePrefix = '[immerser]:';
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {
-  private _adapter!: ImmerserDomAdapter;
+  private _domController!: ImmerserDomController;
   private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
     init: new Set(),
     bind: new Set(),
@@ -52,7 +52,7 @@ export default class Immerser {
     this._registerHandlersFromOptions(options);
 
     const engine = new ImmerserEngine({ pagerThreshold: options.pagerThreshold });
-    this._adapter = new ImmerserDomAdapter({
+    this._domController = new ImmerserDomController({
       callbacks: {
         onActiveLayerChange: (layerIndex) => this._emit('activeLayerChange', layerIndex, this),
         onBind: () => this._emit('bind', this),
@@ -64,7 +64,7 @@ export default class Immerser {
       engine,
       options,
     });
-    this._adapter.initialize();
+    this._domController.initialize();
     this._emit('init', this);
   }
 
@@ -134,7 +134,7 @@ export default class Immerser {
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
   public bind(): void {
-    this._adapter.bind();
+    this._domController.bind();
   }
 
   /**
@@ -142,7 +142,7 @@ export default class Immerser {
    * Safe to call multiple times; no-op when already unbound.
    */
   public unbind(): void {
-    this._adapter.unbind();
+    this._domController.unbind();
   }
 
   /**
@@ -150,7 +150,7 @@ export default class Immerser {
    * Use when component is permanently removed.
    */
   public destroy(): void {
-    this._adapter.destroy();
+    this._domController.destroy();
     EventNames.forEach((eventName) => this._handlers[eventName].clear());
   }
 
@@ -161,7 +161,7 @@ export default class Immerser {
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public render(): void {
-    this._adapter.render();
+    this._domController.render();
   }
 
   /**
@@ -172,7 +172,7 @@ export default class Immerser {
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public syncScroll(): void {
-    this._adapter.syncScroll();
+    this._domController.syncScroll();
   }
 
   /** Register persistent event handler. */
@@ -204,22 +204,22 @@ export default class Immerser {
 
   /** Current active layer index derived from scroll position. */
   public get activeIndex(): number {
-    return this._adapter.activeIndex;
+    return this._domController.activeIndex;
   }
 
   /** Indicates whether immerser is currently bound (markup cloned and listeners attached). */
   public get isBound(): boolean {
-    return this._adapter.isBound;
+    return this._domController.isBound;
   }
 
   /** The root DOM node immerser is attached to. */
   public get rootNode(): HTMLElement {
-    return this._adapter.rootNode;
+    return this._domController.rootNode;
   }
 
   /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
   public get layerProgressArray(): readonly number[] {
-    return this._adapter.layerProgressArray;
+    return this._domController.layerProgressArray;
   }
 }
 
@@ -231,10 +231,9 @@ export type {
   EventName,
   HandlerByEventName,
   LayersUpdateHandler,
-  MarkupMode,
   Options,
   SolidClassnames,
   SolidClassnameArrayValidationFailureReason,
   SolidClassnameArrayValidationResult,
 };
-export { EventNames, MarkupModes, validateSolidClassnameArray };
+export { EventNames, validateSolidClassnameArray };
