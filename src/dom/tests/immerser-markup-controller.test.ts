@@ -26,6 +26,8 @@ describe('ImmerserMarkupController', () => {
     expect(root.querySelectorAll(ImmerserSelectors.mask)).toHaveLength(2);
     expect(root.querySelectorAll(ImmerserSelectors.maskInner)).toHaveLength(2);
     expect(layerStateArray.every(({ maskInnerNode, maskNode }) => maskInnerNode && maskNode)).toBe(true);
+    expect(layerStateArray[0].maskNode?.dataset.immerserLayerId).toBe('first-layer');
+    expect(layerStateArray[1].maskNode?.dataset.immerserLayerId).toBe('second-layer');
     expect(layerStateArray[0].maskNode?.getAttribute('aria-hidden')).toBe(null);
     expect(layerStateArray[1].maskNode?.getAttribute('aria-hidden')).toBe('true');
   });
@@ -87,6 +89,27 @@ describe('ImmerserMarkupController', () => {
     expect(masks[1].getAttribute('aria-hidden')).toBe('false');
   });
 
+  it('connects existing mask pairs by layer id regardless of DOM order', () => {
+    document.body.innerHTML = `
+      <div data-immerser>
+        <div data-immerser-mask data-immerser-layer-id="second-layer"><div data-immerser-mask-inner><span data-client-child="1"></span></div></div>
+        <div data-immerser-mask data-immerser-layer-id="first-layer"><div data-immerser-mask-inner><span data-client-child="0"></span></div></div>
+      </div>
+    `;
+    const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
+    const masks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.mask));
+    const controller = new ImmerserMarkupController({
+      report: vi.fn(),
+      rootNode: root,
+      selectors: ImmerserSelectors,
+    });
+
+    const layerStateArray = controller.prepare(createLayerStateArray());
+
+    expect(layerStateArray[0].maskNode).toBe(masks[1]);
+    expect(layerStateArray[1].maskNode).toBe(masks[0]);
+  });
+
   it('does not clone or detach solids that already belong to existing masks', () => {
     const { root, solids } = setupManagedMarkup();
     const solidParents = solids.map((solid) => solid.parentNode);
@@ -106,8 +129,8 @@ describe('ImmerserMarkupController', () => {
     document.body.innerHTML = `
       <div data-immerser>
         <a data-immerser-solid="logo">Logo</a>
-        <div data-immerser-mask><div data-immerser-mask-inner><span data-immerser-solid="emoji">Emoji 0</span></div></div>
-        <div data-immerser-mask><div data-immerser-mask-inner><span data-immerser-solid="emoji">Emoji 1</span></div></div>
+        <div data-immerser-mask data-immerser-layer-id="first-layer"><div data-immerser-mask-inner><span data-immerser-solid="emoji">Emoji 0</span></div></div>
+        <div data-immerser-mask data-immerser-layer-id="second-layer"><div data-immerser-mask-inner><span data-immerser-solid="emoji">Emoji 1</span></div></div>
       </div>
     `;
     const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
@@ -132,8 +155,8 @@ describe('ImmerserMarkupController', () => {
     document.body.innerHTML = `
       <div data-immerser>
         <a data-immerser-solid="logo">Logo</a>
-        <div data-immerser-mask><div data-immerser-mask-inner><span data-client-child="0"></span></div></div>
-        <div data-immerser-mask><div data-immerser-mask-inner><span data-client-child="1"></span></div></div>
+        <div data-immerser-mask data-immerser-layer-id="first-layer"><div data-immerser-mask-inner><span data-client-child="0"></span></div></div>
+        <div data-immerser-mask data-immerser-layer-id="second-layer"><div data-immerser-mask-inner><span data-client-child="1"></span></div></div>
       </div>
     `;
     const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
@@ -229,6 +252,63 @@ describe('ImmerserMarkupController', () => {
 
     expect(() => controller.prepare(createLayerStateArray())).toThrow(
       'existing markup mask-inner not found for mask at index 1',
+    );
+    expect(report).toHaveBeenCalledOnce();
+    expect(root.outerHTML).toBe(initialOuterHtml);
+  });
+
+  it('reports an existing mask without layer id', () => {
+    document.body.innerHTML = `
+      <div data-immerser>
+        <div data-immerser-mask><div data-immerser-mask-inner></div></div>
+        <div data-immerser-mask data-immerser-layer-id="second-layer"><div data-immerser-mask-inner></div></div>
+      </div>
+    `;
+    const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
+    const initialOuterHtml = root.outerHTML;
+    const report = vi.fn();
+    const controller = new ImmerserMarkupController({ report, rootNode: root, selectors: ImmerserSelectors });
+
+    expect(() => controller.prepare(createLayerStateArray())).toThrow(
+      'existing markup mask layer id not found for mask at index 0',
+    );
+    expect(report).toHaveBeenCalledOnce();
+    expect(root.outerHTML).toBe(initialOuterHtml);
+  });
+
+  it('reports an existing mask with unknown layer id', () => {
+    document.body.innerHTML = `
+      <div data-immerser>
+        <div data-immerser-mask data-immerser-layer-id="unknown-layer"><div data-immerser-mask-inner></div></div>
+        <div data-immerser-mask data-immerser-layer-id="second-layer"><div data-immerser-mask-inner></div></div>
+      </div>
+    `;
+    const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
+    const initialOuterHtml = root.outerHTML;
+    const report = vi.fn();
+    const controller = new ImmerserMarkupController({ report, rootNode: root, selectors: ImmerserSelectors });
+
+    expect(() => controller.prepare(createLayerStateArray())).toThrow(
+      'existing markup mask layer id "unknown-layer" does not match any layer',
+    );
+    expect(report).toHaveBeenCalledOnce();
+    expect(root.outerHTML).toBe(initialOuterHtml);
+  });
+
+  it('reports duplicate existing mask layer ids', () => {
+    document.body.innerHTML = `
+      <div data-immerser>
+        <div data-immerser-mask data-immerser-layer-id="first-layer"><div data-immerser-mask-inner></div></div>
+        <div data-immerser-mask data-immerser-layer-id="first-layer"><div data-immerser-mask-inner></div></div>
+      </div>
+    `;
+    const root = document.querySelector<HTMLElement>(ImmerserSelectors.root) as HTMLElement;
+    const initialOuterHtml = root.outerHTML;
+    const report = vi.fn();
+    const controller = new ImmerserMarkupController({ report, rootNode: root, selectors: ImmerserSelectors });
+
+    expect(() => controller.prepare(createLayerStateArray())).toThrow(
+      'existing markup has duplicate mask layer id "first-layer"',
     );
     expect(report).toHaveBeenCalledOnce();
     expect(root.outerHTML).toBe(initialOuterHtml);

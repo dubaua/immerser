@@ -3,7 +3,7 @@ export default function queryElementArray<T extends Element = HTMLElement>({
   parent = document,
 }: {
   selector: string;
-  parent?: Document | Element | null;
+  parent?: ParentNode | null;
 }): T[] {
   if (!parent) {
     return [];

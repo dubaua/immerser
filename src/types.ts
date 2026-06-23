@@ -6,6 +6,11 @@ export interface SolidClassnames {
   [key: string]: string;
 }
 
+/** @public Map of layer id to solid classname map. */
+export interface SolidClassnamesByLayerId {
+  [key: string]: SolidClassnames;
+}
+
 /** @public All available immerser event names. */
 export type EventName = (typeof EventNames)[number];
 
@@ -39,9 +44,13 @@ export type EventHandlers = { [K in EventName]?: HandlerByEventName[K] };
 
 /** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
 export type Options = {
-  /** Per-layer map of solid id → classname; can be overridden per layer via data-immerser-layer-config. */
-  solidClassnameArray: SolidClassnames[];
-  /** Minimal viewport width (px) at which immerser binds; below it will unbind. */
+  /** If true, constructor runs DOM-dependent mount immediately. */
+  autoMount: boolean;
+  /** Parent node used only for selector discovery during mount. */
+  selectorRoot?: ParentNode;
+  /** Map of layer id → solid id → classname; can be overridden per layer via data-immerser-layer-config. */
+  solidClassnamesByLayerId: SolidClassnamesByLayerId;
+  /** Minimal viewport width (px) at which immerser enables runtime; below it disables runtime. */
   fromViewportWidth: number;
   /** Portion of viewport height that must overlap the next layer before pager switches (0–1). */
   pagerThreshold: number;
@@ -62,3 +71,15 @@ export type Options = {
   /** Initial event handlers keyed by event name. */
   on?: Partial<EventHandlers>;
 };
+
+/** @public Options that can be updated after instance creation. */
+export type RuntimeOptions = Pick<
+  Options,
+  | 'debug'
+  | 'fromViewportWidth'
+  | 'hasToUpdateHash'
+  | 'isScrollHandled'
+  | 'pagerThreshold'
+  | 'scrollAdjustDelay'
+  | 'scrollAdjustThreshold'
+>;

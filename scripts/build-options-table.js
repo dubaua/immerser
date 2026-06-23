@@ -84,6 +84,7 @@ function inferType(optionName, config) {
   if (typeof value === 'boolean') return 'boolean';
   if (typeof value === 'number') return 'number';
   if (typeof value === 'string') return 'string';
+  if (value !== null && typeof value === 'object') return 'object';
   if (value === null && optionName.startsWith('on')) return 'function';
   if (typeof value === 'function') return 'function';
   return 'unknown';

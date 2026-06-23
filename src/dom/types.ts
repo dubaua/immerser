@@ -8,9 +8,10 @@ export type DomControllerOptions = Pick<
   | 'hasToUpdateHash'
   | 'isScrollHandled'
   | 'pagerLinkActiveClassname'
+  | 'pagerThreshold'
   | 'scrollAdjustDelay'
   | 'scrollAdjustThreshold'
-  | 'solidClassnameArray'
+  | 'solidClassnamesByLayerId'
 >;
 
 export interface IDomLayerState {
@@ -18,6 +19,7 @@ export interface IDomLayerState {
   layerNode: HTMLElement;
   maskInnerNode: HTMLElement | null;
   maskNode: HTMLElement | null;
+  order: number;
   solidClassnames: SolidClassnames | null;
 }
 

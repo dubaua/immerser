@@ -11,35 +11,35 @@ declare global {
 }
 
 const immerserInstance = new Immerser({
-  solidClassnameArray: [
-    {
+  solidClassnamesByLayerId: {
+    reasoning: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    'how-to-use': {
       pager: 'pager--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    'how-it-works': {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    options: {
       logo: 'logo--contrast-only-md',
       pager: 'pager--contrast-only-md',
       language: 'language--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    recipes: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-  ],
+  },
   fromViewportWidth: 1024,
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,

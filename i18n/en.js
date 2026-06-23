@@ -56,7 +56,7 @@ and indicate active state.
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
 <p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration in
 <code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>. Otherwise, you can pass configuration as
-<code>solidClassnameArray</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
+<code>solidClassnamesByLayerId</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
 applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 <p>Also feel free to&nbsp;add <code>data-immerser-pager</code> to&nbsp;create a pager for your layers.</p>
 `,
@@ -108,8 +108,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   description: 'description',
   name: 'name',
 
-  'option-solidClassnameArray':
-    'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
+  'option-solidClassnamesByLayerId':
+    'Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
+  'option-autoMount': 'Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready',
+  'option-selectorRoot': 'Parent node used only as the selector search area during mount. Defaults to document',
   'option-fromViewportWidth': 'A viewport width, from which immerser will init',
   'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
   'option-hasToUpdateHash': 'Flag to control changing hash on pager active state change',
@@ -131,17 +133,22 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'event-layersUpdate': 'Emitted on each scroll update.',
 
   'public-fields-title': 'Public fields and methods',
-  'public-field-bind': 'Clones markup, attaches listeners, and starts internal logic',
-  'public-field-unbind': 'Remove generated markup and listeners, keeping the instance reusable',
+  'public-field-mount': 'Discovers DOM, validates markup, calculates layout, and attaches mount-level listeners',
+  'public-field-enable': 'Enables runtime behavior: prepares markup, hover sync, pager state, and first draw',
+  'public-field-disable': 'Disables runtime behavior, cleans generated markup, and keeps the instance mounted',
+  'public-field-updateOptions': 'Updates runtime options and applies minimal side effects without remounting',
   'public-field-destroy':
     'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
   'public-field-render': 'Recalculates sizes and redraws masks',
   'public-field-syncScroll': 'Updates immerser when scroll is controlled externally (requires isScrollHandled = false)',
+  'public-field-addLayer': 'Adds one layer and prepares its runtime markup when immerser is bound',
+  'public-field-removeLayer': 'Removes one layer and its owned runtime markup',
   'public-field-on': 'Registers a persistent immerser event handler',
   'public-field-once': 'Registers a one-time immerser event handler that is removed after the first call',
   'public-field-off': 'Removes a specific handler for the given immerser event',
   'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
-  'public-field-isBound': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
+  'public-field-isEnabled': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
+  'public-field-isMounted': 'Indicates whether DOM discovery and mount-level listeners are active',
   'public-field-rootNode': 'Root element the immerser instance is attached to',
   'public-field-layerProgressArray':
     'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',

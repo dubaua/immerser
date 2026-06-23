@@ -26,10 +26,21 @@ function onOptionValidator(on?: Options['on']): boolean {
 }
 
 export const OptionConfig: MergeOptionConfig<Options> = {
-  solidClassnameArray: {
-    default: [],
-    description: 'non empty array of objects',
-    validator: (x) => Array.isArray(x) && x.length !== 0,
+  autoMount: {
+    default: true,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
+  selectorRoot: {
+    // actually defaults to document in browser env, here `undefined` because this file also used in build pipeline
+    default: undefined,
+    description: 'a parent node used for selector discovery',
+    validator: (x) => x === undefined || (x && typeof (x as ParentNode).querySelectorAll === 'function'),
+  },
+  solidClassnamesByLayerId: {
+    default: {},
+    description: 'object mapping layer ids to solid classname maps',
+    validator: (x) => x !== null && typeof x === 'object' && !Array.isArray(x),
   },
   fromViewportWidth: {
     default: 0,

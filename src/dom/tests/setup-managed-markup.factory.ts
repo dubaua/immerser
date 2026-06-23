@@ -13,14 +13,15 @@ export default function setupManagedMarkup({
   maskCount = 2,
   missingMaskInnerIndex = -1,
 }: { hasSolids?: boolean; maskCount?: number; missingMaskInnerIndex?: number } = {}): SetupManagedMarkupResult {
+  const layerIdArray = ['first-layer', 'second-layer'];
   const masksMarkup = Array.from({ length: maskCount }, (_, maskIndex) => {
     const children = `
       <span data-client-child="${maskIndex}">Client child</span>
       ${hasSolids ? `<a data-immerser-solid="logo">Logo ${maskIndex}</a>` : ''}
     `;
     return missingMaskInnerIndex === maskIndex
-      ? `<div data-immerser-mask>${children}</div>`
-      : `<div data-immerser-mask><div data-immerser-mask-inner>${children}</div></div>`;
+      ? `<div data-immerser-mask data-immerser-layer-id="${layerIdArray[maskIndex]}">${children}</div>`
+      : `<div data-immerser-mask data-immerser-layer-id="${layerIdArray[maskIndex]}"><div data-immerser-mask-inner>${children}</div></div>`;
   }).join('');
 
   document.body.innerHTML = `

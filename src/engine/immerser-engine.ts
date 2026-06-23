@@ -13,7 +13,7 @@ import type {
 export default class ImmerserEngine {
   private _layerStateArray: ILayerCalculation[] = [];
   private _layout: ILayoutMetrics | null = null;
-  private readonly _options: IEngineOptions;
+  private _options: IEngineOptions;
   private _snapshot: IEngineSnapshot = {
     activeIndex: -1,
     layerProgressArray: [],
@@ -21,6 +21,10 @@ export default class ImmerserEngine {
   };
 
   constructor(options: IEngineOptions) {
+    this._options = options;
+  }
+
+  public updateOptions(options: IEngineOptions): void {
     this._options = options;
   }
 

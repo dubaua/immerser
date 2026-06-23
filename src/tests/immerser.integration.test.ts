@@ -21,10 +21,10 @@ function setScrollY(scrollY: number): void {
 function createImmerser(onActiveLayerChange?: ActiveLayerChangeHandler): Immerser {
   return new Immerser({
     debug: false,
-    solidClassnameArray: [
-      { logo: 'logo-first', menu: 'menu-first' },
-      { logo: 'logo-second', menu: 'menu-second' },
-    ],
+    solidClassnamesByLayerId: {
+      'first-layer': { logo: 'logo-first', menu: 'menu-first' },
+      'second-layer': { logo: 'logo-second', menu: 'menu-second' },
+    },
     on: onActiveLayerChange ? { activeLayerChange: onActiveLayerChange } : undefined,
   });
 }
@@ -105,7 +105,7 @@ describe('Immerser', () => {
       const immerser = new Immerser({
         debug: false,
         scrollAdjustThreshold: 1,
-        solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+        solidClassnamesByLayerId: { 'first-layer': { logo: 'logo-first' }, 'second-layer': { logo: 'logo-second' } },
       });
       window.dispatchEvent(new Event('scroll'));
       frameCallback?.(0);
@@ -228,13 +228,70 @@ describe('Immerser', () => {
     expect(Array.from(root.querySelectorAll(ImmerserSelectors.solid))).toEqual(solids);
   });
 
-  it('restores adapter-owned pager and synchro-hover mutations when unbound', () => {
+  it('fails clearly when a layer id is missing', () => {
+    const { layers } = setupMarkup();
+    layers[1].removeAttribute('id');
+
+    expect(() => createImmerser()).toThrow('layer id not found for layer at index 1');
+  });
+
+  it('fails clearly when solid classname config references an unknown layer id', () => {
+    setupMarkup();
+
+    expect(
+      () =>
+        new Immerser({
+          debug: false,
+          solidClassnamesByLayerId: {
+            'unknown-layer': { logo: 'logo-first' },
+          },
+        }),
+    ).toThrow('solidClassnamesByLayerId contains unknown layer id "unknown-layer"');
+  });
+
+  it('clears pager active class when unbound', () => {
     const { root } = setupMarkup();
     root.insertAdjacentHTML(
       'beforeend',
       `
-        <a data-immerser-pager-link href="#first-layer" class="pager-link-active" data-immerser-layer-index="99"></a>
+        <a data-immerser-pager-link href="#first-layer" class="pager-link-active"></a>
         <a data-immerser-pager-link href="#second-layer" class="pager-link-active"></a>
+      `,
+    );
+    const immerser = createImmerser();
+
+    immerser.unbind();
+
+    const pagerLinks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.pagerLink));
+    expect(pagerLinks[0].classList).not.toContain('pager-link-active');
+    expect(pagerLinks[1].classList).not.toContain('pager-link-active');
+  });
+
+  it('activates pager links by href without writing layer attrs', () => {
+    const { root } = setupMarkup();
+    root.insertAdjacentHTML(
+      'beforeend',
+      `
+        <a data-immerser-pager-link href="#first-layer"></a>
+        <a data-immerser-pager-link href="#second-layer"></a>
+      `,
+    );
+    const immerser = createImmerser();
+
+    const pagerLinks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.pagerLink));
+    expect(pagerLinks[0].classList).toContain('pager-link-active');
+    expect(pagerLinks[1].classList).not.toContain('pager-link-active');
+    expect(pagerLinks[0].getAttribute('data-immerser-layer-id')).toBe(null);
+    expect(pagerLinks[1].getAttribute('data-immerser-layer-id')).toBe(null);
+
+    immerser.destroy();
+  });
+
+  it('restores synchro-hover classes when unbound', () => {
+    const { root } = setupMarkup();
+    root.insertAdjacentHTML(
+      'beforeend',
+      `
         <span data-immerser-synchro-hover="logo" class="_hover"></span>
         <span data-immerser-synchro-hover="logo"></span>
       `,
@@ -243,12 +300,7 @@ describe('Immerser', () => {
 
     immerser.unbind();
 
-    const pagerLinks = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.pagerLink));
     const synchroHoverNodes = Array.from(root.querySelectorAll<HTMLElement>(ImmerserSelectors.synchroHover));
-    expect(pagerLinks[0].classList).toContain('pager-link-active');
-    expect(pagerLinks[0].dataset.immerserLayerIndex).toBe('99');
-    expect(pagerLinks[1].classList).toContain('pager-link-active');
-    expect(pagerLinks[1].getAttribute('data-immerser-layer-index')).toBe(null);
     expect(synchroHoverNodes[0].classList).toContain('_hover');
     expect(synchroHoverNodes[1].classList).not.toContain('_hover');
   });
@@ -296,7 +348,7 @@ describe('Immerser', () => {
     const immerser = new Immerser({
       debug: false,
       on: { bind: onBind },
-      solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+      solidClassnamesByLayerId: { 'first-layer': { logo: 'logo-first' }, 'second-layer': { logo: 'logo-second' } },
     });
     const windowListenerCount = addEventListener.mock.calls.length;
 
@@ -319,7 +371,7 @@ describe('Immerser', () => {
     const immerser = new Immerser({
       debug: false,
       on: { unbind: onUnbind },
-      solidClassnameArray: [{ logo: 'logo-first' }, { logo: 'logo-second' }],
+      solidClassnamesByLayerId: { 'first-layer': { logo: 'logo-first' }, 'second-layer': { logo: 'logo-second' } },
     });
 
     immerser.unbind();

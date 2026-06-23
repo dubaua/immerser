@@ -3,7 +3,6 @@ import ImmerserMarkupController from './immerser-markup-controller';
 import { ImmerserSelectors } from './selectors';
 import getLastScrollPosition from './utils/get-last-scroll-position';
 import queryElementArray from './utils/query-element-array';
-import validateSolidClassnameArray from '../validate-solid-classname-array';
 import type { IEngineSnapshot } from '../engine/types';
 import type {
   DomControllerOptions,
@@ -14,12 +13,7 @@ import type {
   ISnapshotTransition,
 } from './types';
 import type ImmerserEngine from '../engine/immerser-engine';
-
-type PagerLinkSnapshot = {
-  hadActiveClass: boolean;
-  layerIndex: string | null;
-  node: HTMLElement;
-};
+import type { SolidClassnames } from '../types';
 
 type SynchroHoverSnapshot = {
   hadHoverClass: boolean;
@@ -29,15 +23,14 @@ type SynchroHoverSnapshot = {
 export default class ImmerserDomController {
   private readonly _callbacks: IImmerserDomControllerCallbacks;
   private readonly _engine: ImmerserEngine;
-  private readonly _options: DomControllerOptions;
+  private _options: DomControllerOptions;
   private _selectors = ImmerserSelectors;
-  private _layerStateArray: IDomLayerState[] = [];
-  private _layerStateIndexById: Record<string, number> = {};
+  private _layerStateById = new Map<string, IDomLayerState>();
+  private _isMounted = false;
   private _isBound = false;
   private _rootNode: HTMLElement | null = null;
   private _layerNodeArray: HTMLElement[] = [];
   private _pagerLinkNodeArray: HTMLElement[] = [];
-  private _pagerLinkSnapshots: PagerLinkSnapshot[] = [];
   private _synchroHoverNodeArray: HTMLElement[] = [];
   private _synchroHoverSnapshots: SynchroHoverSnapshot[] = [];
   private _markupController: ImmerserMarkupController | null = null;
@@ -62,14 +55,18 @@ export default class ImmerserDomController {
   }
 
   /** Discovers DOM state, validates configuration and starts responsive runtime handling. */
-  public initialize(): void {
-    this._setDomNodes();
+  public mount(selectorRoot: ParentNode = document): void {
+    if (this._isMounted) {
+      return;
+    }
+    this._setDomNodes(selectorRoot);
     this._validateMarkup();
+    this._validateLayerIds();
     this._readClassnamesFromMarkup();
-    this._validateSolidClassnameArray();
-    this._initSectionIds();
-    this._initLayerStateArray();
+    this._validateSolidClassnamesConfig();
+    this._initLayerStateMap();
     this._initMarkupController();
+    this._isMounted = true;
     this._toggleBindOnResizeObserver();
     this._setSizes();
     this._addScrollAndResizeListeners();
@@ -79,7 +76,7 @@ export default class ImmerserDomController {
   private _initMarkupController(): void {
     this._markupController = new ImmerserMarkupController({
       report: this._report.bind(this),
-      rootNode: this._rootNode as HTMLElement,
+      rootNode: this._rootNode,
       selectors: this._selectors,
     });
   }
@@ -89,10 +86,15 @@ export default class ImmerserDomController {
     this._callbacks.report(params);
   }
 
+  /** Returns layer states in DOM order for the array-based engine boundary. */
+  private get _orderedLayerStateArray(): IDomLayerState[] {
+    return Array.from(this._layerStateById.values()).sort((a, b) => a.order - b.order);
+  }
+
   /** Collects root, layer and solid nodes from DOM. */
-  private _setDomNodes(): void {
-    this._rootNode = document.querySelector<HTMLElement>(this._selectors.root);
-    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer });
+  private _setDomNodes(selectorRoot: ParentNode): void {
+    this._rootNode = selectorRoot.querySelector<HTMLElement>(this._selectors.root);
+    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: selectorRoot });
   }
 
   /** Validates required markup presence and reports descriptive errors. */
@@ -113,10 +115,10 @@ export default class ImmerserDomController {
 
   /** Reads per-layer classname configs from data attributes if provided. */
   private _readClassnamesFromMarkup(): void {
-    this._layerNodeArray.forEach((layerNode, layerIndex) => {
+    this._layerNodeArray.forEach((layerNode) => {
       if (layerNode.dataset.immerserLayerConfig) {
         try {
-          this._options.solidClassnameArray[layerIndex] = JSON.parse(layerNode.dataset.immerserLayerConfig);
+          this._options.solidClassnamesByLayerId[layerNode.id] = JSON.parse(layerNode.dataset.immerserLayerConfig);
         } catch (error) {
           this._report({
             message: 'Failed to parse JSON classname configuration.',
@@ -128,68 +130,199 @@ export default class ImmerserDomController {
     });
   }
 
-  /** Ensures classname configuration length matches layers count. */
-  private _validateSolidClassnameArray(): void {
-    if (this._options.solidClassnameArray.length === 0) {
+  /** Ensures every layer has the explicit unique id required by the public contract. */
+  private _validateLayerIds(): void {
+    const layerIdSet = new Set<string>();
+    this._layerNodeArray.forEach((layerNode, layerIndex) => {
+      const { id } = layerNode;
+      if (!id) {
+        this._report({
+          message: `layer id not found for layer at index ${layerIndex}.`,
+          docsHash: '#prepare-your-markup',
+        });
+      }
+      if (layerIdSet.has(id)) {
+        this._report({
+          message: `duplicate layer id "${id}".`,
+          docsHash: '#prepare-your-markup',
+        });
+      }
+      layerIdSet.add(id);
+    });
+  }
+
+  /** Ensures classname configuration references only existing layer ids. */
+  private _validateSolidClassnamesConfig(): void {
+    const solidClassnamesByLayerId = this._options.solidClassnamesByLayerId;
+    if (
+      !solidClassnamesByLayerId ||
+      typeof solidClassnamesByLayerId !== 'object' ||
+      Array.isArray(solidClassnamesByLayerId)
+    ) {
+      this._report({
+        message: 'solidClassnamesByLayerId must be an object',
+        docsHash: '#options',
+      });
       return;
     }
-    const validationResult = validateSolidClassnameArray(
-      this._options.solidClassnameArray,
-      this._layerNodeArray.length,
+
+    const entries = Object.entries(solidClassnamesByLayerId);
+    const hasInvalidEntry = entries.some(
+      (entry) =>
+        !entry[1] ||
+        typeof entry[1] !== 'object' ||
+        Array.isArray(entry[1]) ||
+        Object.values(entry[1]).some((classname) => typeof classname !== 'string'),
     );
-    if (validationResult.isValid === false) {
+    if (hasInvalidEntry) {
       this._report({
-        message: validationResult.message,
+        message: 'solidClassnamesByLayerId entries must map solid ids to classname strings',
+        docsHash: '#options',
+      });
+      return;
+    }
+
+    const layerIdArray = this._layerNodeArray.map(({ id }) => id);
+    const unknownLayerId = entries.map(([layerId]) => layerId).find((layerId) => !layerIdArray.includes(layerId));
+    if (unknownLayerId) {
+      this._report({
+        message: `solidClassnamesByLayerId contains unknown layer id "${unknownLayerId}"`,
         docsHash: '#options',
       });
     }
   }
 
-  /** Assigns ids to layers when missing and records their indexes. */
-  private _initSectionIds(): void {
-    this._layerNodeArray.forEach((layerNode, layerIndex) => {
-      let id = layerNode.id;
-      if (!id) {
-        id = `immerser-section-${layerIndex}`;
-        layerNode.id = id;
-        (layerNode as any).__immerserCustomId = true;
-      }
-      this._layerStateIndexById[id] = layerIndex;
-    });
-  }
-
   /** Creates initial LayerState entries for every layer. */
-  private _initLayerStateArray(): void {
-    this._layerStateArray = this._layerNodeArray.map((layerNode, layerIndex) => {
-      const solidClassnames = this._options.solidClassnameArray[layerIndex];
-      const { id } = layerNode;
-      return {
-        id,
-        maskInnerNode: null,
-        maskNode: null,
-        layerNode: layerNode,
-        solidClassnames,
-      } as IDomLayerState;
+  private _initLayerStateMap(): void {
+    this._layerNodeArray.forEach((layerNode, order) => {
+      this._addLayerState(layerNode.id, layerNode, order, this._options.solidClassnamesByLayerId[layerNode.id] ?? null);
     });
   }
 
-  /** Subscribes to window width changes to bind/unbind based on breakpoint. */
+  /** Adds one validated layer state to the registry. */
+  private _addLayerState(
+    id: string,
+    layerNode: HTMLElement,
+    order: number,
+    solidClassnames: SolidClassnames | null = null,
+  ): IDomLayerState {
+    this._validateLayerStateInput(id, layerNode, order, solidClassnames);
+    const layerState: IDomLayerState = {
+      id,
+      layerNode,
+      maskInnerNode: null,
+      maskNode: null,
+      order,
+      solidClassnames,
+    };
+    layerNode.id = id;
+    this._layerStateById.set(id, layerState);
+    return layerState;
+  }
+
+  /** Ensures dynamic layer input does not break id/order based runtime addressing. */
+  private _validateLayerStateInput(
+    id: string,
+    layerNode: HTMLElement,
+    order: number,
+    solidClassnames: SolidClassnames | null,
+  ): void {
+    if (!id) {
+      this._report({
+        message: 'layer id must be a non-empty string.',
+        docsHash: '#prepare-your-markup',
+      });
+    }
+    if (!(layerNode instanceof HTMLElement)) {
+      this._report({
+        message: `layer node for layer "${id}" must be an HTMLElement.`,
+        docsHash: '#prepare-your-markup',
+      });
+    }
+    if (!Number.isInteger(order)) {
+      this._report({
+        message: `layer order for layer "${id}" must be an integer.`,
+        docsHash: '#prepare-your-markup',
+      });
+    }
+    if (this._layerStateById.has(id)) {
+      this._report({
+        message: `duplicate layer id "${id}".`,
+        docsHash: '#prepare-your-markup',
+      });
+    }
+    if (this._orderedLayerStateArray.some((state) => state.order === order)) {
+      this._report({
+        message: `duplicate layer order "${order}".`,
+        docsHash: '#prepare-your-markup',
+      });
+    }
+    this._validateSolidClassnames(id, solidClassnames);
+  }
+
+  /** Ensures one layer classname config maps solid ids to strings. */
+  private _validateSolidClassnames(layerId: string, solidClassnames: SolidClassnames | null): void {
+    if (solidClassnames === null) {
+      return;
+    }
+    if (!solidClassnames || typeof solidClassnames !== 'object' || Array.isArray(solidClassnames)) {
+      this._report({
+        message: `solid classnames for layer "${layerId}" must be an object.`,
+        docsHash: '#options',
+      });
+      return;
+    }
+    if (Object.values(solidClassnames).some((classname) => typeof classname !== 'string')) {
+      this._report({
+        message: `solid classnames for layer "${layerId}" must map solid ids to classname strings.`,
+        docsHash: '#options',
+      });
+    }
+  }
+
+  /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
   private _toggleBindOnResizeObserver(): void {
     this._unsubscribeToggleBindOnResize = this._reactiveWindowWidth.subscribe((nextWindowWidth) => {
       if (nextWindowWidth >= this._options.fromViewportWidth) {
         if (!this._isBound) {
-          this.bind();
+          this.enable();
         }
       } else if (this._isBound) {
-        this.unbind();
+        this.disable();
       }
     });
+  }
+
+  /** Applies runtime option changes without rebuilding generated markup. */
+  public updateOptions(options: DomControllerOptions, previousOptions: DomControllerOptions): void {
+    this._options = options;
+    this._engine.updateOptions({ pagerThreshold: options.pagerThreshold });
+
+    if (
+      previousOptions.scrollAdjustDelay !== options.scrollAdjustDelay ||
+      previousOptions.scrollAdjustThreshold !== options.scrollAdjustThreshold
+    ) {
+      this._clearScrollAdjustTimer();
+    }
+
+    if (!this._isMounted) {
+      return;
+    }
+
+    if (previousOptions.isScrollHandled !== options.isScrollHandled) {
+      options.isScrollHandled ? this._addScrollListener() : this._removeScrollListener();
+    }
+    if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
+      this._setSizes();
+    } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
+      this.render();
+    }
   }
 
   /** Recalculates sizes and thresholds for each layer and updates window width observable. */
   private _setSizes(): void {
     this._engine.setLayout({
-      layers: this._layerStateArray.map(({ layerNode }) => ({
+      layers: this._orderedLayerStateArray.map(({ layerNode }) => ({
         bottom: layerNode.offsetTop + layerNode.offsetHeight,
         top: layerNode.offsetTop,
       })),
@@ -204,8 +337,7 @@ export default class ImmerserDomController {
   /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
   private _addScrollAndResizeListeners(): void {
     if (this._options.isScrollHandled) {
-      this._onScroll = this._handleScroll.bind(this);
-      window.addEventListener('scroll', this._onScroll, false);
+      this._addScrollListener();
     }
     this._onResize = this._handleResize.bind(this);
     window.addEventListener('resize', this._onResize, false);
@@ -216,15 +348,23 @@ export default class ImmerserDomController {
     }
   }
 
+  /** Attaches the scroll listener once when scroll handling is enabled. */
+  private _addScrollListener(): void {
+    if (this._onScroll) {
+      return;
+    }
+    this._onScroll = this._handleScroll.bind(this);
+    window.addEventListener('scroll', this._onScroll, false);
+  }
+
   /** Clears internal caches, observables and references after destroy. */
   private _resetInternalState(): void {
-    this._layerStateArray = [];
-    this._layerStateIndexById = {};
+    this._layerStateById.clear();
+    this._isMounted = false;
     this._isBound = false;
     this._rootNode = null;
     this._layerNodeArray = [];
     this._pagerLinkNodeArray = [];
-    this._pagerLinkSnapshots = [];
     this._synchroHoverNodeArray = [];
     this._synchroHoverSnapshots = [];
     this._markupController = null;
@@ -245,32 +385,33 @@ export default class ImmerserDomController {
 
   /** Prepares markup from the current DOM structure. */
   private _prepareMarkup(): void {
-    this._layerStateArray = this._markupController.prepare(this._layerStateArray);
+    this._orderedLayerStateArray.forEach((layerState) => {
+      this._setLayerState(this._markupController.prepareLayer(layerState));
+    });
+    this._syncCreatedMasksAria();
   }
 
   /** Restores markup according to controller-recorded ownership. */
   private _cleanupMarkup(): void {
     this._markupController.cleanup();
+    this._orderedLayerStateArray.forEach((layerState) => {
+      this._setLayerState({ ...layerState, maskInnerNode: null, maskNode: null });
+    });
   }
 
-  /** Parses pager links and maps them to layer indexes using href hash. */
+  /** Writes an updated layer state into the id registry. */
+  private _setLayerState(layerState: IDomLayerState): void {
+    this._layerStateById.set(layerState.id, layerState);
+  }
+
+  /** Applies created mask aria-hidden according to current layer order. */
+  private _syncCreatedMasksAria(): void {
+    this._markupController.syncCreatedMasksAria(this._orderedLayerStateArray.map(({ id }) => id));
+  }
+
+  /** Collects pager links that will receive runtime active state. */
   private _initPagerLinks(): void {
     this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
-    this._pagerLinkSnapshots = this._pagerLinkNodeArray.map((node) => ({
-      hadActiveClass: node.classList.contains(this._options.pagerLinkActiveClassname),
-      layerIndex: node.getAttribute('data-immerser-layer-index'),
-      node,
-    }));
-    this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
-      const { href } = pagerLinkNode as HTMLAnchorElement;
-      if (href) {
-        const layerId = href.split('#')[1];
-        if (layerId) {
-          const layerIndex = this._layerStateIndexById[layerId];
-          pagerLinkNode.dataset.immerserLayerIndex = layerIndex.toString();
-        }
-      }
-    });
   }
 
   /** Sets up synchro hover listeners and reactive updates. */
@@ -317,17 +458,11 @@ export default class ImmerserDomController {
     });
   }
 
-  /** Restores pager attributes and classes changed during the bound lifecycle. */
-  private _restorePagerLinks(): void {
-    this._pagerLinkSnapshots.forEach(({ hadActiveClass, layerIndex, node }) => {
-      node.classList.toggle(this._options.pagerLinkActiveClassname, hadActiveClass);
-      if (layerIndex === null) {
-        node.removeAttribute('data-immerser-layer-index');
-      } else {
-        node.setAttribute('data-immerser-layer-index', layerIndex);
-      }
+  /** Clears runtime active state from pager links. */
+  private _clearPagerLinks(): void {
+    this._pagerLinkNodeArray.forEach((node) => {
+      node.classList.remove(this._options.pagerLinkActiveClassname);
     });
-    this._pagerLinkSnapshots = [];
   }
 
   /** Restores synchronized hover classes changed during the bound lifecycle. */
@@ -338,23 +473,23 @@ export default class ImmerserDomController {
     this._synchroHoverSnapshots = [];
   }
 
-  /** Drops autogenerated ids from layers on teardown. */
-  private _clearCustomSectionIds(): void {
-    this._layerStateArray.forEach((state) => {
-      if ((state.layerNode as any).__immerserCustomId) {
-        state.layerNode.removeAttribute('id');
-      }
-    });
+  /** Removes browser listeners that outlive individual runtime cycles. */
+  private _removeScrollAndResizeListeners(): void {
+    this._removeScrollListener();
+    if (this._onResize) {
+      window.removeEventListener('resize', this._onResize, false);
+      window.removeEventListener('orientationchange', this._onResize, false);
+    }
+    this._resizeObserver?.disconnect();
   }
 
-  /** Removes browser listeners that outlive individual bind cycles. */
-  private _removeScrollAndResizeListeners(): void {
-    if (this._options.isScrollHandled) {
-      window.removeEventListener('scroll', this._onScroll!, false);
+  /** Removes the scroll listener if it is attached. */
+  private _removeScrollListener(): void {
+    if (!this._onScroll) {
+      return;
     }
-    window.removeEventListener('resize', this._onResize!, false);
-    window.removeEventListener('orientationchange', this._onResize!, false);
-    this._resizeObserver?.disconnect();
+    window.removeEventListener('scroll', this._onScroll, false);
+    this._onScroll = null;
   }
 
   /** Cancels the pending scroll animation frame. */
@@ -400,7 +535,10 @@ export default class ImmerserDomController {
 
   /** Applies transforms based on scroll position and updates active layer state. */
   private _draw(snapshot: IEngineSnapshot, previousActiveIndex: number): void {
-    this._layerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
+    this._orderedLayerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
+      if (!maskNode || !maskInnerNode) {
+        return;
+      }
       const transform = snapshot.transforms[layerIndex];
       maskNode.style.transform = `translateY(${transform.maskTranslateY}px)`;
       maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
@@ -420,8 +558,10 @@ export default class ImmerserDomController {
 
   /** Adds or removes active pager classname according to current layer. */
   private _drawPagerLinks(layerIndex?: number): void {
+    const layerId = layerIndex === undefined ? undefined : this._orderedLayerStateArray[layerIndex]?.id;
     this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
-      if (parseInt(pagerLinkNode.dataset.immerserLayerIndex, 10) === layerIndex) {
+      const hrefLayerId = (pagerLinkNode as HTMLAnchorElement).getAttribute('href')?.slice(1);
+      if (hrefLayerId === layerId) {
         pagerLinkNode.classList.add(this._options.pagerLinkActiveClassname);
       } else {
         pagerLinkNode.classList.remove(this._options.pagerLinkActiveClassname);
@@ -431,7 +571,11 @@ export default class ImmerserDomController {
 
   /** Updates window hash to match active layer id. */
   private _drawHash(layerIndex: number): void {
-    const { id, layerNode } = this._layerStateArray[layerIndex];
+    const layerState = this._orderedLayerStateArray[layerIndex];
+    if (!layerState) {
+      return;
+    }
+    const { id, layerNode } = layerState;
     layerNode.removeAttribute('id');
     window.location.hash = id;
     layerNode.setAttribute('id', id);
@@ -483,10 +627,10 @@ export default class ImmerserDomController {
   }
 
   /**
-   * Prepares markup, attaches listeners and triggers first draw; also emits bind event.
+   * Enables runtime behavior: prepares markup, attaches hover runtime and triggers first draw; also emits bind event.
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
-  public bind(): void {
+  public enable(): void {
     if (this._isBound) {
       return;
     }
@@ -501,19 +645,18 @@ export default class ImmerserDomController {
   }
 
   /**
-   * Tears down generated markup and listeners, restores DOM, resets active layer and emits unbind event.
-   * Safe to call multiple times; no-op when already unbound.
+   * Disables runtime behavior: restores DOM, resets active layer and emits unbind event.
+   * Safe to call multiple times; no-op when already disabled.
    */
-  public unbind(): void {
+  public disable(): void {
     if (!this._isBound) {
       return;
     }
     this._cancelScheduledRuntimeWork();
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
-    this._restorePagerLinks();
+    this._clearPagerLinks();
     this._restoreSynchroHoverClasses();
-    this._clearCustomSectionIds();
     this._cleanupMarkup();
     this._isBound = false;
     this._callbacks.onUnbind();
@@ -521,11 +664,11 @@ export default class ImmerserDomController {
   }
 
   /**
-   * Fully destroys immerser: unbinds, removes window listeners, runs destroy event and clears all references.
+   * Fully destroys immerser: disables runtime, removes mount-level listeners, runs destroy event and clears references.
    * Use when component is permanently removed.
    */
   public destroy(): void {
-    this.unbind();
+    this.disable();
     this._unsubscribeToggleBindOnResize?.();
     this._removeScrollAndResizeListeners();
     this._callbacks.onDestroy();
@@ -564,18 +707,55 @@ export default class ImmerserDomController {
     this._draw(snapshot, previousActiveIndex);
   }
 
+  /** Adds one layer to the registry and prepares its runtime markup when enabled. */
+  public addLayer(
+    id: string,
+    layerNode: HTMLElement,
+    order: number,
+    solidClassnames: SolidClassnames | null = null,
+  ): void {
+    const layerState = this._addLayerState(id, layerNode, order, solidClassnames);
+    if (this._isBound) {
+      this._setLayerState(this._markupController.prepareLayer(layerState));
+      this._syncCreatedMasksAria();
+      this._initPagerLinks();
+      this.render();
+      return;
+    }
+    this._setSizes();
+  }
+
+  /** Removes one layer and its owned runtime markup. */
+  public removeLayer(id: string): void {
+    if (!this._layerStateById.has(id)) {
+      return;
+    }
+    if (this._isBound) {
+      this._markupController.cleanupLayer(id);
+    }
+    this._layerStateById.delete(id);
+    this._syncCreatedMasksAria();
+    this._initPagerLinks();
+    this.render();
+  }
+
   /** Returns the active layer index from the latest engine snapshot. */
   public get activeIndex(): number {
     return this._engine.snapshot.activeIndex;
   }
 
-  /** Indicates whether markup and bound runtime behavior are currently active. */
+  /** Indicates whether markup and runtime behavior are currently active. */
   public get isBound(): boolean {
     return this._isBound;
   }
 
+  /** Indicates whether DOM discovery and mount-level listeners are active. */
+  public get isMounted(): boolean {
+    return this._isMounted;
+  }
+
   /** Exposes the root element connected during initialization. */
-  public get rootNode(): HTMLElement {
+  public get rootNode(): HTMLElement | null {
     return this._rootNode;
   }
 
