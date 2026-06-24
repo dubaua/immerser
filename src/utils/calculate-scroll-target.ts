@@ -1,4 +1,4 @@
-import type { ILayerMetrics } from './types';
+import type { ILayerCalculation } from '../internal-types';
 
 /** Returns the nearest layer-edge scroll target without clamping it to a scroll container's bounds. */
 export default function calculateScrollTarget({
@@ -7,7 +7,7 @@ export default function calculateScrollTarget({
   scrollY,
   viewportHeight,
 }: {
-  activeLayer: ILayerMetrics;
+  activeLayer: ILayerCalculation;
   scrollAdjustThreshold: number;
   scrollY: number;
   viewportHeight: number;

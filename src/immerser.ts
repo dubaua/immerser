@@ -1,10 +1,26 @@
 import mergeOptions from '@dubaua/merge-options';
-import ImmerserDomController from './dom/immerser-dom-controller';
-import ImmerserEngine from './engine/immerser-engine';
+import Observable from '@dubaua/observable';
+import calculateLayerStateArray from './utils/calculate-layer-state-array';
+import calculateLayersRuntimeState from './utils/calculate-layers-runtime-state';
+import calculateScrollTarget from './utils/calculate-scroll-target';
 import { EventNames } from './events';
+import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './utils/styles';
+import { ImmerserSelectors } from './utils/selectors';
 import { InitialDebug, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
-import type { IReportParams } from './dom/types';
+import assignInlineStyles from './utils/assign-inline-styles';
+import getLastScrollPosition from './utils/get-last-scroll-position';
+import queryElementArray from './utils/query-element-array';
+import validateImmerserMarkup from './utils/validate-immerser-markup';
+import type {
+  ICalculationResult,
+  ICalculationTransition,
+  IClonedSolid,
+  IImmerserLayerState,
+  ILayerCalculation,
+  IMaskMarkup,
+  IReportParams,
+} from './internal-types';
 import type {
   ActiveLayerChangeHandler,
   BaseHandler,
@@ -32,9 +48,32 @@ const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
 
 /** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
 export default class Immerser {
-  private _domController!: ImmerserDomController;
   private _options!: Options;
+  private _selectors = ImmerserSelectors;
   private _userOptions: Partial<Options> = {};
+  private _layerStateArray: IImmerserLayerState[] = [];
+  private _isMounted = false;
+  private _isBound = false;
+  private _rootNode: HTMLElement | null = null;
+  private _layerNodeArray: HTMLElement[] = [];
+  private _maskNodeArray: HTMLElement[] = [];
+  private _pagerLinkNodeArray: HTMLElement[] = [];
+  private _originalSolidNodeArray: HTMLElement[] = [];
+  private _clonedSolidArray: IClonedSolid[] = [];
+  private _preparedMaskMarkupArray: IMaskMarkup[] = [];
+  private _solidNodeArray: HTMLElement[] = [];
+  private _synchroHoverNodeArray: HTMLElement[] = [];
+  private _activeIndex = -1;
+  private _rootHeight = 0;
+  private _viewportHeight = 0;
+  private _resizeFrameId: number | null = null;
+  private _resizeObserver: ResizeObserver | null = null;
+  private _scrollFrameId: number | null = null;
+  private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
+  private _reactiveWindowWidth = new Observable<number>(-1);
+  private _reactiveSynchroHoverId = new Observable<string | null>(null);
+  private _unsubscribeSynchroHover: (() => void) | null = null;
+  private _unsubscribeToggleBindOnResize: (() => void) | null = null;
   private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
     init: new Set(),
     bind: new Set(),
@@ -43,6 +82,12 @@ export default class Immerser {
     activeLayerChange: new Set(),
     layersUpdate: new Set(),
   };
+  private _onResize: (() => void) | null = null;
+  private _onScroll: (() => void) | null = null;
+  private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
+  private _onSynchroHoverMouseOut: (() => void) | null = null;
+  private _isLayoutSet = false;
+  private _layerProgressArray: number[] = [];
 
   /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
   public debug = InitialDebug;
@@ -62,48 +107,16 @@ export default class Immerser {
     this.debug = options.debug;
     this._registerHandlersFromOptions(options);
 
-    const engine = new ImmerserEngine({ pagerThreshold: options.pagerThreshold });
-    this._domController = new ImmerserDomController({
-      callbacks: {
-        onActiveLayerChange: (layerIndex) => this._emit('activeLayerChange', layerIndex, this),
-        onBind: () => this._emit('bind', this),
-        onDestroy: () => this._emit('destroy', this),
-        onLayersUpdate: (layersProgress) => this._emit('layersUpdate', layersProgress, this),
-        onUnbind: () => this._emit('unbind', this),
-        report: (params) => this._report(params),
-      },
-      engine,
-      options,
-    });
     if (options.autoMount) {
       this.mount();
     }
+
     this._emit('init', this);
-  }
-
-  /** Merges user options with defaults and attaches helper metadata to messages. */
-  private _mergeOptions(userOptions?: Partial<Options>): Options {
-    return mergeOptions({
-      optionConfig: OptionConfig,
-      userOptions,
-      prefix: MessagePrefix,
-      suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
-      strict: false,
-    });
-  }
-
-  /** Keeps updateOptions scoped to runtime fields even when called from plain JavaScript. */
-  private _pickRuntimeOptions(userOptions: Partial<Options>): Partial<RuntimeOptions> {
-    return RuntimeOptionNames.reduce<Partial<RuntimeOptions>>((result, optionName) => {
-      if (optionName in userOptions) {
-        result[optionName] = userOptions[optionName] as never;
-      }
-      return result;
-    }, {});
   }
 
   /** Saves event handlers passed via options into internal registry. */
   private _registerHandlersFromOptions(options: Options): void {
+    // TODO может не надо сюда опции передавать. эти хендлеры ОДНОРАЗОВЫЕ.
     if (!options.on) {
       return;
     }
@@ -147,14 +160,671 @@ export default class Immerser {
     throw new Error(resultMessage, { cause: error });
   }
 
-  /**
-   * Discovers DOM state, validates configuration and starts responsive runtime handling.
-   */
-  public mount(): void {
-    if (this.isMounted) {
+  /** Collects root, layer and solid nodes from DOM. */
+  private _setDomNodes(selectorRoot: ParentNode): void {
+    this._rootNode = selectorRoot.querySelector<HTMLElement>(this._selectors.root);
+    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: selectorRoot });
+    this._maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+  }
+
+  /** Validates required markup and option references. */
+  private _validateMarkup(): void {
+    const messageArray = validateImmerserMarkup({
+      layerNodeArray: this._layerNodeArray,
+      maskInnerSelector: this._selectors.maskInner,
+      maskNodeArray: this._maskNodeArray,
+      rootNode: this._rootNode,
+      solidClassnamesByLayerId: this._options.solidClassnamesByLayerId,
+    });
+
+    if (messageArray.length > 0) {
+      this._report({
+        message: messageArray.join('\n'),
+        docsHash: '#prepare-your-markup',
+      });
+    }
+  }
+
+  /** Merges user options with defaults and attaches helper metadata to messages. */
+  private _mergeOptions(userOptions?: Partial<Options>): Options {
+    return mergeOptions({
+      optionConfig: OptionConfig,
+      userOptions,
+      prefix: MessagePrefix,
+      suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
+      strict: false,
+    });
+  }
+
+  /** Creates initial LayerState entries for every layer. */
+  private _initLayerStateArray(): void {
+    this._layerStateArray = this._layerNodeArray.map((layerNode, order) => ({
+      calculation: null,
+      id: layerNode.id,
+      layerNode,
+      maskInnerNode: null,
+      maskNode: null,
+      order,
+      solidClassnames: this._options.solidClassnamesByLayerId[layerNode.id] ?? null,
+    }));
+  }
+
+  /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
+  private _toggleBindOnResizeObserver(): void {
+    this._unsubscribeToggleBindOnResize = this._reactiveWindowWidth.subscribe((nextWindowWidth) => {
+      if (nextWindowWidth >= this._options.fromViewportWidth) {
+        if (!this._isBound) {
+          this.enable();
+        }
+      } else if (this._isBound) {
+        this.disable();
+      }
+    });
+  }
+
+  /** Recalculates sizes and thresholds for each layer and updates window width observable. */
+  private _setSizes(): void {
+    const rootNode = this._rootNode as HTMLElement;
+    const layers = this._layerStateArray.map(({ layerNode }) => ({
+      bottom: layerNode.offsetTop + layerNode.offsetHeight,
+      top: layerNode.offsetTop,
+    }));
+    this._isLayoutSet = true;
+    this._rootHeight = rootNode.offsetHeight;
+    this._viewportHeight = window.innerHeight;
+    const layerCalculationArray = calculateLayerStateArray({
+      layers,
+      rootHeight: this._rootHeight,
+      rootTop: rootNode.offsetTop,
+    });
+    this._layerStateArray = this._layerStateArray.map((layerState, layerIndex) => ({
+      ...layerState,
+      calculation: layerCalculationArray[layerIndex],
+    }));
+    if (this._layerProgressArray.length === 0) {
+      this._layerProgressArray = layers.map(() => 0);
+    }
+
+    this._reactiveWindowWidth.value = window.innerWidth;
+  }
+
+  /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
+  private _addScrollAndResizeListeners(): void {
+    if (this._options.isScrollHandled) {
+      this._addScrollListener();
+    }
+    this._onResize = this._handleResize.bind(this);
+    window.addEventListener('resize', this._onResize, false);
+    window.addEventListener('orientationchange', this._onResize, false);
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(this._onResize);
+      this._resizeObserver.observe(this._rootNode);
+    }
+  }
+
+  /** Attaches the scroll listener once when scroll handling is enabled. */
+  private _addScrollListener(): void {
+    if (this._onScroll) {
       return;
     }
-    this._domController.mount(this._options.selectorRoot ?? document);
+    this._onScroll = this._handleScroll.bind(this);
+    window.addEventListener('scroll', this._onScroll, false);
+  }
+
+  /** Clears internal caches, observables and references after destroy. */
+  private _resetInternalState(): void {
+    this._layerStateArray = [];
+    this._isMounted = false;
+    this._isBound = false;
+    this._rootNode = null;
+    this._layerNodeArray = [];
+    this._maskNodeArray = [];
+    this._pagerLinkNodeArray = [];
+    this._synchroHoverNodeArray = [];
+    this._resizeFrameId = null;
+    this._resizeObserver = null;
+    this._scrollFrameId = null;
+    this._scrollAdjustTimerId = null;
+    this._reactiveWindowWidth.reset();
+    this._reactiveSynchroHoverId.reset();
+    this._unsubscribeSynchroHover = null;
+    this._unsubscribeToggleBindOnResize = null;
+    this._onResize = null;
+    this._onScroll = null;
+    this._onSynchroHoverMouseOver = null;
+    this._onSynchroHoverMouseOut = null;
+    this._originalSolidNodeArray = [];
+    this._clonedSolidArray = [];
+    this._preparedMaskMarkupArray = [];
+    this._solidNodeArray = [];
+    this._reset();
+  }
+
+  /** Prepares markup from the current DOM structure. */
+  private _prepareMarkup(): void {
+    if (this._preparedMaskMarkupArray.length > 0) {
+      this._cleanupMarkup();
+    }
+
+    const layerStateArray = this._layerStateArray;
+    const maskMarkupArray = this._resolveMaskMarkup(layerStateArray);
+    const nextLayerStateArray = this._connectLayerStates(layerStateArray, maskMarkupArray);
+    const originalSolidNodeArray = this._findSourceSolids(maskMarkupArray);
+    const clonedSolidArray = this._cloneSolids(nextLayerStateArray, originalSolidNodeArray);
+    const solidNodeArray = this._collectSolidNodes(maskMarkupArray, clonedSolidArray);
+
+    this._reportEmptyMarkup(originalSolidNodeArray, maskMarkupArray);
+    this._applyTechnicalStyles(maskMarkupArray, solidNodeArray);
+    this._commitNodes(maskMarkupArray, clonedSolidArray);
+    this._applyCreatedMasksAria(maskMarkupArray);
+    this._savePreparedMarkupState(maskMarkupArray, clonedSolidArray, originalSolidNodeArray, solidNodeArray);
+    this._detachOriginalSolids(originalSolidNodeArray);
+  }
+
+  /** Restores markup according to controller-recorded ownership. */
+  private _cleanupMarkup(): void {
+    this._removeClonedSolids();
+    this._restoreOriginalSolids();
+    this._clearTechnicalStyles();
+    this._removeCreatedMasks();
+    this._resetMarkupState();
+    this._layerStateArray = this._layerStateArray.map((layerState) => ({
+      ...layerState,
+      maskInnerNode: null,
+      maskNode: null,
+    }));
+  }
+
+  /** Collects pager links that will receive runtime active state. */
+  private _initPagerLinks(): void {
+    this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
+  }
+
+  /** Sets up synchro hover listeners and reactive updates. */
+  private _initHoverSynchro(): void {
+    this._synchroHoverNodeArray = queryElementArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
+
+    this._onSynchroHoverMouseOver = (e: MouseEvent): void => {
+      const target = e.currentTarget as HTMLElement;
+      const synchroHoverId = target.dataset.immerserSynchroHover;
+      this._reactiveSynchroHoverId.value = synchroHoverId;
+    };
+
+    this._onSynchroHoverMouseOut = (): void => {
+      this._reactiveSynchroHoverId.value = null;
+    };
+
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      synchroHoverNode.addEventListener('mouseover', this._onSynchroHoverMouseOver!);
+      synchroHoverNode.addEventListener('mouseout', this._onSynchroHoverMouseOut!);
+    });
+  }
+
+  /** Subscribes to synchronized hover updates. */
+  private _attachCallbacks(): void {
+    if (this._synchroHoverNodeArray.length > 0) {
+      this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawSynchroHover.bind(this));
+    }
+  }
+
+  /** Unsubscribes from synchronized hover updates. */
+  private _detachCallbacks(): void {
+    this._unsubscribeSynchroHover?.();
+  }
+
+  /** Removes hover listeners from synchro hover nodes. */
+  private _removeSyncroHoverListeners(): void {
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      synchroHoverNode.removeEventListener('mouseover', this._onSynchroHoverMouseOver!);
+      synchroHoverNode.removeEventListener('mouseout', this._onSynchroHoverMouseOut!);
+    });
+  }
+
+  /** Clears runtime active state from pager links. */
+  private _clearPagerLinks(): void {
+    this._pagerLinkNodeArray.forEach((node) => {
+      node.classList.remove(this._options.pagerLinkActiveClassname);
+    });
+  }
+
+  /** Removes browser listeners that outlive individual runtime cycles. */
+  private _removeScrollAndResizeListeners(): void {
+    this._removeScrollListener();
+    if (this._onResize) {
+      window.removeEventListener('resize', this._onResize, false);
+      window.removeEventListener('orientationchange', this._onResize, false);
+    }
+    this._resizeObserver?.disconnect();
+  }
+
+  /** Removes the scroll listener if it is attached. */
+  private _removeScrollListener(): void {
+    if (!this._onScroll) {
+      return;
+    }
+    window.removeEventListener('scroll', this._onScroll, false);
+    this._onScroll = null;
+  }
+
+  /** Cancels the pending scroll animation frame. */
+  private _cancelScrollFrame(): void {
+    if (this._scrollFrameId !== null) {
+      window.cancelAnimationFrame(this._scrollFrameId);
+      this._scrollFrameId = null;
+    }
+  }
+
+  /** Cancels the pending resize animation frame. */
+  private _cancelResizeFrame(): void {
+    if (this._resizeFrameId !== null) {
+      window.cancelAnimationFrame(this._resizeFrameId);
+      this._resizeFrameId = null;
+    }
+  }
+
+  /** Clears the pending scroll-adjust timer. */
+  private _clearScrollAdjustTimer(): void {
+    if (this._scrollAdjustTimerId !== null) {
+      clearTimeout(this._scrollAdjustTimerId);
+      this._scrollAdjustTimerId = null;
+    }
+  }
+
+  /** Cancels deferred runtime work before bound markup is cleaned. */
+  private _cancelScheduledRuntimeWork(): void {
+    this._cancelScrollFrame();
+    this._cancelResizeFrame();
+    this._clearScrollAdjustTimer();
+  }
+
+  /**
+   * Captures the active index before calculation replaces the current active index.
+   * Returning both values prevents callers from reading the new index as if it were the previous one.
+   */
+  private _calculateTransition(scrollY?: number): ICalculationTransition {
+    const previousActiveIndex = this.activeIndex;
+    const calculation = this._calculate(scrollY ?? getLastScrollPosition().y);
+    return { previousActiveIndex, calculation };
+  }
+
+  private _getLayerCalculationArray(): ILayerCalculation[] {
+    return this._layerStateArray.map(({ calculation }) => {
+      if (!calculation) {
+        throw new Error('Immerser layout is not set.');
+      }
+      return calculation;
+    });
+  }
+
+  private _calculate(scrollY: number): ICalculationResult {
+    if (!this._isLayoutSet) {
+      throw new Error('Immerser layout is not set.');
+    }
+
+    const calculation = calculateLayersRuntimeState({
+      layerCalculationArray: this._getLayerCalculationArray(),
+      pagerThreshold: this._options.pagerThreshold,
+      previousActiveIndex: this._activeIndex,
+      rootHeight: this._rootHeight,
+      scrollY,
+      viewportHeight: this._viewportHeight,
+    });
+
+    this._activeIndex = calculation.activeIndex;
+    this._layerProgressArray = [...calculation.layerProgressArray];
+
+    return calculation;
+  }
+
+  /** Applies transforms based on scroll position and updates active layer state. */
+  private _draw(calculation: ICalculationResult, previousActiveIndex: number): void {
+    this._layerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
+      if (!maskNode || !maskInnerNode) {
+        return;
+      }
+      const transform = calculation.transforms[layerIndex];
+      maskNode.style.transform = `translateY(${transform.maskTranslateY}px)`;
+      maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
+    });
+
+    if (!this._isBound || calculation.activeIndex === previousActiveIndex) {
+      return;
+    }
+    if (this._pagerLinkNodeArray.length > 0) {
+      this._drawPagerLinks(calculation.activeIndex);
+    }
+    if (this._options.hasToUpdateHash) {
+      this._drawHash(calculation.activeIndex);
+    }
+    this._emit('activeLayerChange', calculation.activeIndex, this);
+  }
+
+  /** Adds or removes active pager classname according to current layer. */
+  private _drawPagerLinks(layerIndex?: number): void {
+    const layerId = layerIndex === undefined ? undefined : this._layerStateArray[layerIndex]?.id;
+    this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
+      const href = (pagerLinkNode as HTMLAnchorElement).getAttribute('href');
+
+      pagerLinkNode.classList.toggle(
+        this._options.pagerLinkActiveClassname,
+        Boolean(layerId && href?.endsWith(`#${layerId}`)),
+      );
+    });
+  }
+
+  /** Updates window hash to match active layer id. */
+  private _drawHash(layerIndex: number): void {
+    const layerState = this._layerStateArray[layerIndex];
+    if (!layerState) {
+      return;
+    }
+    const { id, layerNode } = layerState;
+    layerNode.removeAttribute('id');
+    window.location.hash = id;
+    layerNode.setAttribute('id', id);
+  }
+
+  /** Syncs hover state across elements with matching synchroHover id. */
+  private _drawSynchroHover(synchroHoverId?: string): void {
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
+        synchroHoverNode.classList.add('_hover');
+      } else {
+        synchroHoverNode.classList.remove('_hover');
+      }
+    });
+  }
+
+  /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
+  private _adjustScroll(): void {
+    const { x, y } = getLastScrollPosition();
+    const scrollTarget = this._calculateScrollTarget(y, this._options.scrollAdjustThreshold);
+    if (scrollTarget !== null) {
+      window.scrollTo(x, scrollTarget);
+    }
+  }
+
+  private _calculateScrollTarget(scrollY: number, scrollAdjustThreshold: number): number | null {
+    if (!this._isLayoutSet) {
+      throw new Error('Immerser layout is not set.');
+    }
+
+    const activeLayer = this._layerStateArray[this._activeIndex]?.calculation;
+    if (!activeLayer) {
+      return null;
+    }
+
+    return calculateScrollTarget({
+      activeLayer,
+      scrollAdjustThreshold,
+      scrollY,
+      viewportHeight: this._viewportHeight,
+    });
+  }
+
+  /** RAF-throttled scroll handler that draws and optionally snaps scroll. */
+  private _handleScroll(): void {
+    if (this._isBound) {
+      this._cancelScrollFrame();
+      this._scrollFrameId = window.requestAnimationFrame(() => {
+        const y = getLastScrollPosition().y;
+        const { previousActiveIndex, calculation } = this._calculateTransition(y);
+        this._emit('layersUpdate', [...calculation.layerProgressArray], this);
+        this._draw(calculation, previousActiveIndex);
+        if (this._options.scrollAdjustThreshold > 0) {
+          this._clearScrollAdjustTimer();
+          this._scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this._options.scrollAdjustDelay);
+        }
+      });
+    }
+  }
+
+  /** RAF-throttled resize handler that recalculates sizes and redraws. */
+  private _handleResize(): void {
+    this._cancelResizeFrame();
+    this._resizeFrameId = window.requestAnimationFrame(() => {
+      this.render();
+    });
+  }
+
+  /** Keeps updateOptions scoped to runtime fields even when called from plain JavaScript. */
+  private _pickRuntimeOptions(userOptions: Partial<Options>): Partial<RuntimeOptions> {
+    return RuntimeOptionNames.reduce<Partial<RuntimeOptions>>((result, optionName) => {
+      if (optionName in userOptions) {
+        result[optionName] = userOptions[optionName] as never;
+      }
+      return result;
+    }, {});
+  }
+
+  /** Uses complete existing masks by layer id or creates a detached mask set when none exists. */
+  private _resolveMaskMarkup(layerStateArray: IImmerserLayerState[]): IMaskMarkup[] {
+    const existingMaskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+    if (existingMaskNodeArray.length === 0) {
+      return layerStateArray.map(({ id }) => this._createMaskMarkup(id));
+    }
+    if (existingMaskNodeArray.length !== layerStateArray.length) {
+      const message = 'existing markup mask count differs from count of layers.';
+      this._report({ message, docsHash: '#prepare-your-markup' });
+      throw new Error(message);
+    }
+
+    return layerStateArray.map(({ id }) => {
+      const maskNodeArray = existingMaskNodeArray.filter((maskNode) => maskNode.dataset.immerserLayerId === id);
+      if (maskNodeArray.length > 1) {
+        const message = `existing markup has duplicate mask layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      const maskNode = maskNodeArray[0];
+      if (!maskNode) {
+        const message = `existing markup mask not found for layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      return this._connectMaskMarkup(maskNode, id);
+    });
+  }
+
+  /** Creates one detached mask and its required inner node. */
+  private _createMaskMarkup(layerId: string): IMaskMarkup {
+    const maskNode = document.createElement('div');
+    const maskInnerNode = document.createElement('div');
+    maskNode.dataset.immerserMask = '';
+    maskNode.dataset.immerserLayerId = layerId;
+    maskInnerNode.dataset.immerserMaskInner = '';
+    maskNode.appendChild(maskInnerNode);
+    return { createdMask: true, maskInnerNode, maskNode };
+  }
+
+  /** Validates and connects the inner node belonging to an existing mask. */
+  private _connectMaskMarkup(maskNode: HTMLElement, layerId: string): IMaskMarkup {
+    const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
+    if (!maskInnerNode) {
+      const message = `existing markup mask-inner not found for layer id "${layerId}".`;
+      this._report({ message, docsHash: '#prepare-your-markup' });
+      throw new Error(message);
+    }
+    return { createdMask: false, maskInnerNode, maskNode };
+  }
+
+  /** Associates each layer state with its corresponding validated mask pair. */
+  private _connectLayerStates(
+    layerStateArray: IImmerserLayerState[],
+    maskMarkupArray: IMaskMarkup[],
+  ): IImmerserLayerState[] {
+    const nextLayerStateArray = layerStateArray.map((layerState, layerIndex) => ({
+      ...layerState,
+      maskInnerNode: maskMarkupArray[layerIndex].maskInnerNode,
+      maskNode: maskMarkupArray[layerIndex].maskNode,
+    }));
+    this._layerStateArray = nextLayerStateArray;
+    return nextLayerStateArray;
+  }
+
+  /** Finds source solids while excluding client-owned content already placed inside masks. */
+  private _findSourceSolids(maskMarkupArray: IMaskMarkup[]): HTMLElement[] {
+    return queryElementArray({ selector: this._selectors.solid, parent: this._rootNode }).filter(
+      (solidNode) => !maskMarkupArray.some(({ maskNode }) => maskNode.contains(solidNode)),
+    );
+  }
+
+  /** Builds configured clones and records the inner node that will receive each clone. */
+  private _cloneSolids(layerStateArray: IImmerserLayerState[], originalSolidNodeArray: HTMLElement[]): IClonedSolid[] {
+    return layerStateArray.reduce<IClonedSolid[]>((result, { maskInnerNode, solidClassnames }) => {
+      originalSolidNodeArray.forEach((originalSolidNode) => {
+        const clonedSolidNode = originalSolidNode.cloneNode(true);
+        if (clonedSolidNode instanceof HTMLElement && maskInnerNode) {
+          const solidId = clonedSolidNode.dataset.immerserSolid;
+          const classname = solidId ? solidClassnames?.[solidId] : undefined;
+          if (classname) {
+            clonedSolidNode.classList.add(classname);
+          }
+          result.push({ maskInnerNode, node: clonedSolidNode });
+        }
+      });
+      return result;
+    }, []);
+  }
+
+  /** Collects existing and cloned solids that require interactive technical styles. */
+  private _collectSolidNodes(maskMarkupArray: IMaskMarkup[], clonedSolidArray: IClonedSolid[]): HTMLElement[] {
+    const existingSolidNodeArray = maskMarkupArray.flatMap(({ maskInnerNode }) =>
+      queryElementArray({ selector: this._selectors.solid, parent: maskInnerNode }),
+    );
+    return [...existingSolidNodeArray, ...clonedSolidArray.map(({ node }) => node)];
+  }
+
+  /** Warns when neither source solids nor existing mask content can produce a visual result. */
+  private _reportEmptyMarkup(originalSolidNodeArray: HTMLElement[], maskMarkupArray: IMaskMarkup[]): void {
+    if (
+      originalSolidNodeArray.length === 0 &&
+      maskMarkupArray.every(({ maskInnerNode }) => maskInnerNode.children.length === 0)
+    ) {
+      this._report({
+        message: 'immerser will do nothing without source solids or existing mask content.',
+        docsHash: '#prepare-your-markup',
+        isWarning: true,
+      });
+    }
+  }
+
+  /** Replaces inline styles on controller-managed runtime nodes with technical styles. */
+  private _applyTechnicalStyles(maskMarkupArray: IMaskMarkup[], solidNodeArray: HTMLElement[]): void {
+    this._setTechnicalStyles(this._rootNode as HTMLElement, NotInteractiveStyles);
+    maskMarkupArray.forEach(({ maskInnerNode, maskNode }) => {
+      this._setTechnicalStyles(maskNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+      this._setTechnicalStyles(maskInnerNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+    });
+    solidNodeArray.forEach((node) => {
+      this._setTechnicalStyles(node, InteractiveStyles);
+    });
+  }
+
+  /** Drops client inline styles before assigning the complete technical style set. */
+  private _setTechnicalStyles(node: HTMLElement, styles: Record<string, string>): void {
+    node.removeAttribute('style');
+    assignInlineStyles(node, styles);
+  }
+
+  /** Inserts staged clones and appends controller-created masks to the live root. */
+  private _commitNodes(maskMarkupArray: IMaskMarkup[], clonedSolidArray: IClonedSolid[]): void {
+    clonedSolidArray.forEach(({ maskInnerNode, node }) => {
+      maskInnerNode.appendChild(node);
+    });
+    maskMarkupArray
+      .filter(({ createdMask }) => createdMask)
+      .forEach(({ maskNode }) => (this._rootNode as HTMLElement).appendChild(maskNode));
+  }
+
+  /** Hides duplicate content only on masks created by this instance. */
+  private _applyCreatedMasksAria(maskMarkupArray: IMaskMarkup[]): void {
+    maskMarkupArray
+      .filter(({ createdMask }) => createdMask)
+      .forEach(({ maskNode }, maskIndex) => {
+        if (maskIndex !== 0) {
+          maskNode.setAttribute('aria-hidden', 'true');
+        }
+      });
+  }
+
+  /** Stores references required to clean the committed markup lifecycle. */
+  private _savePreparedMarkupState(
+    maskMarkupArray: IMaskMarkup[],
+    clonedSolidArray: IClonedSolid[],
+    originalSolidNodeArray: HTMLElement[],
+    solidNodeArray: HTMLElement[],
+  ): void {
+    this._clonedSolidArray = clonedSolidArray;
+    this._preparedMaskMarkupArray = maskMarkupArray;
+    this._originalSolidNodeArray = originalSolidNodeArray;
+    this._solidNodeArray = solidNodeArray;
+  }
+
+  /** Detaches source solids after every clone and mask has been committed successfully. */
+  private _detachOriginalSolids(originalSolidNodeArray: HTMLElement[]): void {
+    originalSolidNodeArray.forEach((solidNode) => solidNode.remove());
+  }
+
+  /** Removes every clone owned by this instance without touching existing mask content. */
+  private _removeClonedSolids(): void {
+    this._clonedSolidArray.forEach(({ node }) => node.remove());
+  }
+
+  /** Returns detached source solids to the root in their original relative order. */
+  private _restoreOriginalSolids(): void {
+    this._originalSolidNodeArray.forEach((solidNode) => (this._rootNode as HTMLElement).appendChild(solidNode));
+  }
+
+  /** Clears technical styles from the root and client-owned existing masks. */
+  private _clearTechnicalStyles(): void {
+    (this._rootNode as HTMLElement).removeAttribute('style');
+    this._preparedMaskMarkupArray.forEach(({ createdMask, maskInnerNode, maskNode }) => {
+      if (!createdMask) {
+        maskNode.removeAttribute('style');
+        maskInnerNode.removeAttribute('style');
+      }
+    });
+    this._solidNodeArray.forEach((node) => node.removeAttribute('style'));
+  }
+
+  /** Removes only masks that were created by this instance. */
+  private _removeCreatedMasks(): void {
+    this._preparedMaskMarkupArray.filter(({ createdMask }) => createdMask).forEach(({ maskNode }) => maskNode.remove());
+  }
+
+  /** Clears committed ownership references after cleanup completes. */
+  private _resetMarkupState(): void {
+    this._originalSolidNodeArray = [];
+    this._clonedSolidArray = [];
+    this._preparedMaskMarkupArray = [];
+    this._solidNodeArray = [];
+  }
+
+  private _resetActiveIndex(): void {
+    this._activeIndex = -1;
+  }
+
+  private _reset(): void {
+    this._isLayoutSet = false;
+    this._rootHeight = 0;
+    this._viewportHeight = 0;
+    this._activeIndex = -1;
+    this._layerProgressArray = [];
+  }
+
+  /** Discovers DOM state, validates configuration and starts responsive runtime handling. */
+  public mount(selectorRoot: ParentNode = document): void {
+    if (this._isMounted) {
+      return;
+    }
+    this._setDomNodes(selectorRoot);
+    this._validateMarkup();
+    this._initLayerStateArray();
+    this._isMounted = true;
+    this._toggleBindOnResizeObserver();
+    this._setSizes();
+    this._addScrollAndResizeListeners();
   }
 
   /**
@@ -162,10 +832,17 @@ export default class Immerser {
    * Intended to be idempotent for toggling immerser on when viewport width allows.
    */
   public enable(): void {
-    if (!this.isMounted) {
+    if (!this.isMounted || this._isBound) {
       return;
     }
-    this._domController.enable();
+    this._prepareMarkup();
+    this._initPagerLinks();
+    this._initHoverSynchro();
+    this._attachCallbacks();
+    this._isBound = true;
+    const { previousActiveIndex, calculation } = this._calculateTransition();
+    this._draw(calculation, previousActiveIndex);
+    this._emit('bind', this);
   }
 
   /**
@@ -173,7 +850,17 @@ export default class Immerser {
    * Safe to call multiple times; no-op when already disabled.
    */
   public disable(): void {
-    this._domController.disable();
+    if (!this._isBound) {
+      return;
+    }
+    this._cancelScheduledRuntimeWork();
+    this._detachCallbacks();
+    this._removeSyncroHoverListeners();
+    this._clearPagerLinks();
+    this._cleanupMarkup();
+    this._isBound = false;
+    this._emit('unbind', this);
+    this._resetActiveIndex();
   }
 
   /** Updates runtime options and applies minimal side effects without remounting the instance. */
@@ -184,7 +871,26 @@ export default class Immerser {
     const options = this._mergeOptions(this._userOptions);
     this._options = options;
     this.debug = options.debug;
-    this._domController.updateOptions(options, previousOptions);
+
+    if (
+      previousOptions.scrollAdjustDelay !== options.scrollAdjustDelay ||
+      previousOptions.scrollAdjustThreshold !== options.scrollAdjustThreshold
+    ) {
+      this._clearScrollAdjustTimer();
+    }
+
+    if (!this._isMounted) {
+      return;
+    }
+
+    if (previousOptions.isScrollHandled !== options.isScrollHandled) {
+      options.isScrollHandled ? this._addScrollListener() : this._removeScrollListener();
+    }
+    if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
+      this._setSizes();
+    } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
+      this.render();
+    }
   }
 
   /**
@@ -192,7 +898,11 @@ export default class Immerser {
    * Use when component is permanently removed.
    */
   public destroy(): void {
-    this._domController.destroy();
+    this.disable();
+    this._unsubscribeToggleBindOnResize?.();
+    this._removeScrollAndResizeListeners();
+    this._emit('destroy', this);
+    this._resetInternalState();
     EventNames.forEach((eventName) => this._handlers[eventName].clear());
   }
 
@@ -206,13 +916,15 @@ export default class Immerser {
     if (!this.isMounted) {
       return;
     }
-    this._domController.render();
+    this._setSizes();
+    const { previousActiveIndex, calculation } = this._calculateTransition();
+    this._draw(calculation, previousActiveIndex);
   }
 
   /**
    * Syncs immerser with an externally controlled scroll position.
    * `isScrollHandled=false` option flag is required to call this method.
-   * Call when using a custom scroll engine.
+   * Call when using a custom scroll handler.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
@@ -220,28 +932,16 @@ export default class Immerser {
     if (!this.isMounted) {
       return;
     }
-    this._domController.syncScroll();
-  }
-
-  /** Adds one layer and prepares its runtime markup when immerser is enabled. */
-  public addLayer(
-    id: string,
-    layerNode: HTMLElement,
-    order: number,
-    solidClassnames: SolidClassnames | null = null,
-  ): void {
-    if (!this.isMounted) {
+    if (this._options.isScrollHandled) {
+      this._report({
+        message: 'syncScroll requires the isScrollHandled flag set to false. Call ignored.',
+        isWarning: true,
+        docsHash: '#external-scroll-engine',
+      });
       return;
     }
-    this._domController.addLayer(id, layerNode, order, solidClassnames);
-  }
-
-  /** Removes one layer and its owned runtime markup. */
-  public removeLayer(id: string): void {
-    if (!this.isMounted) {
-      return;
-    }
-    this._domController.removeLayer(id);
+    const { previousActiveIndex, calculation } = this._calculateTransition();
+    this._draw(calculation, previousActiveIndex);
   }
 
   /** Register persistent event handler. */
@@ -273,27 +973,27 @@ export default class Immerser {
 
   /** Current active layer index derived from scroll position. */
   public get activeIndex(): number {
-    return this._domController.activeIndex;
+    return this._activeIndex;
   }
 
   /** Indicates whether immerser runtime is enabled (markup cloned and listeners attached). */
   public get isEnabled(): boolean {
-    return this._domController.isBound;
+    return this._isBound;
   }
 
   /** Indicates whether DOM discovery and mount-level listeners are active. */
   public get isMounted(): boolean {
-    return this._domController.isMounted;
+    return this._isMounted;
   }
 
   /** The root DOM node immerser is attached to. */
   public get rootNode(): HTMLElement | null {
-    return this._domController.rootNode;
+    return this._rootNode;
   }
 
   /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
   public get layerProgressArray(): readonly number[] {
-    return this._domController.layerProgressArray;
+    return this._layerProgressArray;
   }
 }
 

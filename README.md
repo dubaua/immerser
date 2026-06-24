@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 6.64Kb gzipped.
+Immerser is written on typescript. Only 8.75Kb gzipped.
 
 ## Terms
 
@@ -40,7 +40,7 @@ First, setup fixed container as the immerser root container, and add the `data
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute to each section and pass configuration in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnameArray` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
+Then add `data-immerser-layer` attribute to each section and pass configuration in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnamesByLayerId` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
 
 Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
@@ -140,35 +140,35 @@ import Immerser from 'immerser';
 const immerserInstance = new Immerser({
   // this option will be overridden by options
   // passed in data-immerser-layer-config attribute in each layer
-  solidClassnameArray: [
-    {
+  solidClassnamesByLayerId: {
+    reasoning: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    'how-to-use': {
       pager: 'pager--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    'how-it-works': {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    options: {
       logo: 'logo--contrast-only-md',
       pager: 'pager--contrast-only-md',
       language: 'language--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    recipes: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-  ],
+  },
   hasToUpdateHash: true,
   fromViewportWidth: 1024,
   pagerLinkActiveClassname: 'pager__link--active',
@@ -214,7 +214,9 @@ You can pass options to immerser as data-attributes on layers or as object as fu
 
 | option | type | default | description |
 | - | - | - | - |
-| solidClassnameArray | `array` | `[]` | Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
+| autoMount | `boolean` | `true` | Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready |
+| selectorRoot | `unknown` | `undefined` | Parent node used only as the selector search area during mount. Defaults to document |
+| solidClassnamesByLayerId | `object` | `{}` | Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
 | fromViewportWidth | `number` | `0` | A viewport width, from which immerser will init |
 | pagerThreshold | `number` | `0.5` | How much next layer should be in viewport to trigger pager |
 | hasToUpdateHash | `boolean` | `false` | Flag to control changing hash on pager active state change |
@@ -245,16 +247,21 @@ You can subscribe to events via the `on` option or by calling the `on` or `once`
 | name | kind | description |
 | - | - | - |
 | debug | `property` | Controls whether immerser reports warnings and errors |
-| bind | `method` | Clones markup, attaches listeners, and starts internal logic |
-| unbind | `method` | Remove generated markup and listeners, keeping the instance reusable |
+| mount | `method` | Discovers DOM, validates markup, calculates layout, and attaches mount-level listeners |
+| enable | `method` | Enables runtime behavior: prepares markup, hover sync, pager state, and first draw |
+| disable | `method` | Disables runtime behavior, cleans generated markup, and keeps the instance mounted |
+| updateOptions | `method` | Updates runtime options and applies minimal side effects without remounting |
 | destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |
 | render | `method` | Recalculates sizes and redraws masks |
 | syncScroll | `method` | Updates immerser when scroll is controlled externally (requires isScrollHandled = false) |
+| addLayer | `method` | Adds one layer and prepares its runtime markup when immerser is bound |
+| removeLayer | `method` | Removes one layer and its owned runtime markup |
 | on | `method` | Registers a persistent immerser event handler |
 | once | `method` | Registers a one-time immerser event handler that is removed after the first call |
 | off | `method` | Removes a specific handler for the given immerser event |
 | activeIndex | `getter` | Index of the currently active layer, calculated from scroll position |
-| isBound | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
+| isEnabled | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
+| isMounted | `getter` | Indicates whether DOM discovery and mount-level listeners are active |
 | rootNode | `getter` | Root element the immerser instance is attached to |
 | layerProgressArray | `getter` | Per-layer progress values (0–1) showing how much each layer is visible in the viewport |
 

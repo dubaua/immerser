@@ -48,7 +48,7 @@ export type Options = {
   autoMount: boolean;
   /** Parent node used only for selector discovery during mount. */
   selectorRoot?: ParentNode;
-  /** Map of layer id → solid id → classname; can be overridden per layer via data-immerser-layer-config. */
+  /** Map of layer id → solid id → classname. */
   solidClassnamesByLayerId: SolidClassnamesByLayerId;
   /** Minimal viewport width (px) at which immerser enables runtime; below it disables runtime. */
   fromViewportWidth: number;

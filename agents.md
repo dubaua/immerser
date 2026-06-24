@@ -9,6 +9,7 @@
 
 ## Docs & comments
 
+- Never edit README.md unless the user explicitly asks for README.md changes.
 - Add JSDoc only when a function has non-trivial logic _and_ sits in a shared/standalone module.
 - Skip JSDoc for reducers, selectors, event handlers, or simple wrappers.
 - Comments explain **why** something happens, never restate the code.

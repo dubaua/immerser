@@ -5,35 +5,35 @@ import Immerser from 'immerser';
 const immerserInstance = new Immerser({
   // <%= getTranslation('data-attribute-will-override-this-option-line-1') %>
   // <%= getTranslation('data-attribute-will-override-this-option-line-2') %>
-  solidClassnameArray: [
-    {
+  solidClassnamesByLayerId: {
+    reasoning: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    'how-to-use': {
       pager: 'pager--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    'how-it-works': {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-    {
+    options: {
       logo: 'logo--contrast-only-md',
       pager: 'pager--contrast-only-md',
       language: 'language--contrast-only-md',
       menu: 'menu--contrast',
       about: 'about--contrast',
     },
-    {
+    recipes: {
       logo: 'logo--contrast-lg',
       pager: 'pager--contrast-lg',
       language: 'language--contrast-lg',
     },
-  ],
+  },
   hasToUpdateHash: true,
   fromViewportWidth: 1024,
   pagerLinkActiveClassname: 'pager__link--active',

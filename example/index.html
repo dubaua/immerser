@@ -684,35 +684,35 @@ yarn add immerser
 <span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
   <span class="token comment">// <%=getTranslation('data-attribute-will-override-this-option-line-1')%></span>
   <span class="token comment">// <%=getTranslation('data-attribute-will-override-this-option-line-2')%></span>
-  <span class="token literal-property property">solidClassnameArray</span><span class="token operator">:</span> <span class="token punctuation">[</span>
-    <span class="token punctuation">{</span>
+  <span class="token literal-property property">solidClassnamesByLayerId</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">reasoning</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
+    <span class="token string-property property">'how-to-use'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
+    <span class="token string-property property">'how-it-works'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
+    <span class="token literal-property property">options</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-only-md'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-only-md'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
+    <span class="token literal-property property">recipes</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
       <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token literal-property property">hasToUpdateHash</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
   <span class="token literal-property property">fromViewportWidth</span><span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
   <span class="token literal-property property">pagerLinkActiveClassname</span><span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
@@ -797,10 +797,22 @@ yarn add immerser
   </thead>
   <tbody>
     <tr>
-      <td>solidClassnameArray</td>
-      <td class="token keyword">array</td>
-      <td class="token punctuation">[]</td>
-      <td><%= getTranslation('option-solidClassnameArray') %></td>
+      <td>autoMount</td>
+      <td class="token keyword">boolean</td>
+      <td class="token boolean">true</td>
+      <td><%= getTranslation('option-autoMount') %></td>
+    </tr>
+    <tr>
+      <td>selectorRoot</td>
+      <td class="token keyword">unknown</td>
+      <td class="token keyword">undefined</td>
+      <td><%= getTranslation('option-selectorRoot') %></td>
+    </tr>
+    <tr>
+      <td>solidClassnamesByLayerId</td>
+      <td class="token keyword">object</td>
+      <td class="token punctuation">{}</td>
+      <td><%= getTranslation('option-solidClassnamesByLayerId') %></td>
     </tr>
     <tr>
       <td>fromViewportWidth</td>
@@ -955,14 +967,24 @@ yarn add immerser
       <td><%= getTranslation('public-field-debug') %></td>
     </tr>
     <tr>
-      <td>bind</td>
+      <td>mount</td>
       <td class="token keyword">method</td>
-      <td><%= getTranslation('public-field-bind') %></td>
+      <td><%= getTranslation('public-field-mount') %></td>
     </tr>
     <tr>
-      <td>unbind</td>
+      <td>enable</td>
       <td class="token keyword">method</td>
-      <td><%= getTranslation('public-field-unbind') %></td>
+      <td><%= getTranslation('public-field-enable') %></td>
+    </tr>
+    <tr>
+      <td>disable</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-disable') %></td>
+    </tr>
+    <tr>
+      <td>updateOptions</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-updateOptions') %></td>
     </tr>
     <tr>
       <td>destroy</td>
@@ -978,6 +1000,16 @@ yarn add immerser
       <td>syncScroll</td>
       <td class="token keyword">method</td>
       <td><%= getTranslation('public-field-syncScroll') %></td>
+    </tr>
+    <tr>
+      <td>addLayer</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-addLayer') %></td>
+    </tr>
+    <tr>
+      <td>removeLayer</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-removeLayer') %></td>
     </tr>
     <tr>
       <td>on</td>
@@ -1000,9 +1032,14 @@ yarn add immerser
       <td><%= getTranslation('public-field-activeIndex') %></td>
     </tr>
     <tr>
-      <td>isBound</td>
+      <td>isEnabled</td>
       <td class="token keyword">getter</td>
-      <td><%= getTranslation('public-field-isBound') %></td>
+      <td><%= getTranslation('public-field-isEnabled') %></td>
+    </tr>
+    <tr>
+      <td>isMounted</td>
+      <td class="token keyword">getter</td>
+      <td><%= getTranslation('public-field-isMounted') %></td>
     </tr>
     <tr>
       <td>rootNode</td>

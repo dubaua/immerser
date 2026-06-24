@@ -1,6 +1,8 @@
 | option | type | default | description |
 | - | - | - | - |
-| solidClassnameArray | `array` | `[]` | Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
+| autoMount | `boolean` | `true` | Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready |
+| selectorRoot | `unknown` | `undefined` | Parent node used only as the selector search area during mount. Defaults to document |
+| solidClassnamesByLayerId | `object` | `{}` | Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
 | fromViewportWidth | `number` | `0` | A viewport width, from which immerser will init |
 | pagerThreshold | `number` | `0.5` | How much next layer should be in viewport to trigger pager |
 | hasToUpdateHash | `boolean` | `false` | Flag to control changing hash on pager active state change |
