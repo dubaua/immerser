@@ -159,11 +159,29 @@ export default class Immerser {
     throw new Error(resultMessage, { cause: error });
   }
 
-  /** Collects root, layer and solid nodes from DOM. */
-  private _setDomNodes(selectorRoot: ParentNode): void {
+  /** DOC ME  */
+  private _syncStructure(selectorRoot: ParentNode): void {
     this._rootNode = selectorRoot.querySelector<HTMLElement>(this._selectors.root);
     this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: selectorRoot });
     this._maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+
+    this._validateMarkup();
+
+    const previousLayerStateById = new Map(this._layerStateArray.map((layerState) => [layerState.id, layerState]));
+
+    this._layerStateArray = this._layerNodeArray.map((layerNode, order) => {
+      const previousLayerState = previousLayerStateById.get(layerNode.id);
+
+      return {
+        calculation: previousLayerState?.calculation ?? null,
+        id: layerNode.id,
+        layerNode,
+        maskInnerNode: previousLayerState?.maskInnerNode ?? null,
+        maskNode: previousLayerState?.maskNode ?? null,
+        order,
+        solidClassnames: this._options.solidClassnamesByLayerId[layerNode.id] ?? null,
+      };
+    });
   }
 
   /** Validates required markup and option references. */
@@ -177,9 +195,11 @@ export default class Immerser {
     });
 
     if (messageArray.length > 0) {
-      this._report({
-        message: messageArray.join('\n'),
-        docsHash: '#prepare-your-markup',
+      messageArray.forEach((message) => {
+        this._report({
+          message,
+          docsHash: '#prepare-your-markup',
+        });
       });
     }
   }
@@ -195,27 +215,12 @@ export default class Immerser {
     });
   }
 
-  /** Creates initial LayerState entries for every layer. */
-  private _initLayerStateArray(): void {
-    this._layerStateArray = this._layerNodeArray.map((layerNode, order) => ({
-      calculation: null,
-      id: layerNode.id,
-      layerNode,
-      maskInnerNode: null,
-      maskNode: null,
-      order,
-      solidClassnames: this._options.solidClassnamesByLayerId[layerNode.id] ?? null,
-    }));
-  }
-
   /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
   private _toggleBindOnResizeObserver(): void {
     this._unsubscribeToggleBindOnResize = this._reactiveWindowWidth.subscribe((nextWindowWidth) => {
       if (nextWindowWidth >= this._options.fromViewportWidth) {
-        if (!this._isBound) {
-          this.enable();
-        }
-      } else if (this._isBound) {
+        this.enable();
+      } else {
         this.disable();
       }
     });
@@ -802,9 +807,7 @@ export default class Immerser {
     if (this._isMounted) {
       return;
     }
-    this._setDomNodes(selectorRoot);
-    this._validateMarkup();
-    this._initLayerStateArray();
+    this._syncStructure(selectorRoot);
     this._isMounted = true;
     this._toggleBindOnResizeObserver();
     this._setSizes();
