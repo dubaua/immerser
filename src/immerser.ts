@@ -28,7 +28,7 @@ import type {
   EventName,
   HandlerArgs,
   HandlerByEventName,
-  LayersUpdateHandler,
+  LayerProgressChangeHandler,
   Options,
   RuntimeOptions,
   SolidClassnames,
@@ -75,10 +75,10 @@ export default class Immerser {
     mount: new Set(),
     unmount: new Set(),
     destroy: new Set(),
+    structureChange: new Set(),
+    layoutChange: new Set(),
+    layerProgressChange: new Set(),
     activeLayerChange: new Set(),
-    layersUpdate: new Set(),
-    // layerProgressChange
-    // structureChange
   };
   private _onResize: (() => void) | null = null;
   private _onScroll: (() => void) | null = null;
@@ -192,6 +192,7 @@ export default class Immerser {
     });
 
     this._structureSignature = this._createLayerSignature(this._layerNodeArray);
+    this._emit('structureChange', this);
   }
 
   /** Validates required markup and option references. */
@@ -239,7 +240,7 @@ export default class Immerser {
   }
 
   /** Recalculates sizes and thresholds for each layer. */
-  private _setSizes(): void {
+  private _syncLayoutSizes(): void {
     const rootNode = this._rootNode as HTMLElement;
     const layers = this._layerStateArray.map(({ layerNode }) => ({
       bottom: layerNode.offsetTop + layerNode.offsetHeight,
@@ -263,6 +264,8 @@ export default class Immerser {
 
     this._layoutSignature = this._createLayoutSignature();
     this._drawSignature = ''; // TODO check if need here.
+
+    this._emit('layoutChange', this);
   }
 
   private _createLayoutSignature(): string {
@@ -529,7 +532,7 @@ export default class Immerser {
 
     if (this._pendingSync.layout) {
       this._pendingSync.layout = false;
-      this._setSizes();
+      this._syncLayoutSizes();
     }
 
     if (this._pendingSync.draw) {
@@ -551,8 +554,8 @@ export default class Immerser {
     }
 
     this._drawSignature = nextDrawSignature;
-    this._emit('layersUpdate', [...calculation.layerProgressArray], this);
     this._draw(calculation, previousActiveIndex);
+    this._emit('layerProgressChange', [...calculation.layerProgressArray], this);
   }
 
   /**
@@ -940,7 +943,7 @@ export default class Immerser {
     }
     this._syncStructure();
     this._prepareMarkup();
-    this._setSizes();
+    this._syncLayoutSizes();
     this._initPagerLinks();
     this._initHoverSynchro();
     this._attachCallbacks();
@@ -1084,7 +1087,7 @@ export type {
   EventHandlers,
   EventName,
   HandlerByEventName,
-  LayersUpdateHandler,
+  LayerProgressChangeHandler,
   Options,
   RuntimeOptions,
   SolidClassnames,

@@ -131,8 +131,10 @@ module.exports = {
   'event-mount': 'Вызывается после mount рантайма',
   'event-unmount': 'Вызывается после unmount рантайма',
   'event-destroy': 'Вызывается после уничтожения экземпляра',
+  'event-structureChange': 'Вызывается после синхронизации структуры DOM',
+  'event-layoutChange': 'Вызывается после пересчета layout',
   'event-activeLayerChange': 'Вызывается при смене активного слоя',
-  'event-layersUpdate': 'Вызывается при каждом обновлении скролла',
+  'event-layerProgressChange': 'Вызывается при изменении прогресса слоев',
 
   'public-fields-title': 'Публичные поля и методы',
   'public-field-mount':
@@ -143,9 +145,6 @@ module.exports = {
   'public-field-destroy':
     'Полностью уничтожает иммёрсер: размонтирует рантайм, удаляет resize-обработчик, возвращает оригинальную разметку и очищает внутреннее состояние',
   'public-field-render': 'Пересчитывает размеры и перерисовывает маски',
-  'public-field-invalidateStructure': 'TODO DOC ME',
-  'public-field-invalidateLayout': 'TODO DOC ME',
-  'public-field-invalidateDraw': 'TODO DOC ME',
   'public-field-syncScroll':
     'Обновляет иммёрсер при внешнем управлении скроллом (требуется флаг hasExternalScroll = true)',
   'public-field-on': 'Регистрирует постоянный обработчик события иммёрсера',

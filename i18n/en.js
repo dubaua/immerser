@@ -131,8 +131,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'event-mount': 'Emitted after runtime mount.',
   'event-unmount': 'Emitted after runtime unmount.',
   'event-destroy': 'Emitted after destroy.',
+  'event-structureChange': 'Emitted after structure sync.',
+  'event-layoutChange': 'Emitted after layout recalculation.',
   'event-activeLayerChange': 'Emitted after active layer change.',
-  'event-layersUpdate': 'Emitted on each scroll update.',
+  'event-layerProgressChange': 'Emitted after layer progress changes.',
 
   'public-fields-title': 'Public fields and methods',
   'public-field-mount':
@@ -143,9 +145,6 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'public-field-destroy':
     'Fully destroys immerser: unmounts runtime, removes resize handling, restores original markup, and clears internal state',
   'public-field-render': 'Recalculates sizes and redraws masks',
-  'public-field-invalidateStructure': 'TODO DOC ME',
-  'public-field-invalidateLayout': 'TODO DOC ME',
-  'public-field-invalidateDraw': 'TODO DOC ME',
   'public-field-syncScroll':
     'Updates immerser when scroll is controlled externally (requires hasExternalScroll = true)',
   'public-field-on': 'Registers a persistent immerser event handler',

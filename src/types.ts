@@ -18,18 +18,20 @@ export type EventName = (typeof EventNames)[number];
 export type BaseHandler = (immerser: Immerser) => void;
 /** @public Handler signature for active layer change events. */
 export type ActiveLayerChangeHandler = (layerIndex: number, immerser: Immerser) => void;
-/** @public Handler signature for layers update events. */
-export type LayersUpdateHandler = (layersProgress: number[], immerser: Immerser) => void;
+/** @public Handler signature for layer progress change events. */
+export type LayerProgressChangeHandler = (layerProgressArray: number[], immerser: Immerser) => void;
 
-// key EventName value BaseHandler ActiveLayerChangeHandler LayersUpdateHandler
+// key EventName value BaseHandler ActiveLayerChangeHandler LayerProgressChangeHandler
 /** @public Map of immerser event names to handler signatures. */
 export type HandlerByEventName = {
   init: BaseHandler;
   mount: BaseHandler;
   unmount: BaseHandler;
   destroy: BaseHandler;
+  structureChange: BaseHandler;
+  layoutChange: BaseHandler;
   activeLayerChange: ActiveLayerChangeHandler;
-  layersUpdate: LayersUpdateHandler;
+  layerProgressChange: LayerProgressChangeHandler;
 };
 
 type HandlerArgsMap = {
