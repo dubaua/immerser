@@ -119,7 +119,9 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
     'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
   'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
   'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
-  'option-isScrollHandled': "Binds scroll listener if true. Set to false if you're using remote scroll controller",
+  'option-hasExternalScroll': 'Do not handles scroll if true. Intended to use with remote scroll controller',
+  'option-hasExternalRenderer':
+    'Do not handles most of DOM routine if true. Intended to use with render frameworks such as React, Vue.js etc',
   'option-debug': 'Enables logging warnings and errors. Defaults to true in development, false otherwise',
   'option-on': 'Initial event handlers map keyed by event name',
   'events-title': 'Events',
@@ -140,7 +142,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'public-field-destroy':
     'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
   'public-field-render': 'Recalculates sizes and redraws masks',
-  'public-field-syncScroll': 'Updates immerser when scroll is controlled externally (requires isScrollHandled = false)',
+  'public-field-syncScroll':
+    'Updates immerser when scroll is controlled externally (requires hasExternalScroll = true)',
   'public-field-addLayer': 'Adds one layer and prepares its runtime markup when immerser is bound',
   'public-field-removeLayer': 'Removes one layer and its owned runtime markup',
   'public-field-on': 'Registers a persistent immerser event handler',
@@ -189,7 +192,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'external-scroll-engine-content': `
 <p>
   If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with
-  <code>isScrollHandled=false</code> flag and call <code>syncScroll</code> method every time the engine updates position.
+  <code>hasExternalScroll=true</code> flag and call <code>syncScroll</code> method every time the engine updates position.
   Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
 </p>
 `,

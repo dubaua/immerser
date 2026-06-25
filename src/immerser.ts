@@ -40,7 +40,6 @@ const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
   'debug',
   'fromViewportWidth',
   'hasToUpdateHash',
-  'isScrollHandled',
   'pagerThreshold',
   'scrollAdjustDelay',
   'scrollAdjustThreshold',
@@ -250,8 +249,9 @@ export default class Immerser {
 
   /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
   private _addScrollAndResizeListeners(): void {
-    if (this._options.isScrollHandled) {
-      this._addScrollListener();
+    if (!this._options.hasExternalScroll) {
+      this._onScroll = this._handleScroll.bind(this);
+      window.addEventListener('scroll', this._onScroll, false);
     }
     this._onResize = this._handleResize.bind(this);
     window.addEventListener('resize', this._onResize, false);
@@ -260,15 +260,6 @@ export default class Immerser {
       this._resizeObserver = new ResizeObserver(this._onResize);
       this._resizeObserver.observe(this._rootNode);
     }
-  }
-
-  /** Attaches the scroll listener once when scroll handling is enabled. */
-  private _addScrollListener(): void {
-    if (this._onScroll) {
-      return;
-    }
-    this._onScroll = this._handleScroll.bind(this);
-    window.addEventListener('scroll', this._onScroll, false);
   }
 
   /** Clears internal caches, observables and references after destroy. */
@@ -389,21 +380,14 @@ export default class Immerser {
 
   /** Removes browser listeners that outlive individual runtime cycles. */
   private _removeScrollAndResizeListeners(): void {
-    this._removeScrollListener();
+    if (!this._options.hasExternalScroll && this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll, false);
+    }
     if (this._onResize) {
       window.removeEventListener('resize', this._onResize, false);
       window.removeEventListener('orientationchange', this._onResize, false);
     }
     this._resizeObserver?.disconnect();
-  }
-
-  /** Removes the scroll listener if it is attached. */
-  private _removeScrollListener(): void {
-    if (!this._onScroll) {
-      return;
-    }
-    window.removeEventListener('scroll', this._onScroll, false);
-    this._onScroll = null;
   }
 
   /** Cancels the pending scroll animation frame. */
@@ -883,9 +867,6 @@ export default class Immerser {
       return;
     }
 
-    if (previousOptions.isScrollHandled !== options.isScrollHandled) {
-      options.isScrollHandled ? this._addScrollListener() : this._removeScrollListener();
-    }
     if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
       this._setSizes();
     } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
@@ -923,7 +904,7 @@ export default class Immerser {
 
   /**
    * Syncs immerser with an externally controlled scroll position.
-   * `isScrollHandled=false` option flag is required to call this method.
+   * `hasExternalScroll=true` option flag is required to call this method.
    * Call when using a custom scroll handler.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
@@ -932,9 +913,9 @@ export default class Immerser {
     if (!this.isMounted) {
       return;
     }
-    if (this._options.isScrollHandled) {
+    if (!this._options.hasExternalScroll) {
       this._report({
-        message: 'syncScroll requires the isScrollHandled flag set to false. Call ignored.',
+        message: 'syncScroll requires the hasExternalScroll flag. Call ignored.',
         isWarning: true,
         docsHash: '#external-scroll-engine',
       });

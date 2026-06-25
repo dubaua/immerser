@@ -72,8 +72,13 @@ export const OptionConfig: MergeOptionConfig<Options> = {
     description: 'valid non empty classname string',
     validator: classnameValidator,
   },
-  isScrollHandled: {
-    default: true,
+  hasExternalScroll: {
+    default: false,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
+  hasExternalRenderer: {
+    default: false,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },

@@ -62,10 +62,14 @@ export type Options = {
   scrollAdjustDelay: number;
   /** Classname added to pager link pointing to the active layer. */
   pagerLinkActiveClassname: string;
-  /** If false, immerser will not attach its own scroll listener.
+  /** If true, immerser will not attach its own scroll listener.
    * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
    */
-  isScrollHandled: boolean;
+  hasExternalScroll: boolean;
+  /** If true, immerser will not run most of DOM handling routine.
+   * Intended to use with render frameworks such React, Vue.js etc.
+   */
+  hasExternalRenderer: boolean;
   /** Enables runtime reporting of warnings and errors. */
   debug?: boolean;
   /** Initial event handlers keyed by event name. */
@@ -75,11 +79,5 @@ export type Options = {
 /** @public Options that can be updated after instance creation. */
 export type RuntimeOptions = Pick<
   Options,
-  | 'debug'
-  | 'fromViewportWidth'
-  | 'hasToUpdateHash'
-  | 'isScrollHandled'
-  | 'pagerThreshold'
-  | 'scrollAdjustDelay'
-  | 'scrollAdjustThreshold'
+  'debug' | 'fromViewportWidth' | 'hasToUpdateHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'
 >;
