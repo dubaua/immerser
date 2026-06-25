@@ -3,8 +3,6 @@
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
-  // <%= getTranslation('data-attribute-will-override-this-option-line-1') %>
-  // <%= getTranslation('data-attribute-will-override-this-option-line-2') %>
   solidClassnamesByLayerId: {
     reasoning: {
       logo: 'logo--contrast-lg',
@@ -43,20 +41,26 @@ const immerserInstance = new Immerser({
     init(immerser) {
       // <%= getTranslation('callback-on-init') %>
     },
-    bind(immerser) {
-      // <%= getTranslation('callback-on-bind') %>
+    mount(immerser) {
+      // <%= getTranslation('callback-on-mount') %>
     },
-    unbind(immerser) {
-      // <%= getTranslation('callback-on-unbind') %>
+    unmount(immerser) {
+      // <%= getTranslation('callback-on-unmount') %>
     },
     destroy(immerser) {
       // <%= getTranslation('callback-on-destroy') %>
     },
+    structureChange(immerser) {
+      // <%= getTranslation('callback-on-structure-change') %>
+    },
+    layoutChange(immerser) {
+      // <%= getTranslation('callback-on-layout-change') %>
+    },
     activeLayerChange(activeIndex, immerser) {
       // <%= getTranslation('callback-on-active-layer-change') %>
     },
-    layersUpdate(layersProgress, immerser) {
-      // <%= getTranslation('callback-on-layers-update') %>
+    layerProgressChange(layerProgressArray, immerser) {
+      // <%= getTranslation('callback-on-layer-progress-change') %>
     },
   },
 });

@@ -145,7 +145,7 @@ export function initEmojiAnimation(immerser: Immerser) {
   });
 
   const handleLayersUpdate = (layersProgress: number[]) => {
-    console.log('layersUpdate', layersProgress, immerser);
+    console.log('layerProgressChange', layersProgress, immerser);
 
     emojiState.lastConfig = mixConfigByProgress(layersProgress, layerConfigs);
 
@@ -198,7 +198,7 @@ export function initEmojiAnimation(immerser: Immerser) {
               });
             },
             onComplete: () => {
-              immerser.off('layersUpdate', handleLayersUpdate);
+              immerser.off('layerProgressChange', handleLayersUpdate);
 
               faceNodeListeners.forEach(({ faceNode, onMouseDown, onMouseUp }) => {
                 faceNode.removeEventListener('mousedown', onMouseDown);

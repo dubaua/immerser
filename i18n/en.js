@@ -71,8 +71,6 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 
   'dont-import-if-umd-line-1': `You don't have to import immerser`,
   'dont-import-if-umd-line-2': `if you're using it in browser as global variable`,
-  'data-attribute-will-override-this-option-line-1': 'this option will be overridden by options',
-  'data-attribute-will-override-this-option-line-2': 'passed in data-immerser-layer-config attribute in each layer',
 
   'initialize-immerser-title': 'Initialize Immerser',
   'initialize-immerser-content': `<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>`,
@@ -81,8 +79,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'callback-on-mount': 'callback on mount event',
   'callback-on-unmount': 'callback on unmount event',
   'callback-on-destroy': 'callback on destroy event',
+  'callback-on-structure-change': 'callback on DOM structure change event',
+  'callback-on-layout-change': 'callback on layer size recalculation event',
   'callback-on-active-layer-change': 'callback on active layer change event',
-  'callback-on-layers-update': 'callback on layers update event',
+  'callback-on-layer-progress-change': 'callback on layer progress change event',
 
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
@@ -109,53 +109,53 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   name: 'name',
 
   'option-solidClassnamesByLayerId':
-    'Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
-  'option-autoMount': 'Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready',
-  'option-selectorRoot': 'Parent node used only as the selector search area during mount. Defaults to document',
-  'option-fromViewportWidth': 'A viewport width, from which immerser will init',
-  'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
-  'option-hasToUpdateHash': 'Flag to control changing hash on pager active state change',
+    'Nested lookup table: layer id → solid id → CSS class that immerser adds to that solid on that layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
+  'option-autoMount': 'If true, constructor mounts immerser immediately',
+  'option-selectorRoot': 'Parent element used only for selector lookup during mount',
+  'option-fromViewportWidth': 'Minimum viewport width in pixels, breakpoint at which immerser mounts',
+  'option-pagerThreshold': 'Portion of viewport height that must overlap the next layer before pager switches',
+  'option-hasToUpdateHash': 'Whether to update the page hash to the active layer id when active layer changes',
   'option-scrollAdjustThreshold':
-    'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
-  'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
-  'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
-  'option-hasExternalScroll': 'Do not handles scroll if true. Intended to use with remote scroll controller',
+    'Pixel threshold near section edges that triggers scroll snapping when exceeded. Pass zero to disable scroll snapping',
+  'option-scrollAdjustDelay': 'Delay in ms before running scroll snapping after user scroll stops',
+  'option-pagerLinkActiveClassname': 'Class for the pager link pointing to the active layer',
+  'option-hasExternalScroll':
+    'If true, immerser will not attach its own scroll handler. Intended for use with an external scroll controller and syncScroll calls',
   'option-hasExternalRenderer':
-    'Do not handles most of DOM routine if true. Intended to use with render frameworks such as React, Vue.js etc',
-  'option-debug': 'Enables logging warnings and errors. Defaults to true in development, false otherwise',
+    'If true, skips most DOM mutation routine. Intended for use with render frameworks such as React, Vue.js, and others',
+  'option-debug': 'Enables warning logging. Defaults to true in development, false otherwise',
   'option-on': 'Initial event handlers map keyed by event name',
   'events-title': 'Events',
   'events-content':
     '<p>You can subscribe to events via the <code>on</code> option or by calling the <code>on</code> or <code>once</code> method on an immerser instance.</p>',
-  'event-init': 'Emitted after initialization.',
-  'event-mount': 'Emitted after runtime mount.',
-  'event-unmount': 'Emitted after runtime unmount.',
-  'event-destroy': 'Emitted after destroy.',
-  'event-structureChange': 'Emitted after structure sync.',
-  'event-layoutChange': 'Emitted after layout recalculation.',
-  'event-activeLayerChange': 'Emitted after active layer change.',
-  'event-layerProgressChange': 'Emitted after layer progress changes.',
+  'event-init': 'Emitted after initialization',
+  'event-mount': 'Emitted after immerser mounts and is ready to work',
+  'event-unmount': 'Emitted after unmount when viewport width is below fromViewportWidth',
+  'event-destroy': 'Emitted after instance destroy',
+  'event-structureChange': 'Emitted after DOM structure synchronization',
+  'event-layoutChange': 'Emitted after layer size recalculation changes',
+  'event-activeLayerChange': 'Emitted after active layer changes',
+  'event-layerProgressChange': 'Emitted after layer progress changes',
 
   'public-fields-title': 'Public fields and methods',
   'public-field-mount':
-    'Mounts runtime when the viewport matches fromViewportWidth: discovers DOM, prepares markup, calculates layout, and attaches listeners',
+    'Mounts immerser when viewport width passes the fromViewportWidth breakpoint: discovers DOM, prepares markup, calculates layer sizes, and attaches event listeners',
   'public-field-unmount':
-    'Unmounts runtime, cleans generated markup, and keeps resize handling active for breakpoint remount',
+    'Unmounts immerser: cleans markup owned by immerser and keeps resize handling active for breakpoint remount',
   'public-field-updateOptions': 'Updates runtime options and applies minimal side effects without remounting',
   'public-field-destroy':
-    'Fully destroys immerser: unmounts runtime, removes resize handling, restores original markup, and clears internal state',
-  'public-field-render': 'Recalculates sizes and redraws masks',
+    'Fully destroys immerser: unmounts it, removes resize handling, restores original markup, and clears internal state',
+  'public-field-render': 'Schedules structure synchronization, calculations, and redraw after DOM mutations',
   'public-field-syncScroll':
-    'Updates immerser when scroll is controlled externally (requires hasExternalScroll = true)',
+    'Syncs immerser with an externally controlled scroll position. Intended for use with hasExternalScroll=true',
   'public-field-on': 'Registers a persistent immerser event handler',
   'public-field-once': 'Registers a one-time immerser event handler that is removed after the first call',
   'public-field-off': 'Removes a specific handler for the given immerser event',
-  'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
-  'public-field-isMounted': 'Indicates whether runtime is mounted',
-  'public-field-rootNode': 'Root element the immerser instance is attached to',
-  'public-field-layerProgressArray':
-    'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
-  'public-field-debug': 'Controls whether immerser reports warnings and errors',
+  'public-field-activeIndex': 'Active layer index derived from scroll position',
+  'public-field-isMounted': 'Indicates whether immerser is mounted',
+  'public-field-rootNode': 'Root DOM element immerser is attached to',
+  'public-field-layerProgressArray': 'Progress of each layer from 0 (off-screen) to 1 (fully visible)',
+  'public-field-debug': 'Controls whether immerser reports warnings',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',
   'cloning-event-listeners-content': `
