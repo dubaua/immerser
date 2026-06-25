@@ -4,8 +4,8 @@ import calculateLayerStateArray from './utils/calculate-layer-state-array';
 import calculateLayersRuntimeState from './utils/calculate-layers-runtime-state';
 import calculateScrollTarget from './utils/calculate-scroll-target';
 import { EventNames } from './events';
-import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './utils/styles';
-import { ImmerserSelectors } from './utils/selectors';
+import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
+import { ImmerserSelectors } from './selectors';
 import { InitialDebug, OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import assignInlineStyles from './utils/assign-inline-styles';
@@ -45,7 +45,7 @@ const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
   'scrollAdjustThreshold',
 ];
 
-/** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
+/** @public Main Immerser controller orchestrating markup preparation and scroll-driven transitions. */
 export default class Immerser {
   private _options!: Options;
   private _selectors = ImmerserSelectors;
@@ -95,12 +95,12 @@ export default class Immerser {
     draw: false,
   };
 
-  /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
+  /** Enables warning reporting. Defaults to NODE_ENV===development. */
   public debug = InitialDebug;
 
   /**
    * Creates immerser instance and runs DOM setup unless autoMount is disabled.
-   * @param userOptions - overrides for defaults defined in OptionConfig if pass validation
+   * @param userOptions - overrides for defaults defined in OptionConfig when they pass validation
    */
   constructor(userOptions?: Partial<Options>) {
     this._init(userOptions);
@@ -128,7 +128,7 @@ export default class Immerser {
       return;
     }
     EventNames.forEach((eventName) => {
-      const handler = !this._options.on[eventName];
+      const handler = this._options.on[eventName];
       if (typeof handler === 'function') {
         this.on(eventName, handler);
       }
@@ -167,7 +167,7 @@ export default class Immerser {
     throw new Error(resultMessage, { cause: error });
   }
 
-  /** DOC ME  */
+  /** Discovers root, layers and existing masks, then rebuilds layer state references. */
   private _syncStructure(): void {
     this._rootNode = this._selectorRoot.querySelector<HTMLElement>(this._selectors.root);
     this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
@@ -263,7 +263,8 @@ export default class Immerser {
     }
 
     this._layoutSignature = this._createLayoutSignature();
-    this._drawSignature = ''; // TODO check if need here.
+    // Same progress can produce different pixel transforms after layout changes.
+    this._drawSignature = '';
 
     this._emit('layoutChange', this);
   }
@@ -286,7 +287,7 @@ export default class Immerser {
     }
   }
 
-  /** Attaches runtime listeners respecting isScrollHandled flag. */
+  /** Attaches runtime listeners respecting hasExternalScroll flag. */
   private _addMountedListeners(): void {
     if (!this._options.hasExternalScroll && !this._onScroll) {
       this._onScroll = this._handleScroll.bind(this);
@@ -330,7 +331,7 @@ export default class Immerser {
     this._resetMountedState();
   }
 
-  /** Prepares markup from the current DOM structure. */
+  /** Connects external mask markup or prepares controller-owned markup. */
   private _prepareMarkup(): void {
     if (this._options.hasExternalRenderer) {
       this._connectExistingMaskMarkup();
@@ -380,8 +381,8 @@ export default class Immerser {
     this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
   }
 
-  /** Sets up synchro hover listeners and reactive updates. */
-  private _initHoverSynchro(): void {
+  /** Sets up hover synchronization listeners and reactive updates. */
+  private _initHoverSynchronization(): void {
     if (this._options.hasExternalRenderer) {
       return;
     }
@@ -402,12 +403,12 @@ export default class Immerser {
       synchroHoverNode.addEventListener('mouseout', this._onSynchroHoverMouseOut!);
     });
     if (this._synchroHoverNodeArray.length > 0) {
-      this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawSynchroHover.bind(this));
+      this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawHoverSynchronization.bind(this));
     }
   }
 
-  /** Removes synchro hover listeners and reactive updates. */
-  private _destroyHoverSynchro(): void {
+  /** Removes hover synchronization listeners and reactive updates. */
+  private _destroyHoverSynchronization(): void {
     this._unsubscribeSynchroHover?.();
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       synchroHoverNode.removeEventListener('mouseover', this._onSynchroHoverMouseOver!);
@@ -597,7 +598,7 @@ export default class Immerser {
   }
 
   private _createDrawSignature(activeIndex: number, layerProgressArray: readonly number[]): string {
-    return `${activeIndex}:${[layerProgressArray].join('|')}`;
+    return `${activeIndex}:${layerProgressArray.join('|')}`;
   }
 
   /** Applies transforms based on scroll position and updates active layer state. */
@@ -648,8 +649,8 @@ export default class Immerser {
     layerNode.setAttribute('id', id);
   }
 
-  /** Syncs hover state across elements with matching synchroHover id. */
-  private _drawSynchroHover(synchroHoverId?: string): void {
+  /** Syncs hover state across elements with matching synchro hover id. */
+  private _drawHoverSynchronization(synchroHoverId?: string): void {
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
         synchroHoverNode.classList.add('_hover');
@@ -962,7 +963,7 @@ export default class Immerser {
     this._prepareMarkup();
     this._syncLayoutSizes();
     this._initPagerLinks();
-    this._initHoverSynchro();
+    this._initHoverSynchronization();
     this._addMountedListeners();
     this._isMounted = true;
     this._drawCurrentState();
@@ -978,7 +979,7 @@ export default class Immerser {
       return;
     }
     this._cancelScheduledRuntimeWork();
-    this._destroyHoverSynchro();
+    this._destroyHoverSynchronization();
     this._clearPagerLinks();
     this._removeMountedListeners();
     this._cleanupMarkup();
@@ -1024,10 +1025,9 @@ export default class Immerser {
     EventNames.forEach((eventName) => this._handlers[eventName].clear());
   }
 
-  // TODO Fix Docs here in in docs
   /**
-   * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
-   * Exposed for dynamic content updates without reinitializing immerser.
+   * Schedules structure, layout and draw synchronization after DOM mutations.
+   * Designed for dynamic content updates without reinitializing immerser.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
@@ -1035,11 +1035,9 @@ export default class Immerser {
     this._invalidateStructure();
   }
 
-  // TODO Fix Docs here in in docs
   /**
    * Syncs immerser with an externally controlled scroll position.
-   * `hasExternalScroll=true` option flag is required to call this method.
-   * Call when using a custom scroll handler.
+   * Designed for using with custom scroll handlers when `hasExternalScroll=true`.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
@@ -1047,12 +1045,12 @@ export default class Immerser {
     this._invalidateDraw();
   }
 
-  /** Register persistent event handler. */
+  /** Registers persistent event handler. */
   public on<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
     this._handlers[eventName].add(handler);
   }
 
-  /** Register event handler that will be removed after first call. */
+  /** Registers event handler that will be removed after first call. */
   public once<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
     this._handlers[eventName].add(
       wrapOnceHandler(handler, (...args: HandlerArgs<K>) => {
@@ -1079,7 +1077,7 @@ export default class Immerser {
     return this._activeIndex;
   }
 
-  /** Indicates whether immerser runtime is enabled (markup cloned and listeners attached). */
+  /** Indicates whether immerser runtime is mounted. */
   public get isMounted(): boolean {
     return this._isMounted;
   }
@@ -1095,7 +1093,7 @@ export default class Immerser {
   }
 }
 
-// for typedef generation needs
+// Used by typedef generation.
 export type {
   ActiveLayerChangeHandler,
   BaseHandler,
