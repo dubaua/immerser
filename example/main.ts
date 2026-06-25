@@ -49,11 +49,11 @@ const immerserInstance = new Immerser({
       window.immerserInstance = immerser;
       console.log('init', immerser);
     },
-    bind(immerser) {
-      console.log('bind', immerser);
+    mount(immerser) {
+      console.log('mount', immerser);
     },
-    unbind(immerser) {
-      console.log('unbind', immerser);
+    unmount(immerser) {
+      console.log('unmount', immerser);
     },
     destroy(immerser) {
       console.log('destroy', immerser);
@@ -65,14 +65,14 @@ const immerserInstance = new Immerser({
 });
 
 const { handleLayersUpdate } = initEmojiAnimation(immerserInstance);
-immerserInstance.on('layersUpdate', handleLayersUpdate);
+immerserInstance.on('layerProgressChange', handleLayersUpdate);
 
 const highlighterNodeList = document.querySelectorAll<HTMLElement>('[data-highlighter]');
 const highlighterAnimationClassname = 'highlighter-animation-active';
 
 function highlight(highlighterNode: HTMLElement) {
   return () => {
-    if (!immerserInstance.isBound) {
+    if (!immerserInstance.isMounted) {
       return;
     }
     const targetSelector = highlighterNode.dataset.highlighter;
