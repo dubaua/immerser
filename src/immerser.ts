@@ -946,7 +946,9 @@ export default class Immerser {
     if (!this.isMounted || this._isBound) {
       return;
     }
-    this._prepareMarkup();
+    if (!this._options.hasExternalRenderer) {
+      this._prepareMarkup();
+    }
     this._setSizes();
     this._initPagerLinks();
     this._initHoverSynchro();
@@ -968,7 +970,9 @@ export default class Immerser {
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
     this._clearPagerLinks();
-    this._cleanupMarkup();
+    if (!this._options.hasExternalRenderer) {
+      this._cleanupMarkup();
+    }
     this._isBound = false;
     this._emit('unbind', this);
     this._resetActiveIndex();
