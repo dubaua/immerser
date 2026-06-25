@@ -324,7 +324,7 @@ export default class Immerser {
     this._pendingSync.structure = false;
     this._pendingSync.layout = false;
     this._pendingSync.draw = false;
-    this._reset();
+    this._resetMountedState();
   }
 
   /** Prepares markup from the current DOM structure. */
@@ -925,11 +925,7 @@ export default class Immerser {
     this._solidNodeArray = [];
   }
 
-  private _resetActiveIndex(): void {
-    this._activeIndex = -1;
-  }
-
-  private _reset(): void {
+  private _resetMountedState(): void {
     this._isLayoutSet = false;
     this._rootHeight = 0;
     this._viewportHeight = 0;
@@ -970,7 +966,7 @@ export default class Immerser {
     this._cleanupMarkup();
     this._isMounted = false;
     this._emit('unmount', this);
-    this._reset();
+    this._resetMountedState();
   }
 
   /** Updates runtime options and applies minimal side effects without remounting the instance. */
