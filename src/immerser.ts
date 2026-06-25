@@ -54,6 +54,7 @@ export default class Immerser {
   private _isMounted = false;
   private _isBound = false;
   private _rootNode: HTMLElement | null = null;
+  private _selectorRoot: ParentNode = document;
   private _layerNodeArray: HTMLElement[] = [];
   private _maskNodeArray: HTMLElement[] = [];
   private _pagerLinkNodeArray: HTMLElement[] = [];
@@ -65,9 +66,8 @@ export default class Immerser {
   private _activeIndex = -1;
   private _rootHeight = 0;
   private _viewportHeight = 0;
-  private _resizeFrameId: number | null = null;
   private _resizeObserver: ResizeObserver | null = null;
-  private _scrollFrameId: number | null = null;
+  private _flushFrameId: number | null = null;
   private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
   private _reactiveWindowWidth = new Observable<number>(-1);
   private _reactiveSynchroHoverId = new Observable<string | null>(null);
@@ -80,6 +80,8 @@ export default class Immerser {
     destroy: new Set(),
     activeLayerChange: new Set(),
     layersUpdate: new Set(),
+    // layerProgressChange
+    // structureChange
   };
   private _onResize: (() => void) | null = null;
   private _onScroll: (() => void) | null = null;
@@ -87,6 +89,14 @@ export default class Immerser {
   private _onSynchroHoverMouseOut: (() => void) | null = null;
   private _isLayoutSet = false;
   private _layerProgressArray: number[] = [];
+  private _structureSignature = '';
+  private _layoutSignature = '';
+  private _drawSignature = '';
+  private _pendingSync = {
+    structure: false,
+    layout: false,
+    draw: false,
+  };
 
   /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
   public debug = InitialDebug;
@@ -104,7 +114,7 @@ export default class Immerser {
     const options = this._mergeOptions(this._userOptions);
     this._options = options;
     this.debug = options.debug;
-    this._registerHandlersFromOptions(options);
+    this._registerHandlersFromOptions();
 
     if (options.autoMount) {
       this.mount();
@@ -114,13 +124,12 @@ export default class Immerser {
   }
 
   /** Saves event handlers passed via options into internal registry. */
-  private _registerHandlersFromOptions(options: Options): void {
-    // TODO может не надо сюда опции передавать. эти хендлеры ОДНОРАЗОВЫЕ.
-    if (!options.on) {
+  private _registerHandlersFromOptions(): void {
+    if (!this._options.on) {
       return;
     }
     EventNames.forEach((eventName) => {
-      const handler = options.on?.[eventName];
+      const handler = !this._options.on[eventName];
       if (typeof handler === 'function') {
         this.on(eventName, handler);
       }
@@ -160,7 +169,8 @@ export default class Immerser {
   }
 
   /** DOC ME  */
-  private _syncStructure(selectorRoot: ParentNode): void {
+  private _syncStructure(selectorRoot: ParentNode = this._selectorRoot): void {
+    this._selectorRoot = selectorRoot;
     this._rootNode = selectorRoot.querySelector<HTMLElement>(this._selectors.root);
     this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: selectorRoot });
     this._maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
@@ -182,6 +192,8 @@ export default class Immerser {
         solidClassnames: this._options.solidClassnamesByLayerId[layerNode.id] ?? null,
       };
     });
+
+    this._structureSignature = this._createLayerSignature(this._layerNodeArray);
   }
 
   /** Validates required markup and option references. */
@@ -213,6 +225,15 @@ export default class Immerser {
       suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
       strict: false,
     });
+  }
+
+  private _createLayerSignature(layerNodeArray: HTMLElement[]): string {
+    return layerNodeArray.map((layerNode) => layerNode.id).join('|');
+  }
+
+  private _getLayerSignature(): string {
+    const layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
+    return this._createLayerSignature(layerNodeArray);
   }
 
   /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
@@ -250,6 +271,19 @@ export default class Immerser {
     }
 
     this._reactiveWindowWidth.value = window.innerWidth;
+
+    this._layoutSignature = this._createLayoutSignature();
+    this._drawSignature = ''; // TODO check if need here.
+  }
+
+  private _createLayoutSignature(): string {
+    const rootNode = this._rootNode as HTMLElement;
+
+    return [
+      window.innerHeight,
+      rootNode.offsetHeight,
+      ...this._layerStateArray.map(({ layerNode }) => layerNode.offsetHeight),
+    ].join('|');
   }
 
   /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
@@ -273,13 +307,13 @@ export default class Immerser {
     this._isMounted = false;
     this._isBound = false;
     this._rootNode = null;
+    this._selectorRoot = document;
     this._layerNodeArray = [];
     this._maskNodeArray = [];
     this._pagerLinkNodeArray = [];
     this._synchroHoverNodeArray = [];
-    this._resizeFrameId = null;
     this._resizeObserver = null;
-    this._scrollFrameId = null;
+    this._flushFrameId = null;
     this._scrollAdjustTimerId = null;
     this._reactiveWindowWidth.reset();
     this._reactiveSynchroHoverId.reset();
@@ -293,6 +327,12 @@ export default class Immerser {
     this._clonedSolidArray = [];
     this._preparedMaskMarkupArray = [];
     this._solidNodeArray = [];
+    this._structureSignature = '';
+    this._layoutSignature = '';
+    this._drawSignature = '';
+    this._pendingSync.structure = false;
+    this._pendingSync.layout = false;
+    this._pendingSync.draw = false;
     this._reset();
   }
 
@@ -395,19 +435,10 @@ export default class Immerser {
     this._resizeObserver?.disconnect();
   }
 
-  /** Cancels the pending scroll animation frame. */
-  private _cancelScrollFrame(): void {
-    if (this._scrollFrameId !== null) {
-      window.cancelAnimationFrame(this._scrollFrameId);
-      this._scrollFrameId = null;
-    }
-  }
-
-  /** Cancels the pending resize animation frame. */
-  private _cancelResizeFrame(): void {
-    if (this._resizeFrameId !== null) {
-      window.cancelAnimationFrame(this._resizeFrameId);
-      this._resizeFrameId = null;
+  private _cancelFlushFrame(): void {
+    if (this._flushFrameId !== null) {
+      window.cancelAnimationFrame(this._flushFrameId);
+      this._flushFrameId = null;
     }
   }
 
@@ -421,9 +452,104 @@ export default class Immerser {
 
   /** Cancels deferred runtime work before bound markup is cleaned. */
   private _cancelScheduledRuntimeWork(): void {
-    this._cancelScrollFrame();
-    this._cancelResizeFrame();
+    this._cancelFlushFrame();
     this._clearScrollAdjustTimer();
+    this._pendingSync.structure = false;
+    this._pendingSync.layout = false;
+    this._pendingSync.draw = false;
+  }
+
+  private _invalidateStructure(): void {
+    if (!this.isMounted || this._pendingSync.structure) {
+      return;
+    }
+
+    const nextLayerSignature = this._getLayerSignature();
+
+    if (nextLayerSignature === this._structureSignature) {
+      this._invalidateLayout();
+      return;
+    }
+
+    this._pendingSync.structure = true;
+    this._pendingSync.layout = true;
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  private _invalidateLayout(): void {
+    if (!this.isMounted || this._pendingSync.layout) {
+      return;
+    }
+
+    const nextLayoutSignature = this._createLayoutSignature();
+
+    if (nextLayoutSignature === this._layoutSignature) {
+      this._invalidateDraw();
+      return;
+    }
+
+    this._pendingSync.layout = true;
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  private _invalidateDraw(): void {
+    if (!this.isMounted) {
+      return;
+    }
+
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  private _scheduleFlush(): void {
+    if (this._flushFrameId !== null) {
+      return;
+    }
+
+    this._flushFrameId = window.requestAnimationFrame(() => {
+      this._flushFrameId = null;
+      this._flush();
+    });
+  }
+
+  private _flush(): void {
+    if (!this.isMounted) {
+      return;
+    }
+
+    if (this._pendingSync.structure) {
+      this._pendingSync.structure = false;
+      this._syncStructure();
+    }
+
+    if (this._pendingSync.layout) {
+      this._pendingSync.layout = false;
+      this._setSizes();
+    }
+
+    if (this._pendingSync.draw) {
+      this._pendingSync.draw = false;
+      this._drawCurrentState();
+    }
+  }
+
+  private _drawCurrentState(): void {
+    if (!this._isLayoutSet) {
+      return;
+    }
+
+    const { previousActiveIndex, calculation } = this._calculateTransition();
+    const nextDrawSignature = this._createDrawSignature(calculation.activeIndex, calculation.layerProgressArray);
+
+    if (nextDrawSignature === this._drawSignature) {
+      return;
+    }
+
+    this._drawSignature = nextDrawSignature;
+    this._emit('layersUpdate', [...calculation.layerProgressArray], this);
+    this._draw(calculation, previousActiveIndex);
   }
 
   /**
@@ -463,6 +589,10 @@ export default class Immerser {
     this._layerProgressArray = [...calculation.layerProgressArray];
 
     return calculation;
+  }
+
+  private _createDrawSignature(activeIndex: number, layerProgressArray: readonly number[]): string {
+    return `${activeIndex}:${[layerProgressArray].join('|')}`;
   }
 
   /** Applies transforms based on scroll position and updates active layer state. */
@@ -551,29 +681,23 @@ export default class Immerser {
     });
   }
 
-  /** RAF-throttled scroll handler that draws and optionally snaps scroll. */
+  /** Invalidates draw on scroll and optionally schedules scroll snapping. */
   private _handleScroll(): void {
-    if (this._isBound) {
-      this._cancelScrollFrame();
-      this._scrollFrameId = window.requestAnimationFrame(() => {
-        const y = getLastScrollPosition().y;
-        const { previousActiveIndex, calculation } = this._calculateTransition(y);
-        this._emit('layersUpdate', [...calculation.layerProgressArray], this);
-        this._draw(calculation, previousActiveIndex);
-        if (this._options.scrollAdjustThreshold > 0) {
-          this._clearScrollAdjustTimer();
-          this._scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this._options.scrollAdjustDelay);
-        }
-      });
+    if (!this._isBound) {
+      return;
+    }
+
+    this._invalidateDraw();
+
+    if (this._options.scrollAdjustThreshold > 0) {
+      this._clearScrollAdjustTimer();
+      this._scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this._options.scrollAdjustDelay);
     }
   }
 
-  /** RAF-throttled resize handler that recalculates sizes and redraws. */
+  /** Invalidates layout on resize-like changes. */
   private _handleResize(): void {
-    this._cancelResizeFrame();
-    this._resizeFrameId = window.requestAnimationFrame(() => {
-      this.render();
-    });
+    this._invalidateLayout();
   }
 
   /** Keeps updateOptions scoped to runtime fields even when called from plain JavaScript. */
@@ -823,12 +947,12 @@ export default class Immerser {
       return;
     }
     this._prepareMarkup();
+    this._setSizes();
     this._initPagerLinks();
     this._initHoverSynchro();
     this._attachCallbacks();
     this._isBound = true;
-    const { previousActiveIndex, calculation } = this._calculateTransition();
-    this._draw(calculation, previousActiveIndex);
+    this._drawCurrentState();
     this._emit('bind', this);
   }
 
@@ -871,9 +995,9 @@ export default class Immerser {
     }
 
     if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
-      this._setSizes();
+      this._invalidateLayout();
     } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
-      this.render();
+      this._invalidateDraw();
     }
   }
 
@@ -890,6 +1014,7 @@ export default class Immerser {
     EventNames.forEach((eventName) => this._handlers[eventName].clear());
   }
 
+  // TODO Fix Docs here in in docs
   /**
    * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
    * Exposed for dynamic content updates without reinitializing immerser.
@@ -897,14 +1022,10 @@ export default class Immerser {
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public render(): void {
-    if (!this.isMounted) {
-      return;
-    }
-    this._setSizes();
-    const { previousActiveIndex, calculation } = this._calculateTransition();
-    this._draw(calculation, previousActiveIndex);
+    this._invalidateStructure();
   }
 
+  // TODO Fix Docs here in in docs
   /**
    * Syncs immerser with an externally controlled scroll position.
    * `hasExternalScroll=true` option flag is required to call this method.
@@ -913,19 +1034,7 @@ export default class Immerser {
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public syncScroll(): void {
-    if (!this.isMounted) {
-      return;
-    }
-    if (!this._options.hasExternalScroll) {
-      this._report({
-        message: 'syncScroll requires the hasExternalScroll flag. Call ignored.',
-        isWarning: true,
-        docsHash: '#external-scroll-engine',
-      });
-      return;
-    }
-    const { previousActiveIndex, calculation } = this._calculateTransition();
-    this._draw(calculation, previousActiveIndex);
+    this._invalidateDraw();
   }
 
   /** Register persistent event handler. */
