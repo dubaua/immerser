@@ -52,7 +52,6 @@ export default class Immerser {
   private _userOptions: Partial<Options> = {};
   private _layerStateArray: IImmerserLayerState[] = [];
   private _isMounted = false;
-  private _isBound = false;
   private _rootNode: HTMLElement | null = null;
   private _selectorRoot: ParentNode = document;
   private _layerNodeArray: HTMLElement[] = [];
@@ -69,14 +68,12 @@ export default class Immerser {
   private _resizeObserver: ResizeObserver | null = null;
   private _flushFrameId: number | null = null;
   private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
-  private _reactiveWindowWidth = new Observable<number>(-1);
   private _reactiveSynchroHoverId = new Observable<string | null>(null);
   private _unsubscribeSynchroHover: (() => void) | null = null;
-  private _unsubscribeToggleBindOnResize: (() => void) | null = null;
   private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
     init: new Set(),
-    bind: new Set(),
-    unbind: new Set(),
+    mount: new Set(),
+    unmount: new Set(),
     destroy: new Set(),
     activeLayerChange: new Set(),
     layersUpdate: new Set(),
@@ -113,8 +110,10 @@ export default class Immerser {
     this._userOptions = userOptions ?? {};
     const options = this._mergeOptions(this._userOptions);
     this._options = options;
+    this._selectorRoot = options.selectorRoot ?? document;
     this.debug = options.debug;
     this._registerHandlersFromOptions();
+    this._addResizeListener();
 
     if (options.autoMount) {
       this.mount();
@@ -169,10 +168,9 @@ export default class Immerser {
   }
 
   /** DOC ME  */
-  private _syncStructure(selectorRoot: ParentNode = this._selectorRoot): void {
-    this._selectorRoot = selectorRoot;
-    this._rootNode = selectorRoot.querySelector<HTMLElement>(this._selectors.root);
-    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: selectorRoot });
+  private _syncStructure(): void {
+    this._rootNode = this._selectorRoot.querySelector<HTMLElement>(this._selectors.root);
+    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
     this._maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
 
     this._validateMarkup();
@@ -236,18 +234,11 @@ export default class Immerser {
     return this._createLayerSignature(layerNodeArray);
   }
 
-  /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
-  private _toggleBindOnResizeObserver(): void {
-    this._unsubscribeToggleBindOnResize = this._reactiveWindowWidth.subscribe((nextWindowWidth) => {
-      if (nextWindowWidth >= this._options.fromViewportWidth) {
-        this.enable();
-      } else {
-        this.disable();
-      }
-    });
+  private _shouldMount(): boolean {
+    return window.innerWidth >= this._options.fromViewportWidth;
   }
 
-  /** Recalculates sizes and thresholds for each layer and updates window width observable. */
+  /** Recalculates sizes and thresholds for each layer. */
   private _setSizes(): void {
     const rootNode = this._rootNode as HTMLElement;
     const layers = this._layerStateArray.map(({ layerNode }) => ({
@@ -270,8 +261,6 @@ export default class Immerser {
       this._layerProgressArray = layers.map(() => 0);
     }
 
-    this._reactiveWindowWidth.value = window.innerWidth;
-
     this._layoutSignature = this._createLayoutSignature();
     this._drawSignature = ''; // TODO check if need here.
   }
@@ -286,15 +275,20 @@ export default class Immerser {
     ].join('|');
   }
 
-  /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
-  private _addScrollAndResizeListeners(): void {
-    if (!this._options.hasExternalScroll) {
+  private _addResizeListener(): void {
+    if (!this._onResize) {
+      this._onResize = this._handleResize.bind(this);
+      window.addEventListener('resize', this._onResize, false);
+      window.addEventListener('orientationchange', this._onResize, false);
+    }
+  }
+
+  /** Attaches runtime listeners respecting isScrollHandled flag. */
+  private _addMountedListeners(): void {
+    if (!this._options.hasExternalScroll && !this._onScroll) {
       this._onScroll = this._handleScroll.bind(this);
       window.addEventListener('scroll', this._onScroll, false);
     }
-    this._onResize = this._handleResize.bind(this);
-    window.addEventListener('resize', this._onResize, false);
-    window.addEventListener('orientationchange', this._onResize, false);
     if (typeof ResizeObserver !== 'undefined') {
       this._resizeObserver = new ResizeObserver(this._onResize);
       this._resizeObserver.observe(this._rootNode);
@@ -305,7 +299,6 @@ export default class Immerser {
   private _resetInternalState(): void {
     this._layerStateArray = [];
     this._isMounted = false;
-    this._isBound = false;
     this._rootNode = null;
     this._selectorRoot = document;
     this._layerNodeArray = [];
@@ -315,10 +308,8 @@ export default class Immerser {
     this._resizeObserver = null;
     this._flushFrameId = null;
     this._scrollAdjustTimerId = null;
-    this._reactiveWindowWidth.reset();
     this._reactiveSynchroHoverId.reset();
     this._unsubscribeSynchroHover = null;
-    this._unsubscribeToggleBindOnResize = null;
     this._onResize = null;
     this._onScroll = null;
     this._onSynchroHoverMouseOver = null;
@@ -338,6 +329,9 @@ export default class Immerser {
 
   /** Prepares markup from the current DOM structure. */
   private _prepareMarkup(): void {
+    if (!this._options.hasExternalRenderer) {
+      return;
+    }
     if (this._preparedMaskMarkupArray.length > 0) {
       this._cleanupMarkup();
     }
@@ -359,6 +353,9 @@ export default class Immerser {
 
   /** Restores markup according to controller-recorded ownership. */
   private _cleanupMarkup(): void {
+    if (!this._options.hasExternalRenderer) {
+      return;
+    }
     this._removeClonedSolids();
     this._restoreOriginalSolids();
     this._clearTechnicalStyles();
@@ -423,16 +420,22 @@ export default class Immerser {
     });
   }
 
-  /** Removes browser listeners that outlive individual runtime cycles. */
-  private _removeScrollAndResizeListeners(): void {
-    if (!this._options.hasExternalScroll && this._onScroll) {
-      window.removeEventListener('scroll', this._onScroll, false);
-    }
+  private _removeResizeListener(): void {
     if (this._onResize) {
       window.removeEventListener('resize', this._onResize, false);
       window.removeEventListener('orientationchange', this._onResize, false);
+      this._onResize = null;
+    }
+  }
+
+  /** Removes runtime listeners while keeping breakpoint resize handling alive. */
+  private _removeMountedListeners(): void {
+    if (!this._options.hasExternalScroll && this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll, false);
+      this._onScroll = null;
     }
     this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
   }
 
   private _cancelFlushFrame(): void {
@@ -450,7 +453,7 @@ export default class Immerser {
     }
   }
 
-  /** Cancels deferred runtime work before bound markup is cleaned. */
+  /** Cancels deferred runtime work before mounted markup is cleaned. */
   private _cancelScheduledRuntimeWork(): void {
     this._cancelFlushFrame();
     this._clearScrollAdjustTimer();
@@ -606,7 +609,7 @@ export default class Immerser {
       maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
     });
 
-    if (!this._isBound || calculation.activeIndex === previousActiveIndex) {
+    if (!this._isMounted || calculation.activeIndex === previousActiveIndex) {
       return;
     }
     if (this._pagerLinkNodeArray.length > 0) {
@@ -683,7 +686,7 @@ export default class Immerser {
 
   /** Invalidates draw on scroll and optionally schedules scroll snapping. */
   private _handleScroll(): void {
-    if (!this._isBound) {
+    if (!this._isMounted) {
       return;
     }
 
@@ -695,8 +698,16 @@ export default class Immerser {
     }
   }
 
-  /** Invalidates layout on resize-like changes. */
+  /** Invalidates layout on resize-like changes and toggles mount state by breakpoint. */
   private _handleResize(): void {
+    if (!this._shouldMount()) {
+      this.unmount();
+      return;
+    }
+    if (!this._isMounted) {
+      this.mount();
+      return;
+    }
     this._invalidateLayout();
   }
 
@@ -926,56 +937,40 @@ export default class Immerser {
     this._layerProgressArray = [];
   }
 
-  /** Discovers DOM state, validates configuration and starts responsive runtime handling. */
-  public mount(selectorRoot: ParentNode = document): void {
-    if (this._isMounted) {
+  /** Discovers DOM state, validates configuration and starts runtime when breakpoint allows it. */
+  public mount(): void {
+    if (this._isMounted || !this._shouldMount()) {
       return;
     }
-    this._syncStructure(selectorRoot);
-    this._isMounted = true;
-    this._toggleBindOnResizeObserver();
-    this._setSizes();
-    this._addScrollAndResizeListeners();
-  }
-
-  /**
-   * Enables runtime behavior: prepares markup, attaches hover runtime and triggers first draw; also emits bind event.
-   * Intended to be idempotent for toggling immerser on when viewport width allows.
-   */
-  public enable(): void {
-    if (!this.isMounted || this._isBound) {
-      return;
-    }
-    if (!this._options.hasExternalRenderer) {
-      this._prepareMarkup();
-    }
+    this._syncStructure();
+    this._prepareMarkup();
     this._setSizes();
     this._initPagerLinks();
     this._initHoverSynchro();
     this._attachCallbacks();
-    this._isBound = true;
+    this._addMountedListeners();
+    this._isMounted = true;
     this._drawCurrentState();
-    this._emit('bind', this);
+    this._emit('mount', this);
   }
 
   /**
-   * Disables runtime behavior: restores DOM, resets active layer and emits unbind event.
-   * Safe to call multiple times; no-op when already disabled.
+   * Stops runtime behavior while keeping resize handling active for breakpoint remount.
+   * Safe to call multiple times; no-op when already unmounted.
    */
-  public disable(): void {
-    if (!this._isBound) {
+  public unmount(): void {
+    if (!this._isMounted) {
       return;
     }
     this._cancelScheduledRuntimeWork();
     this._detachCallbacks();
     this._removeSyncroHoverListeners();
     this._clearPagerLinks();
-    if (!this._options.hasExternalRenderer) {
-      this._cleanupMarkup();
-    }
-    this._isBound = false;
-    this._emit('unbind', this);
-    this._resetActiveIndex();
+    this._removeMountedListeners();
+    this._cleanupMarkup();
+    this._isMounted = false;
+    this._emit('unmount', this);
+    this._reset();
   }
 
   /** Updates runtime options and applies minimal side effects without remounting the instance. */
@@ -994,25 +989,22 @@ export default class Immerser {
       this._clearScrollAdjustTimer();
     }
 
-    if (!this._isMounted) {
-      return;
-    }
-
     if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
-      this._invalidateLayout();
+      if (this._isMounted || this._onResize) {
+        this._handleResize();
+      }
     } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
       this._invalidateDraw();
     }
   }
 
   /**
-   * Fully destroys immerser: disables runtime, removes mount-level listeners, runs destroy event and clears references.
+   * Fully destroys immerser: unmounts runtime, removes resize handling, runs destroy event and clears references.
    * Use when component is permanently removed.
    */
   public destroy(): void {
-    this.disable();
-    this._unsubscribeToggleBindOnResize?.();
-    this._removeScrollAndResizeListeners();
+    this.unmount();
+    this._removeResizeListener();
     this._emit('destroy', this);
     this._resetInternalState();
     EventNames.forEach((eventName) => this._handlers[eventName].clear());
@@ -1074,11 +1066,6 @@ export default class Immerser {
   }
 
   /** Indicates whether immerser runtime is enabled (markup cloned and listeners attached). */
-  public get isEnabled(): boolean {
-    return this._isBound;
-  }
-
-  /** Indicates whether DOM discovery and mount-level listeners are active. */
   public get isMounted(): boolean {
     return this._isMounted;
   }

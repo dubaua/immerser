@@ -25,8 +25,8 @@ export type LayersUpdateHandler = (layersProgress: number[], immerser: Immerser)
 /** @public Map of immerser event names to handler signatures. */
 export type HandlerByEventName = {
   init: BaseHandler;
-  bind: BaseHandler;
-  unbind: BaseHandler;
+  mount: BaseHandler;
+  unmount: BaseHandler;
   destroy: BaseHandler;
   activeLayerChange: ActiveLayerChangeHandler;
   layersUpdate: LayersUpdateHandler;
@@ -50,7 +50,7 @@ export type Options = {
   selectorRoot?: ParentNode;
   /** Map of layer id → solid id → classname. */
   solidClassnamesByLayerId: SolidClassnamesByLayerId;
-  /** Minimal viewport width (px) at which immerser enables runtime; below it disables runtime. */
+  /** Minimal viewport width (px) at which immerser mounts runtime; below it unmounts runtime. */
   fromViewportWidth: number;
   /** Portion of viewport height that must overlap the next layer before pager switches (0–1). */
   pagerThreshold: number;

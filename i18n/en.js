@@ -78,8 +78,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'initialize-immerser-content': `<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>`,
 
   'callback-on-init': 'callback on init event',
-  'callback-on-bind': 'callback on bind event',
-  'callback-on-unbind': 'callback on unbind event',
+  'callback-on-mount': 'callback on mount event',
+  'callback-on-unmount': 'callback on unmount event',
   'callback-on-destroy': 'callback on destroy event',
   'callback-on-active-layer-change': 'callback on active layer change event',
   'callback-on-layers-update': 'callback on layers update event',
@@ -128,30 +128,31 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'events-content':
     '<p>You can subscribe to events via the <code>on</code> option or by calling the <code>on</code> or <code>once</code> method on an immerser instance.</p>',
   'event-init': 'Emitted after initialization.',
-  'event-bind': 'Emitted after binding <abbr title="Document Object Model">DOM</abbr>.',
-  'event-unbind': 'Emitted after unbinding <abbr title="Document Object Model">DOM</abbr>.',
+  'event-mount': 'Emitted after runtime mount.',
+  'event-unmount': 'Emitted after runtime unmount.',
   'event-destroy': 'Emitted after destroy.',
   'event-activeLayerChange': 'Emitted after active layer change.',
   'event-layersUpdate': 'Emitted on each scroll update.',
 
   'public-fields-title': 'Public fields and methods',
-  'public-field-mount': 'Discovers DOM, validates markup, calculates layout, and attaches mount-level listeners',
-  'public-field-enable': 'Enables runtime behavior: prepares markup, hover sync, pager state, and first draw',
-  'public-field-disable': 'Disables runtime behavior, cleans generated markup, and keeps the instance mounted',
+  'public-field-mount':
+    'Mounts runtime when the viewport matches fromViewportWidth: discovers DOM, prepares markup, calculates layout, and attaches listeners',
+  'public-field-unmount':
+    'Unmounts runtime, cleans generated markup, and keeps resize handling active for breakpoint remount',
   'public-field-updateOptions': 'Updates runtime options and applies minimal side effects without remounting',
   'public-field-destroy':
-    'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
+    'Fully destroys immerser: unmounts runtime, removes resize handling, restores original markup, and clears internal state',
   'public-field-render': 'Recalculates sizes and redraws masks',
+  'public-field-invalidateStructure': 'TODO DOC ME',
+  'public-field-invalidateLayout': 'TODO DOC ME',
+  'public-field-invalidateDraw': 'TODO DOC ME',
   'public-field-syncScroll':
     'Updates immerser when scroll is controlled externally (requires hasExternalScroll = true)',
-  'public-field-addLayer': 'Adds one layer and prepares its runtime markup when immerser is bound',
-  'public-field-removeLayer': 'Removes one layer and its owned runtime markup',
   'public-field-on': 'Registers a persistent immerser event handler',
   'public-field-once': 'Registers a one-time immerser event handler that is removed after the first call',
   'public-field-off': 'Removes a specific handler for the given immerser event',
   'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
-  'public-field-isEnabled': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
-  'public-field-isMounted': 'Indicates whether DOM discovery and mount-level listeners are active',
+  'public-field-isMounted': 'Indicates whether runtime is mounted',
   'public-field-rootNode': 'Root element the immerser instance is attached to',
   'public-field-layerProgressArray':
     'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
