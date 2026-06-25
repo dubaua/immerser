@@ -332,7 +332,8 @@ export default class Immerser {
 
   /** Prepares markup from the current DOM structure. */
   private _prepareMarkup(): void {
-    if (!this._options.hasExternalRenderer) {
+    if (this._options.hasExternalRenderer) {
+      this._connectExistingMaskMarkup();
       return;
     }
     if (this._preparedMaskMarkupArray.length > 0) {
@@ -356,7 +357,7 @@ export default class Immerser {
 
   /** Restores markup according to controller-recorded ownership. */
   private _cleanupMarkup(): void {
-    if (!this._options.hasExternalRenderer) {
+    if (this._options.hasExternalRenderer) {
       return;
     }
     this._removeClonedSolids();
@@ -373,11 +374,17 @@ export default class Immerser {
 
   /** Collects pager links that will receive runtime active state. */
   private _initPagerLinks(): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
     this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
   }
 
   /** Sets up synchro hover listeners and reactive updates. */
   private _initHoverSynchro(): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
     this._synchroHoverNodeArray = queryElementArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
 
     this._onSynchroHoverMouseOver = (e: MouseEvent): void => {
@@ -394,22 +401,14 @@ export default class Immerser {
       synchroHoverNode.addEventListener('mouseover', this._onSynchroHoverMouseOver!);
       synchroHoverNode.addEventListener('mouseout', this._onSynchroHoverMouseOut!);
     });
-  }
-
-  /** Subscribes to synchronized hover updates. */
-  private _attachCallbacks(): void {
     if (this._synchroHoverNodeArray.length > 0) {
       this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawSynchroHover.bind(this));
     }
   }
 
-  /** Unsubscribes from synchronized hover updates. */
-  private _detachCallbacks(): void {
+  /** Removes synchro hover listeners and reactive updates. */
+  private _destroyHoverSynchro(): void {
     this._unsubscribeSynchroHover?.();
-  }
-
-  /** Removes hover listeners from synchro hover nodes. */
-  private _removeSyncroHoverListeners(): void {
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       synchroHoverNode.removeEventListener('mouseover', this._onSynchroHoverMouseOver!);
       synchroHoverNode.removeEventListener('mouseout', this._onSynchroHoverMouseOut!);
@@ -724,6 +723,24 @@ export default class Immerser {
     }, {});
   }
 
+  /** Connects already existing masks without creating or mutating markup. */
+  private _connectExistingMaskMarkup(): void {
+    if (this._maskNodeArray.length === 0) {
+      return;
+    }
+
+    const maskMarkupArray = this._layerStateArray.map(({ id }) => {
+      const maskNode = this._maskNodeArray.find((node) => node.dataset.immerserLayerId === id);
+      if (!maskNode) {
+        const message = `existing markup mask not found for layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      return this._connectMaskMarkup(maskNode, id);
+    });
+    this._connectLayerStates(this._layerStateArray, maskMarkupArray);
+  }
+
   /** Uses complete existing masks by layer id or creates a detached mask set when none exists. */
   private _resolveMaskMarkup(layerStateArray: IImmerserLayerState[]): IMaskMarkup[] {
     const existingMaskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
@@ -946,7 +963,6 @@ export default class Immerser {
     this._syncLayoutSizes();
     this._initPagerLinks();
     this._initHoverSynchro();
-    this._attachCallbacks();
     this._addMountedListeners();
     this._isMounted = true;
     this._drawCurrentState();
@@ -962,8 +978,7 @@ export default class Immerser {
       return;
     }
     this._cancelScheduledRuntimeWork();
-    this._detachCallbacks();
-    this._removeSyncroHoverListeners();
+    this._destroyHoverSynchro();
     this._clearPagerLinks();
     this._removeMountedListeners();
     this._cleanupMarkup();
