@@ -54,8 +54,7 @@ and indicate active state.
   'prepare-your-markup-content': `
 <p>First, setup fixed container as&nbsp;the immerser root container, and add the&nbsp;<code>data-immerser</code> attribute.</p>
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
-<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration in
-<code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>. Otherwise, you can pass configuration as
+<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration as
 <code>solidClassnamesByLayerId</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
 applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 <p>Also feel free to&nbsp;add <code>data-immerser-pager</code> to&nbsp;create a pager for your layers.</p>
@@ -64,7 +63,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'apply-styles-title': 'Apply styles',
   'apply-styles-content': `
 <p>
-  Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;data attribute or&nbsp;options.
+  Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;options.
   I&rsquo;m using <a href="https://en.bem.info/methodology/"><abbr title="Block Element Modifier">BEM</abbr> methodology</a> in&nbsp;this example.
 </p>
 `,
@@ -95,8 +94,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'options-title': 'Options',
   'options-content': `
 <p>
-  You can pass options to immerser as data-attributes on layers or as object as function parameter. Data-attributes are
-  processed last, so they override the options passed to the function.
+  You can pass options to immerser as an object parameter.
 </p>
 `,
 

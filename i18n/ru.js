@@ -52,9 +52,7 @@ module.exports = {
   'prepare-your-markup-content': `
 <p>Сначала настройте свой фиксированный контейнер как корневой элемент иммёрсера, добавив атрибут <code>data-immerser</code></p>
 <p>Затем расположите в&nbsp;нем абсолютно позиционированные дочерние элементы и&nbsp;добавьте каждому атрибут <code>data-immerser-solid="solid-id"</code> с&nbsp;идентификатором блока.</p>
-<p>Добавьте каждому слою атрибут <code>data-immerser-layer</code>. Передайте конфигурацию в&nbsp;виде <abbr title="JavaScript Object Notation">JSON</abbr> в&nbsp;каждый слой с&nbsp;помощью атрибута
-<code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>.
-Также вы&nbsp;можете передать конфигурацию всех слоёв объектом в&nbsp;параметре <code>solidClassnamesByLayerId</code> настроек.
+<p>Добавьте каждому слою атрибут <code>data-immerser-layer</code>. Передайте конфигурацию всех слоёв объектом в&nbsp;параметре <code>solidClassnamesByLayerId</code> настроек.
 Конфигурация должна содержать описание классов для блоков, когда они находятся поверх слоя.</p>
 <p>Так&nbsp;же вы&nbsp;можете добавить элемент с&nbsp;атрибутом <code>data-immerser-pager</code> для создания навигации.</p>
 `,
@@ -62,7 +60,7 @@ module.exports = {
   'apply-styles-title': 'Примените стили',
   'apply-styles-content': `
 <p>
-  Добавьте стили цвета текста и&nbsp;фона на&nbsp;ваши блоки и&nbsp;слои с&nbsp;помощью классов, переданных в&nbsp;дата-атрибут или настройки.
+  Добавьте стили цвета текста и&nbsp;фона на&nbsp;ваши блоки и&nbsp;слои с&nbsp;помощью классов, переданных в&nbsp;настройки.
   В&nbsp;примере я использую <a href="https://ru.bem.info/methodology/">методологию <abbr title="Блок Элемент Модификатор">БЭМ</abbr></a>.
 </p>
 `,
@@ -92,8 +90,7 @@ module.exports = {
   'options-title': 'Настройки',
   'options-content': `
 <p>
-  Вы&nbsp;можете передать настройки параметром функции конструктора или дата-атрибутом в&nbsp;документе.
-  Дата-аттрибут обрабатывается последним, поэтому он&nbsp;переопределит настройки, переданные в&nbsp;конструктор.
+  Вы&nbsp;можете передать настройки объектом в&nbsp;параметре конструктора.
 </p>
 `,
 
