@@ -1106,4 +1106,4 @@ export type {
   SolidClassnames,
   SolidClassnamesByLayerId,
 };
-export { EventNames };
+export { EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };
