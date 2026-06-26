@@ -134,6 +134,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'event-layoutChange': 'Emitted after layer size recalculation changes',
   'event-activeLayerChange': 'Emitted after active layer changes',
   'event-layerProgressChange': 'Emitted after layer progress changes',
+  'event-stateChange': 'Emitted after any immerser event so external renderers can read current public fields',
 
   'public-fields-title': 'Public fields and methods',
   'public-field-mount':

@@ -1,5 +1,5 @@
 import type { OptionConfig as MergeOptionConfig } from '@dubaua/merge-options';
-import { EventNames } from './events';
+import { EventNameArray } from './events';
 import type { EventName, Options } from './types';
 
 const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
@@ -19,7 +19,7 @@ function onOptionValidator(on?: Options['on']): boolean {
   }
   return Object.keys(on).every(
     (eventName) =>
-      EventNames.includes(eventName as EventName) &&
+      EventNameArray.includes(eventName as EventName) &&
       (on as Record<string, unknown>)[eventName] !== undefined &&
       typeof (on as Record<string, unknown>)[eventName] === 'function',
   );

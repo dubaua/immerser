@@ -12,7 +12,7 @@ export interface SolidClassnamesByLayerId {
 }
 
 /** @public All available immerser event names. */
-export type EventName = (typeof EventNames)[number];
+export type EventName = (typeof EventNames)[keyof typeof EventNames];
 
 /** @public Base handler signature for immerser lifecycle events. */
 export type BaseHandler = (immerser: Immerser) => void;
@@ -24,14 +24,15 @@ export type LayerProgressChangeHandler = (layerProgressArray: number[], immerser
 // key EventName value BaseHandler ActiveLayerChangeHandler LayerProgressChangeHandler
 /** @public Map of immerser event names to handler signatures. */
 export type HandlerByEventName = {
-  init: BaseHandler;
-  mount: BaseHandler;
-  unmount: BaseHandler;
-  destroy: BaseHandler;
-  structureChange: BaseHandler;
-  layoutChange: BaseHandler;
-  activeLayerChange: ActiveLayerChangeHandler;
-  layerProgressChange: LayerProgressChangeHandler;
+  [EventNames.init]: BaseHandler;
+  [EventNames.mount]: BaseHandler;
+  [EventNames.unmount]: BaseHandler;
+  [EventNames.destroy]: BaseHandler;
+  [EventNames.structureChange]: BaseHandler;
+  [EventNames.layoutChange]: BaseHandler;
+  [EventNames.activeLayerChange]: ActiveLayerChangeHandler;
+  [EventNames.layerProgressChange]: LayerProgressChangeHandler;
+  [EventNames.stateChange]: BaseHandler;
 };
 
 type HandlerArgsMap = {

@@ -28,6 +28,19 @@ function normalizeType(typeStr) {
   return typeStr.replace(/import\([^)]+\)\./g, '').replace(/"/g, "'");
 }
 
+function getEventName(member, sourceFile, checker) {
+  if (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)) {
+    return member.name.text;
+  }
+  if (ts.isComputedPropertyName(member.name)) {
+    const type = checker.getTypeAtLocation(member.name.expression);
+    if (type.isStringLiteral()) {
+      return type.value;
+    }
+  }
+  return member.name.getText(sourceFile);
+}
+
 function getEventDefinitions() {
   const program = ts.createProgram([typesPath], {
     module: ts.ModuleKind.CommonJS,
@@ -57,7 +70,7 @@ function getEventDefinitions() {
   }
 
   const events = handlerAlias.type.members.filter(ts.isPropertySignature).map((member) => {
-    const name = member.name.getText(sourceFile);
+    const name = getEventName(member, sourceFile, checker);
     const type = checker.getTypeAtLocation(member);
     const signature = type.getCallSignatures()[0];
     if (!signature) {

@@ -3,7 +3,7 @@ import Observable from '@dubaua/observable';
 import calculateLayerStateArray from './utils/calculate-layer-state-array';
 import calculateLayersRuntimeState from './utils/calculate-layers-runtime-state';
 import calculateScrollTarget from './utils/calculate-scroll-target';
-import { EventNames } from './events';
+import { EventNameArray, EventNames } from './events';
 import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
 import { ImmerserSelectors } from './selectors';
 import { InitialDebug, OptionConfig } from './options';
@@ -71,14 +71,15 @@ export default class Immerser {
   private _reactiveSynchroHoverId = new Observable<string | null>(null);
   private _unsubscribeSynchroHover: (() => void) | null = null;
   private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
-    init: new Set(),
-    mount: new Set(),
-    unmount: new Set(),
-    destroy: new Set(),
-    structureChange: new Set(),
-    layoutChange: new Set(),
-    layerProgressChange: new Set(),
-    activeLayerChange: new Set(),
+    [EventNames.init]: new Set(),
+    [EventNames.mount]: new Set(),
+    [EventNames.unmount]: new Set(),
+    [EventNames.destroy]: new Set(),
+    [EventNames.structureChange]: new Set(),
+    [EventNames.layoutChange]: new Set(),
+    [EventNames.layerProgressChange]: new Set(),
+    [EventNames.activeLayerChange]: new Set(),
+    [EventNames.stateChange]: new Set(),
   };
   private _onResize: (() => void) | null = null;
   private _onScroll: (() => void) | null = null;
@@ -119,7 +120,7 @@ export default class Immerser {
       this.mount();
     }
 
-    this._emit('init', this);
+    this._emit(EventNames.init, this);
   }
 
   /** Saves event handlers passed via options into internal registry. */
@@ -127,7 +128,7 @@ export default class Immerser {
     if (!this._options.on) {
       return;
     }
-    EventNames.forEach((eventName) => {
+    EventNameArray.forEach((eventName) => {
       const handler = this._options.on[eventName];
       if (typeof handler === 'function') {
         this.on(eventName, handler);
@@ -149,6 +150,10 @@ export default class Immerser {
         });
       }
     });
+
+    if (eventName !== EventNames.stateChange) {
+      this._emit(EventNames.stateChange, this);
+    }
   }
 
   private _report({ message, error, isWarning = false, docsHash = '' }: IReportParams): void {
@@ -192,7 +197,7 @@ export default class Immerser {
     });
 
     this._structureSignature = this._createLayerSignature(this._layerNodeArray);
-    this._emit('structureChange', this);
+    this._emit(EventNames.structureChange, this);
   }
 
   /** Validates required markup and option references. */
@@ -266,7 +271,7 @@ export default class Immerser {
     // Same progress can produce different pixel transforms after layout changes.
     this._drawSignature = '';
 
-    this._emit('layoutChange', this);
+    this._emit(EventNames.layoutChange, this);
   }
 
   private _createLayoutSignature(): string {
@@ -555,7 +560,7 @@ export default class Immerser {
 
     this._drawSignature = nextDrawSignature;
     this._draw(calculation, previousActiveIndex);
-    this._emit('layerProgressChange', [...calculation.layerProgressArray], this);
+    this._emit(EventNames.layerProgressChange, [...calculation.layerProgressArray], this);
   }
 
   /**
@@ -621,7 +626,7 @@ export default class Immerser {
     if (this._options.hasToUpdateHash) {
       this._drawHash(calculation.activeIndex);
     }
-    this._emit('activeLayerChange', calculation.activeIndex, this);
+    this._emit(EventNames.activeLayerChange, calculation.activeIndex, this);
   }
 
   /** Adds or removes active pager classname according to current layer. */
@@ -967,7 +972,7 @@ export default class Immerser {
     this._addMountedListeners();
     this._isMounted = true;
     this._drawCurrentState();
-    this._emit('mount', this);
+    this._emit(EventNames.mount, this);
   }
 
   /**
@@ -984,7 +989,7 @@ export default class Immerser {
     this._removeMountedListeners();
     this._cleanupMarkup();
     this._isMounted = false;
-    this._emit('unmount', this);
+    this._emit(EventNames.unmount, this);
     this._resetMountedState();
   }
 
@@ -1020,9 +1025,9 @@ export default class Immerser {
   public destroy(): void {
     this.unmount();
     this._removeResizeListener();
-    this._emit('destroy', this);
+    this._emit(EventNames.destroy, this);
     this._resetInternalState();
-    EventNames.forEach((eventName) => this._handlers[eventName].clear());
+    EventNameArray.forEach((eventName) => this._handlers[eventName].clear());
   }
 
   /**
@@ -1106,4 +1111,4 @@ export type {
   SolidClassnames,
   SolidClassnamesByLayerId,
 };
-export { EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };
+export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };
