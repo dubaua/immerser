@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Only 8.75Kb gzipped.
+Immerser is written on typescript. Only 9Kb gzipped.
 
 ## Terms
 
@@ -40,7 +40,7 @@ First, setup fixed container as the immerser root container, and add the `data
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute to each section and pass configuration in `data-immerser-layer-config='{"solid-id": "classname-modifier"}'`. Otherwise, you can pass configuration as `solidClassnamesByLayerId` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
+Then add `data-immerser-layer` attribute to each section and pass configuration as `solidClassnamesByLayerId` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
 
 Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
@@ -66,16 +66,17 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
   </div>
 </div>
 
-<div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="reasoning"></div>
-<div data-immerser-layer data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}' id="how-to-use"></div>
-<div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="how-it-works"></div>
-<div data-immerser-layer data-immerser-layer-config='{"menu": "menu--contrast", "about": "about--contrast"}' id="options"></div>
-<div data-immerser-layer data-immerser-layer-config='{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}' id="recipes"></div>
+<div data-immerser-layer id="reasoning"></div>
+<div data-immerser-layer id="how-to-use"></div>
+<div data-immerser-layer id="how-it-works"></div>
+<div data-immerser-layer id="options"></div>
+<div data-immerser-layer id="recipes"></div>
+
 ```
 
 ## Apply styles
 
-Apply colour and background styles to your layers and solids according to your classname configuration passed in data attribute or options. I’m using [BEM methodology](https://en.bem.info/methodology/) in this example.
+Apply colour and background styles to your layers and solids according to your classname configuration passed in options. I’m using [BEM methodology](https://en.bem.info/methodology/) in this example.
 
 ```css
 .fixed {
@@ -138,8 +139,6 @@ Include immerser in your code and create immerser instance with options.
 import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
-  // this option will be overridden by options
-  // passed in data-immerser-layer-config attribute in each layer
   solidClassnamesByLayerId: {
     reasoning: {
       logo: 'logo--contrast-lg',
@@ -169,7 +168,9 @@ const immerserInstance = new Immerser({
       language: 'language--contrast-lg',
     },
   },
-  hasToUpdateHash: true,
+  updateLocationHash(layerId) {
+    window.history.replaceState(null, '', `#${layerId}`);
+  },
   fromViewportWidth: 1024,
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,
@@ -178,20 +179,26 @@ const immerserInstance = new Immerser({
     init(immerser) {
       // callback on init event
     },
-    bind(immerser) {
-      // callback on bind event
+    mount(immerser) {
+      // callback on mount event
     },
-    unbind(immerser) {
-      // callback on unbind event
+    unmount(immerser) {
+      // callback on unmount event
     },
     destroy(immerser) {
       // callback on destroy event
     },
+    structureChange(immerser) {
+      // callback on DOM structure change event
+    },
+    layoutChange(immerser) {
+      // callback on layer size recalculation event
+    },
     activeLayerChange(activeIndex, immerser) {
       // callback on active layer change event
     },
-    layersUpdate(layersProgress, immerser) {
-      // callback on layers update event
+    layerProgressChange(layerProgressArray, immerser) {
+      // callback on layer progress change event
     },
   },
 });
@@ -210,21 +217,22 @@ On scroll, immerser moves a mask of solids to show part of each solid group
 
 # Options
 
-You can pass options to immerser as data-attributes on layers or as object as function parameter. Data-attributes are processed last, so they override the options passed to the function.
+You can pass options to immerser as an object parameter.
 
 | option | type | default | description |
 | - | - | - | - |
-| autoMount | `boolean` | `true` | Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready |
-| selectorRoot | `unknown` | `undefined` | Parent node used only as the selector search area during mount. Defaults to document |
-| solidClassnamesByLayerId | `object` | `{}` | Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
-| fromViewportWidth | `number` | `0` | A viewport width, from which immerser will init |
-| pagerThreshold | `number` | `0.5` | How much next layer should be in viewport to trigger pager |
-| hasToUpdateHash | `boolean` | `false` | Flag to control changing hash on pager active state change |
-| scrollAdjustThreshold | `number` | `0` | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed |
-| scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
-| pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
-| isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
-| debug | `boolean` | `false` | Enables logging warnings and errors. Defaults to true in development, false otherwise |
+| autoMount | `boolean` | `true` | If true, constructor mounts immerser immediately |
+| selectorRoot | `unknown` | `undefined` | Parent element used only for selector lookup during mount |
+| solidClassnamesByLayerId | `object` | `{}` | Nested lookup table: layer id → solid id → CSS class that immerser adds to that solid on that layer. Configuration example [is shown above](#initialize-immerser) |
+| fromViewportWidth | `number` | `0` | Minimum viewport width in pixels, breakpoint at which immerser mounts |
+| pagerThreshold | `number` | `0.5` | Portion of viewport height that must overlap the next layer before pager switches |
+| updateLocationHash | `function` | `undefined` | Callback that receives active layer id when active layer changes. Use it to update location hash or route state |
+| scrollAdjustThreshold | `number` | `0` | Pixel threshold near section edges that triggers scroll snapping when exceeded. Pass zero to disable scroll snapping |
+| scrollAdjustDelay | `number` | `600` | Delay in ms before running scroll snapping after user scroll stops |
+| pagerLinkActiveClassname | `string` | `pager-link-active` | Class for the pager link pointing to the active layer |
+| hasExternalScroll | `boolean` | `false` | If true, immerser will not attach its own scroll handler. Intended for use with an external scroll controller and syncScroll calls |
+| hasExternalRenderer | `boolean` | `false` | If true, skips most DOM mutation routine. Intended for use with render frameworks such as React, Vue.js, and others |
+| debug | `boolean` | `false` | Enables warning logging. Defaults to true in development, false otherwise |
 | on | `object` | `{}` | Initial event handlers map keyed by event name |
 
 
@@ -234,36 +242,35 @@ You can subscribe to events via the `on` option or by calling the `on` or `once`
 
 | event | arguments | description |
 | - | - | - |
-| init | `immerser: Immerser` | Emitted after initialization. |
-| bind | `immerser: Immerser` | Emitted after binding DOM. |
-| unbind | `immerser: Immerser` | Emitted after unbinding DOM. |
-| destroy | `immerser: Immerser` | Emitted after destroy. |
-| activeLayerChange | `layerIndex: number`<br>`immerser: Immerser` | Emitted after active layer change. |
-| layersUpdate | `layersProgress: number[]`<br>`immerser: Immerser` | Emitted on each scroll update. |
+| init | `immerser: Immerser` | Emitted after initialization |
+| mount | `immerser: Immerser` | Emitted after immerser mounts and is ready to work |
+| unmount | `immerser: Immerser` | Emitted after unmount when viewport width is below fromViewportWidth |
+| destroy | `immerser: Immerser` | Emitted after instance destroy |
+| structureChange | `immerser: Immerser` | Emitted after DOM structure synchronization |
+| layoutChange | `immerser: Immerser` | Emitted after layer size recalculation changes |
+| activeLayerChange | `layerIndex: number`<br>`immerser: Immerser` | Emitted after active layer changes |
+| layerProgressChange | `layerProgressArray: number[]`<br>`immerser: Immerser` | Emitted after layer progress changes |
+| stateChange | `immerser: Immerser` | Emitted after any immerser event so external renderers can read current public fields |
 
 
 # Public fields and methods
 
 | name | kind | description |
 | - | - | - |
-| debug | `property` | Controls whether immerser reports warnings and errors |
-| mount | `method` | Discovers DOM, validates markup, calculates layout, and attaches mount-level listeners |
-| enable | `method` | Enables runtime behavior: prepares markup, hover sync, pager state, and first draw |
-| disable | `method` | Disables runtime behavior, cleans generated markup, and keeps the instance mounted |
+| debug | `property` | Controls whether immerser reports warnings |
+| mount | `method` | Mounts immerser when viewport width passes the fromViewportWidth breakpoint: discovers DOM, prepares markup, calculates layer sizes, and attaches event listeners |
+| unmount | `method` | Unmounts immerser: cleans markup owned by immerser and keeps resize handling active for breakpoint remount |
 | updateOptions | `method` | Updates runtime options and applies minimal side effects without remounting |
-| destroy | `method` | Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state |
-| render | `method` | Recalculates sizes and redraws masks |
-| syncScroll | `method` | Updates immerser when scroll is controlled externally (requires isScrollHandled = false) |
-| addLayer | `method` | Adds one layer and prepares its runtime markup when immerser is bound |
-| removeLayer | `method` | Removes one layer and its owned runtime markup |
+| destroy | `method` | Fully destroys immerser: unmounts it, removes resize handling, restores original markup, and clears internal state |
+| render | `method` | Schedules structure synchronization, calculations, and redraw after DOM mutations |
+| syncScroll | `method` | Syncs immerser with an externally controlled scroll position. Intended for use with hasExternalScroll=true |
 | on | `method` | Registers a persistent immerser event handler |
 | once | `method` | Registers a one-time immerser event handler that is removed after the first call |
 | off | `method` | Removes a specific handler for the given immerser event |
-| activeIndex | `getter` | Index of the currently active layer, calculated from scroll position |
-| isEnabled | `getter` | Indicates whether immerser is currently active (markup cloned, listeners attached) |
-| isMounted | `getter` | Indicates whether DOM discovery and mount-level listeners are active |
-| rootNode | `getter` | Root element the immerser instance is attached to |
-| layerProgressArray | `getter` | Per-layer progress values (0–1) showing how much each layer is visible in the viewport |
+| activeIndex | `getter` | Active layer index derived from scroll position |
+| isMounted | `getter` | Indicates whether immerser is mounted |
+| rootNode | `getter` | Root DOM element immerser is attached to |
+| layerProgressArray | `getter` | Progress of each layer from 0 (off-screen) to 1 (fully visible) |
 
 
 # Recipes
@@ -314,7 +321,7 @@ immerserInstance.render();
 
 ## External Scroll Engine
 
-If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with `isScrollHandled=false` flag and call `syncScroll` method every time the engine updates position. Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
+If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with `hasExternalScroll=true` flag and call `syncScroll` method every time the engine updates position. Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
 
 ```js
 import Immerser from 'immerser';

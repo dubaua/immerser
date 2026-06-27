@@ -1,14 +1,15 @@
 | option | type | default | description |
 | - | - | - | - |
-| autoMount | `boolean` | `true` | Runs DOM initialization from the constructor. Set to false to mount manually when DOM is ready |
-| selectorRoot | `unknown` | `undefined` | Parent node used only as the selector search area during mount. Defaults to document |
-| solidClassnamesByLayerId | `object` | `{}` | Map of layer ids to solid class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example [is shown above](#initialize-immerser) |
-| fromViewportWidth | `number` | `0` | A viewport width, from which immerser will init |
-| pagerThreshold | `number` | `0.5` | How much next layer should be in viewport to trigger pager |
-| hasToUpdateHash | `boolean` | `false` | Flag to control changing hash on pager active state change |
-| scrollAdjustThreshold | `number` | `0` | A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed |
-| scrollAdjustDelay | `number` | `600` | Delay after user interaction and before scroll adjust |
-| pagerLinkActiveClassname | `string` | `pager-link-active` | Added to each pager link pointing to active |
-| isScrollHandled | `boolean` | `true` | Binds scroll listener if true. Set to false if you're using remote scroll controller |
-| debug | `boolean` | `false` | Enables logging warnings and errors. Defaults to true in development, false otherwise |
+| autoMount | `boolean` | `true` | If true, constructor mounts immerser immediately |
+| selectorRoot | `unknown` | `undefined` | Parent element used only for selector lookup during mount |
+| solidClassnamesByLayerId | `object` | `{}` | Nested lookup table: layer id → solid id → CSS class that immerser adds to that solid on that layer. Configuration example [is shown above](#initialize-immerser) |
+| fromViewportWidth | `number` | `0` | Minimum viewport width in pixels, breakpoint at which immerser mounts |
+| pagerThreshold | `number` | `0.5` | Portion of viewport height that must overlap the next layer before pager switches |
+| updateLocationHash | `function` | `undefined` | Callback that receives active layer id when active layer changes. Use it to update location hash or route state |
+| scrollAdjustThreshold | `number` | `0` | Pixel threshold near section edges that triggers scroll snapping when exceeded. Pass zero to disable scroll snapping |
+| scrollAdjustDelay | `number` | `600` | Delay in ms before running scroll snapping after user scroll stops |
+| pagerLinkActiveClassname | `string` | `pager-link-active` | Class for the pager link pointing to the active layer |
+| hasExternalScroll | `boolean` | `false` | If true, immerser will not attach its own scroll handler. Intended for use with an external scroll controller and syncScroll calls |
+| hasExternalRenderer | `boolean` | `false` | If true, skips most DOM mutation routine. Intended for use with render frameworks such as React, Vue.js, and others |
+| debug | `boolean` | `false` | Enables warning logging. Defaults to true in development, false otherwise |
 | on | `object` | `{}` | Initial event handlers map keyed by event name |

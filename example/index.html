@@ -710,7 +710,9 @@ yarn add immerser
       <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">hasToUpdateHash</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token function">updateLocationHash</span><span class="token punctuation">(</span><span class="token parameter">layerId</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    window<span class="token punctuation">.</span>history<span class="token punctuation">.</span><span class="token function">replaceState</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">#</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>layerId<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
   <span class="token literal-property property">fromViewportWidth</span><span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
   <span class="token literal-property property">pagerLinkActiveClassname</span><span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
   <span class="token literal-property property">scrollAdjustThreshold</span><span class="token operator">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
@@ -828,10 +830,10 @@ yarn add immerser
       <td><%= getTranslation('option-pagerThreshold') %></td>
     </tr>
     <tr>
-      <td>hasToUpdateHash</td>
-      <td class="token keyword">boolean</td>
-      <td class="token boolean">false</td>
-      <td><%= getTranslation('option-hasToUpdateHash') %></td>
+      <td>updateLocationHash</td>
+      <td class="token keyword">function</td>
+      <td class="token keyword">undefined</td>
+      <td><%= getTranslation('option-updateLocationHash') %></td>
     </tr>
     <tr>
       <td>scrollAdjustThreshold</td>
@@ -946,6 +948,11 @@ yarn add immerser
       <td>layerProgressChange</td>
       <td class="nowrap"><span class="token parameter">layerProgressArray</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
       <td><%= getTranslation('event-layerProgressChange') %></td>
+    </tr>
+    <tr>
+      <td>stateChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-stateChange') %></td>
     </tr>
   </tbody>
 </table>

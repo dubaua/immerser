@@ -4,172 +4,177 @@ export declare type ActiveLayerChangeHandler = (layerIndex: number, immerser: Im
 /** @public Base handler signature for immerser lifecycle events. */
 export declare type BaseHandler = (immerser: Immerser) => void;
 
+/** @public Style used for masks and mask inners, exposed to use with external rendered */
+export declare const CroppedFullAbsoluteStyles: Record<string, string>;
+
 /** @public Map of event names to handler signatures. */
 export declare type EventHandlers = {
     [K in EventName]?: HandlerByEventName[K];
 };
 
 /** @public All available immerser event names. */
-export declare type EventName = (typeof EventNames)[number];
+export declare type EventName = (typeof EventNames)[keyof typeof EventNames];
+
+/** @public All available immerser event names as an iterable array. */
+export declare const EventNameArray: ("init" | "mount" | "unmount" | "destroy" | "structureChange" | "layoutChange" | "activeLayerChange" | "layerProgressChange" | "stateChange")[];
 
 /** @public All available immerser event names. */
-export declare const EventNames: readonly ["init", "bind", "unbind", "destroy", "activeLayerChange", "layersUpdate"];
+export declare const EventNames: {
+    readonly init: "init";
+    readonly mount: "mount";
+    readonly unmount: "unmount";
+    readonly destroy: "destroy";
+    readonly structureChange: "structureChange";
+    readonly layoutChange: "layoutChange";
+    readonly activeLayerChange: "activeLayerChange";
+    readonly layerProgressChange: "layerProgressChange";
+    readonly stateChange: "stateChange";
+};
 
 /** @public Map of immerser event names to handler signatures. */
 export declare type HandlerByEventName = {
-    init: BaseHandler;
-    bind: BaseHandler;
-    unbind: BaseHandler;
-    destroy: BaseHandler;
-    activeLayerChange: ActiveLayerChangeHandler;
-    layersUpdate: LayersUpdateHandler;
+    [EventNames.init]: BaseHandler;
+    [EventNames.mount]: BaseHandler;
+    [EventNames.unmount]: BaseHandler;
+    [EventNames.destroy]: BaseHandler;
+    [EventNames.structureChange]: BaseHandler;
+    [EventNames.layoutChange]: BaseHandler;
+    [EventNames.activeLayerChange]: ActiveLayerChangeHandler;
+    [EventNames.layerProgressChange]: LayerProgressChangeHandler;
+    [EventNames.stateChange]: BaseHandler;
 };
 
-/** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
+/** @public Main Immerser controller orchestrating markup preparation and scroll-driven transitions. */
 declare class Immerser {
     private _options;
     private _selectors;
     private _userOptions;
-    private _layerStateById;
+    private _layerStateArray;
     private _isMounted;
-    private _isBound;
     private _rootNode;
+    private _selectorRoot;
     private _layerNodeArray;
+    private _maskNodeArray;
     private _pagerLinkNodeArray;
+    private _originalSolidNodeArray;
+    private _clonedSolidArray;
+    private _preparedMaskMarkupArray;
+    private _solidNodeArray;
     private _synchroHoverNodeArray;
-    private _resizeFrameId;
+    private _activeIndex;
+    private _rootHeight;
+    private _viewportHeight;
     private _resizeObserver;
-    private _scrollFrameId;
+    private _flushFrameId;
     private _scrollAdjustTimerId;
-    private _reactiveWindowWidth;
     private _reactiveSynchroHoverId;
     private _unsubscribeSynchroHover;
-    private _unsubscribeToggleBindOnResize;
     private _handlers;
     private _onResize;
     private _onScroll;
     private _onSynchroHoverMouseOver;
     private _onSynchroHoverMouseOut;
-    private _originalSolidNodeArray;
-    private _preparedLayerMarkupById;
-    private _layerCalculationArray;
-    private _layout;
-    private _snapshot;
-    /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
+    private _isLayoutSet;
+    private _layerProgressArray;
+    private _structureSignature;
+    private _layoutSignature;
+    private _drawSignature;
+    private _pendingSync;
+    /** Enables warning reporting. Defaults to NODE_ENV===development. */
     debug: boolean;
     /**
      * Creates immerser instance and runs DOM setup unless autoMount is disabled.
-     * @param userOptions - overrides for defaults defined in OptionConfig if pass validation
+     * @param userOptions - overrides for defaults defined in OptionConfig when they pass validation
      */
     constructor(userOptions?: Partial<Options>);
     private _init;
-    /** Merges user options with defaults and attaches helper metadata to messages. */
-    private _mergeOptions;
     /** Saves event handlers passed via options into internal registry. */
     private _registerHandlersFromOptions;
     /** Executes registered event handlers with provided arguments. */
     private _emit;
     private _report;
-    /** Returns layer states in DOM order for the array-based calculation boundary. */
-    private get _orderedLayerStateArray();
-    /** Collects root, layer and solid nodes from DOM. */
-    private _setDomNodes;
-    /** Validates required markup presence and reports descriptive errors. */
+    /** Discovers root, layers and existing masks, then rebuilds layer state references. */
+    private _syncStructure;
+    /** Validates required markup and option references. */
     private _validateMarkup;
-    /** Reads per-layer classname configs from data attributes if provided. */
-    private _readClassnamesFromMarkup;
-    /** Ensures every layer has the explicit unique id required by the public contract. */
-    private _validateLayerIds;
-    /** Ensures classname configuration references only existing layer ids. */
-    private _validateSolidClassnamesConfig;
-    /** Creates initial LayerState entries for every layer. */
-    private _initLayerStateMap;
-    /** Adds one validated layer state to the registry. */
-    private _addLayerState;
-    /** Ensures dynamic layer input does not break id/order based runtime addressing. */
-    private _validateLayerStateInput;
-    /** Subscribes to window width changes to enable/disable runtime based on breakpoint. */
-    private _toggleBindOnResizeObserver;
-    /** Recalculates sizes and thresholds for each layer and updates window width observable. */
-    private _setSizes;
-    /** Attaches scroll and resize listeners respecting isScrollHandled flag. */
-    private _addScrollAndResizeListeners;
-    /** Attaches the scroll listener once when scroll handling is enabled. */
-    private _addScrollListener;
+    /** Merges user options with defaults and attaches helper metadata to messages. */
+    private _mergeOptions;
+    private _createLayerSignature;
+    private _getLayerSignature;
+    private _shouldMount;
+    /** Recalculates sizes and thresholds for each layer. */
+    private _syncLayoutSizes;
+    private _createLayoutSignature;
+    private _addResizeListener;
+    /** Attaches runtime listeners respecting hasExternalScroll flag. */
+    private _addMountedListeners;
     /** Clears internal caches, observables and references after destroy. */
     private _resetInternalState;
-    /** Prepares markup from the current DOM structure. */
+    /** Connects external mask markup or prepares controller-owned markup. */
     private _prepareMarkup;
     /** Restores markup according to controller-recorded ownership. */
     private _cleanupMarkup;
-    /** Writes an updated layer state into the id registry. */
-    private _setLayerState;
-    /** Applies created mask aria-hidden according to current layer order. */
-    private _syncCreatedMasksAria;
     /** Collects pager links that will receive runtime active state. */
     private _initPagerLinks;
-    /** Sets up synchro hover listeners and reactive updates. */
-    private _initHoverSynchro;
-    /** Subscribes to synchronized hover updates. */
-    private _attachCallbacks;
-    /** Unsubscribes from synchronized hover updates. */
-    private _detachCallbacks;
-    /** Removes hover listeners from synchro hover nodes. */
-    private _removeSyncroHoverListeners;
+    /** Sets up hover synchronization listeners and reactive updates. */
+    private _initHoverSynchronization;
+    /** Removes hover synchronization listeners and reactive updates. */
+    private _destroyHoverSynchronization;
     /** Clears runtime active state from pager links. */
     private _clearPagerLinks;
-    /** Removes browser listeners that outlive individual runtime cycles. */
-    private _removeScrollAndResizeListeners;
-    /** Removes the scroll listener if it is attached. */
-    private _removeScrollListener;
-    /** Cancels the pending scroll animation frame. */
-    private _cancelScrollFrame;
-    /** Cancels the pending resize animation frame. */
-    private _cancelResizeFrame;
+    private _removeResizeListener;
+    /** Removes runtime listeners while keeping breakpoint resize handling alive. */
+    private _removeMountedListeners;
+    private _cancelFlushFrame;
     /** Clears the pending scroll-adjust timer. */
     private _clearScrollAdjustTimer;
-    /** Cancels deferred runtime work before bound markup is cleaned. */
+    /** Cancels deferred runtime work before mounted markup is cleaned. */
     private _cancelScheduledRuntimeWork;
+    private _invalidateStructure;
+    private _invalidateLayout;
+    private _invalidateDraw;
+    private _scheduleFlush;
+    private _flush;
+    private _syncMountedStructure;
+    private _drawCurrentState;
     /**
-     * Captures the active index before calculation replaces the current snapshot.
+     * Captures the active index before calculation replaces the current active index.
      * Returning both values prevents callers from reading the new index as if it were the previous one.
      */
-    private _calculateSnapshotTransition;
+    private _calculateTransition;
+    private _getLayerCalculationArray;
     private _calculate;
+    private _createDrawSignature;
     /** Applies transforms based on scroll position and updates active layer state. */
     private _draw;
     /** Adds or removes active pager classname according to current layer. */
     private _drawPagerLinks;
-    /** Updates window hash to match active layer id. */
+    /** Passes active layer id to configured hash update handler. */
     private _drawHash;
-    /** Syncs hover state across elements with matching synchroHover id. */
-    private _drawSynchroHover;
+    /** Syncs hover state across elements with matching synchro hover id. */
+    private _drawHoverSynchronization;
     /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
     private _adjustScroll;
     private _calculateScrollTarget;
-    /** RAF-throttled scroll handler that draws and optionally snaps scroll. */
+    /** Invalidates draw on scroll and optionally schedules scroll snapping. */
     private _handleScroll;
-    /** RAF-throttled resize handler that recalculates sizes and redraws. */
+    /** Invalidates layout on resize-like changes and toggles mount state by breakpoint. */
     private _handleResize;
     /** Keeps updateOptions scoped to runtime fields even when called from plain JavaScript. */
     private _pickRuntimeOptions;
-    /** Resolves markup ownership from the current DOM and prepares one runtime layer. */
-    private prepareLayer;
-    /** Removes only DOM effects owned for one prepared layer. */
-    private cleanupLayer;
-    /** Removes every controller-owned layer and clears global DOM effects. */
-    private cleanup;
-    /** Keeps aria hidden on generated duplicate masks only. */
-    private syncCreatedMasksAria;
-    /** Finds source solids once and reuses detached originals for dynamic layer preparation. */
-    private _ensureSourceSolids;
-    /** Uses an existing mask for layer id or creates a detached mask pair. */
+    /** Connects already existing masks without creating or mutating markup. */
+    private _connectExistingMaskMarkup;
+    /** Uses complete existing masks by layer id or creates a detached mask set when none exists. */
     private _resolveMaskMarkup;
     /** Creates one detached mask and its required inner node. */
     private _createMaskMarkup;
     /** Validates and connects the inner node belonging to an existing mask. */
     private _connectMaskMarkup;
-    /** Builds configured clones for one layer. */
+    /** Associates each layer state with its corresponding validated mask pair. */
+    private _connectLayerStates;
+    /** Finds source solids while excluding client-owned content already placed inside masks. */
+    private _findSourceSolids;
+    /** Builds configured clones and records the inner node that will receive each clone. */
     private _cloneSolids;
     /** Collects existing and cloned solids that require interactive technical styles. */
     private _collectSolidNodes;
@@ -179,63 +184,62 @@ declare class Immerser {
     private _applyTechnicalStyles;
     /** Drops client inline styles before assigning the complete technical style set. */
     private _setTechnicalStyles;
-    /** Inserts staged clones and appends controller-created mask to the live root. */
+    /** Inserts staged clones and appends controller-created masks to the live root. */
     private _commitNodes;
+    /** Hides duplicate content only on masks created by this instance. */
+    private _applyCreatedMasksAria;
+    /** Stores references required to clean the committed markup lifecycle. */
+    private _savePreparedMarkupState;
     /** Detaches source solids after every clone and mask has been committed successfully. */
     private _detachOriginalSolids;
+    /** Removes every clone owned by this instance without touching existing mask content. */
+    private _removeClonedSolids;
     /** Returns detached source solids to the root in their original relative order. */
     private _restoreOriginalSolids;
-    private _resetActiveIndex;
-    private _reset;
-    /** Discovers DOM state, validates configuration and starts responsive runtime handling. */
-    mount(selectorRoot?: ParentNode): void;
+    /** Clears technical styles from the root and client-owned existing masks. */
+    private _clearTechnicalStyles;
+    /** Removes only masks that were created by this instance. */
+    private _removeCreatedMasks;
+    /** Clears committed ownership references after cleanup completes. */
+    private _resetMarkupState;
+    private _resetMountedState;
+    /** Discovers DOM state, validates configuration and starts runtime when breakpoint allows it. */
+    mount(): void;
     /**
-     * Enables runtime behavior: prepares markup, attaches hover runtime and triggers first draw; also emits bind event.
-     * Intended to be idempotent for toggling immerser on when viewport width allows.
+     * Stops runtime behavior while keeping resize handling active for breakpoint remount.
+     * Safe to call multiple times; no-op when already unmounted.
      */
-    enable(): void;
-    /**
-     * Disables runtime behavior: restores DOM, resets active layer and emits unbind event.
-     * Safe to call multiple times; no-op when already disabled.
-     */
-    disable(): void;
+    unmount(): void;
     /** Updates runtime options and applies minimal side effects without remounting the instance. */
     updateOptions(userOptions: Partial<RuntimeOptions>): void;
     /**
-     * Fully destroys immerser: disables runtime, removes mount-level listeners, runs destroy event and clears references.
+     * Fully destroys immerser: unmounts runtime, removes resize handling, runs destroy event and clears references.
      * Use when component is permanently removed.
      */
     destroy(): void;
     /**
-     * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
-     * Exposed for dynamic content updates without reinitializing immerser.
+     * Schedules structure, layout and draw synchronization after DOM mutations.
+     * Designed for dynamic content updates without reinitializing immerser.
      *
      * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
      */
     render(): void;
     /**
      * Syncs immerser with an externally controlled scroll position.
-     * `isScrollHandled=false` option flag is required to call this method.
-     * Call when using a custom scroll handler.
+     * Designed for using with custom scroll handlers when `hasExternalScroll=true`.
      *
      * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
      */
     syncScroll(): void;
-    /** Adds one layer and prepares its runtime markup when immerser is enabled. */
-    addLayer(id: string, layerNode: HTMLElement, order: number, solidClassnames?: SolidClassnames | null): void;
-    /** Removes one layer and its owned runtime markup. */
-    removeLayer(id: string): void;
-    /** Register persistent event handler. */
+    /** Registers persistent event handler. */
     on<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
-    /** Register event handler that will be removed after first call. */
+    /** Registers event handler that will be removed after first call. */
     once<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
     /** Removes handler(s) for provided event. */
     off<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void;
     /** Current active layer index derived from scroll position. */
     get activeIndex(): number;
-    /** Indicates whether immerser runtime is enabled (markup cloned and listeners attached). */
-    get isEnabled(): boolean;
-    /** Indicates whether DOM discovery and mount-level listeners are active. */
+    /** Indicates whether immerser runtime is mounted. */
     get isMounted(): boolean;
     /** The root DOM node immerser is attached to. */
     get rootNode(): HTMLElement | null;
@@ -244,8 +248,14 @@ declare class Immerser {
 }
 export default Immerser;
 
-/** @public Handler signature for layers update events. */
-export declare type LayersUpdateHandler = (layersProgress: number[], immerser: Immerser) => void;
+/** @public Style for immerser solids, to make them clickable again inside not clickable immerser root, exposed to use with external rendered */
+export declare const InteractiveStyles: Record<string, string>;
+
+/** @public Handler signature for layer progress change events. */
+export declare type LayerProgressChangeHandler = (layerProgressArray: number[], immerser: Immerser) => void;
+
+/** @public Style for immerser root, to make in click transparent, exposed to use with external rendered */
+export declare const NotInteractiveStyles: Record<string, string>;
 
 /** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
 export declare type Options = {
@@ -253,24 +263,28 @@ export declare type Options = {
     autoMount: boolean;
     /** Parent node used only for selector discovery during mount. */
     selectorRoot?: ParentNode;
-    /** Map of layer id → solid id → classname; can be overridden per layer via data-immerser-layer-config. */
+    /** Map of layer id → solid id → classname. */
     solidClassnamesByLayerId: SolidClassnamesByLayerId;
-    /** Minimal viewport width (px) at which immerser enables runtime; below it disables runtime. */
+    /** Minimal viewport width (px) at which immerser mounts runtime; below it unmounts runtime. */
     fromViewportWidth: number;
     /** Portion of viewport height that must overlap the next layer before pager switches (0–1). */
     pagerThreshold: number;
-    /** Whether to push active layer id into URL hash on change. */
-    hasToUpdateHash: boolean;
+    /** Handles active layer id when it should be pushed into location hash. */
+    updateLocationHash?: UpdateLocationHashHandler;
     /** Pixel threshold near section edges that triggers scroll snapping when exceeded, if 0 - no adjusting. */
     scrollAdjustThreshold: number;
     /** Delay in ms before running scroll snapping after user scroll stops. */
     scrollAdjustDelay: number;
     /** Classname added to pager link pointing to the active layer. */
     pagerLinkActiveClassname: string;
-    /** If false, immerser will not attach its own scroll listener.
+    /** If true, immerser will not attach its own scroll listener.
      * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
      */
-    isScrollHandled: boolean;
+    hasExternalScroll: boolean;
+    /** If true, immerser will not run most of DOM handling routine.
+     * Intended to use with render frameworks such React, Vue.js etc.
+     */
+    hasExternalRenderer: boolean;
     /** Enables runtime reporting of warnings and errors. */
     debug?: boolean;
     /** Initial event handlers keyed by event name. */
@@ -278,7 +292,7 @@ export declare type Options = {
 };
 
 /** @public Options that can be updated after instance creation. */
-export declare type RuntimeOptions = Pick<Options, 'debug' | 'fromViewportWidth' | 'hasToUpdateHash' | 'isScrollHandled' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'>;
+export declare type RuntimeOptions = Pick<Options, 'debug' | 'fromViewportWidth' | 'updateLocationHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'>;
 
 /** @public Map of solid id to classname. */
 export declare interface SolidClassnames {
@@ -289,5 +303,8 @@ export declare interface SolidClassnames {
 export declare interface SolidClassnamesByLayerId {
     [key: string]: SolidClassnames;
 }
+
+/** @public Handler signature for active layer hash updates. */
+declare type UpdateLocationHashHandler = (hash: string) => unknown;
 
 export { }
