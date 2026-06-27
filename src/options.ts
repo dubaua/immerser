@@ -52,10 +52,10 @@ export const OptionConfig: MergeOptionConfig<Options> = {
     description: 'a number between 0 and 1',
     validator: (x) => typeof x === 'number' && 0 <= x && x <= 1,
   },
-  hasToUpdateHash: {
-    default: false,
-    description: 'a boolean',
-    validator: (x) => typeof x === 'boolean',
+  updateLocationHash: {
+    default: undefined,
+    description: 'a function or undefined',
+    validator: (x) => x === undefined || typeof x === 'function',
   },
   scrollAdjustThreshold: {
     default: 0,

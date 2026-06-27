@@ -32,7 +32,9 @@ const immerserInstance = new Immerser({
       language: 'language--contrast-lg',
     },
   },
-  hasToUpdateHash: true,
+  updateLocationHash(hash) {
+    window.history.replaceState(null, '', `#${hash}`);
+  },
   fromViewportWidth: 1024,
   pagerLinkActiveClassname: 'pager__link--active',
   scrollAdjustThreshold: 50,

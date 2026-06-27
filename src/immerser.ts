@@ -39,7 +39,7 @@ const MessagePrefix = '[immerser]:';
 const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
   'debug',
   'fromViewportWidth',
-  'hasToUpdateHash',
+  'updateLocationHash',
   'pagerThreshold',
   'scrollAdjustDelay',
   'scrollAdjustThreshold',
@@ -634,9 +634,7 @@ export default class Immerser {
     if (this._pagerLinkNodeArray.length > 0) {
       this._drawPagerLinks(calculation.activeIndex);
     }
-    if (this._options.hasToUpdateHash) {
-      this._drawHash(calculation.activeIndex);
-    }
+    this._drawHash(calculation.activeIndex);
     this._emit(EventNames.activeLayerChange, calculation.activeIndex, this);
   }
 
@@ -653,16 +651,22 @@ export default class Immerser {
     });
   }
 
-  /** Updates window hash to match active layer id. */
+  /** Passes active layer id to configured hash update handler. */
   private _drawHash(layerIndex: number): void {
+    if (!this._options.updateLocationHash) {
+      return;
+    }
     const layerState = this._layerStateArray[layerIndex];
     if (!layerState) {
       return;
     }
     const { id, layerNode } = layerState;
     layerNode.removeAttribute('id');
-    window.location.hash = id;
-    layerNode.setAttribute('id', id);
+    try {
+      this._options.updateLocationHash(id);
+    } finally {
+      layerNode.setAttribute('id', id);
+    }
   }
 
   /** Syncs hover state across elements with matching synchro hover id. */

@@ -80,6 +80,7 @@ const OptionConfig = loadOptionConfig();
 function inferType(optionName, config) {
   const value = config.default;
   if (optionName === 'on') return 'object';
+  if (optionName === 'updateLocationHash') return 'function';
   if (Array.isArray(value)) return 'array';
   if (typeof value === 'boolean') return 'boolean';
   if (typeof value === 'number') return 'number';
@@ -91,6 +92,9 @@ function inferType(optionName, config) {
 }
 
 function formatDefaultForHtml(type, value) {
+  if (value === undefined) {
+    return '<td class="token keyword">undefined</td>';
+  }
   switch (type) {
     case 'array':
       return '<td class="token punctuation">[]</td>';
@@ -110,6 +114,9 @@ function formatDefaultForHtml(type, value) {
 }
 
 function formatDefaultForMarkdown(type, value) {
+  if (value === undefined) {
+    return '`undefined`';
+  }
   switch (type) {
     case 'array':
       return '`[]`';

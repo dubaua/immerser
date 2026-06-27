@@ -20,6 +20,8 @@ export type BaseHandler = (immerser: Immerser) => void;
 export type ActiveLayerChangeHandler = (layerIndex: number, immerser: Immerser) => void;
 /** @public Handler signature for layer progress change events. */
 export type LayerProgressChangeHandler = (layerProgressArray: number[], immerser: Immerser) => void;
+/** @public Handler signature for active layer hash updates. */
+export type UpdateLocationHashHandler = (hash: string) => unknown;
 
 // key EventName value BaseHandler ActiveLayerChangeHandler LayerProgressChangeHandler
 /** @public Map of immerser event names to handler signatures. */
@@ -57,8 +59,8 @@ export type Options = {
   fromViewportWidth: number;
   /** Portion of viewport height that must overlap the next layer before pager switches (0–1). */
   pagerThreshold: number;
-  /** Whether to push active layer id into URL hash on change. */
-  hasToUpdateHash: boolean;
+  /** Handles active layer id when it should be pushed into location hash. */
+  updateLocationHash?: UpdateLocationHashHandler;
   /** Pixel threshold near section edges that triggers scroll snapping when exceeded, if 0 - no adjusting. */
   scrollAdjustThreshold: number;
   /** Delay in ms before running scroll snapping after user scroll stops. */
@@ -82,5 +84,5 @@ export type Options = {
 /** @public Options that can be updated after instance creation. */
 export type RuntimeOptions = Pick<
   Options,
-  'debug' | 'fromViewportWidth' | 'hasToUpdateHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'
+  'debug' | 'fromViewportWidth' | 'updateLocationHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'
 >;
