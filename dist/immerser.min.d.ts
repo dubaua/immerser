@@ -305,6 +305,6 @@ export declare interface SolidClassnamesByLayerId {
 }
 
 /** @public Handler signature for active layer hash updates. */
-declare type UpdateLocationHashHandler = (hash: string) => unknown;
+export declare type UpdateLocationHashHandler = (hash: string) => unknown;
 
 export { }

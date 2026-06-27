@@ -33,6 +33,7 @@ import type {
   RuntimeOptions,
   SolidClassnames,
   SolidClassnamesByLayerId,
+  UpdateLocationHashHandler,
 } from './types';
 
 const MessagePrefix = '[immerser]:';
@@ -1125,5 +1126,6 @@ export type {
   RuntimeOptions,
   SolidClassnames,
   SolidClassnamesByLayerId,
+  UpdateLocationHashHandler,
 };
 export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };
