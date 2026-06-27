@@ -532,7 +532,7 @@ export default class Immerser {
 
     if (this._pendingSync.structure) {
       this._pendingSync.structure = false;
-      this._syncStructure();
+      this._syncMountedStructure();
     }
 
     if (this._pendingSync.layout) {
@@ -544,6 +544,17 @@ export default class Immerser {
       this._pendingSync.draw = false;
       this._drawCurrentState();
     }
+  }
+
+  private _syncMountedStructure(): void {
+    this._destroyHoverSynchronization();
+    this._clearPagerLinks();
+    this._cleanupMarkup();
+    this._resetMountedState();
+    this._syncStructure();
+    this._prepareMarkup();
+    this._initPagerLinks();
+    this._initHoverSynchronization();
   }
 
   private _drawCurrentState(): void {
