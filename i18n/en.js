@@ -28,7 +28,7 @@ module.exports = {
   Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
 </p>
 <p>
-  Immerser is&nbsp;written on&nbsp;typescript. Only&nbsp;%%BUNDLESIZE%%Kb gzipped.
+  Immerser is&nbsp;written on&nbsp;typescript. Runtime bundle %%BUNDLESIZE%%Kb gzipped.
 </p>
 `,
 
@@ -112,7 +112,8 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'option-selectorRoot': 'Parent element used only for selector lookup during mount',
   'option-fromViewportWidth': 'Minimum viewport width in pixels, breakpoint at which immerser mounts',
   'option-pagerThreshold': 'Portion of viewport height that must overlap the next layer before pager switches',
-  'option-updateLocationHash': 'Callback that receives active layer id when active layer changes. Use it to update location hash or route state',
+  'option-updateLocationHash':
+    'Callback that receives active layer id when active layer changes. Use it to update location hash or route state',
   'option-scrollAdjustThreshold':
     'Pixel threshold near section edges that triggers scroll snapping when exceeded. Pass zero to disable scroll snapping',
   'option-scrollAdjustDelay': 'Delay in ms before running scroll snapping after user scroll stops',
