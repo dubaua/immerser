@@ -3,7 +3,7 @@
   "compiler": {
     "tsconfigFilePath": "./tsconfig.json"
   },
-  "mainEntryPointFilePath": "./dist/types/immerser.d.ts",
+  "mainEntryPointFilePath": "./.tmp/types/immerser.d.ts",
   "apiReport": {
     "enabled": false
   },
