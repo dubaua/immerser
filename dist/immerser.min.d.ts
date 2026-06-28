@@ -80,7 +80,7 @@ declare class Immerser {
     private _layoutSignature;
     private _drawSignature;
     private _pendingSync;
-    /** Enables warning reporting. Defaults to NODE_ENV===development. */
+    /** Enables warning reporting. Defaults to false. */
     debug: boolean;
     /**
      * Creates immerser instance and runs DOM setup unless autoMount is disabled.

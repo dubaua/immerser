@@ -6,7 +6,7 @@ import calculateScrollTarget from './utils/calculate-scroll-target';
 import { EventNameArray, EventNames } from './events';
 import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
 import { ImmerserSelectors } from './selectors';
-import { InitialDebug, OptionConfig } from './options';
+import { OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import assignInlineStyles from './utils/assign-inline-styles';
 import getLastScrollPosition from './utils/get-last-scroll-position';
@@ -97,8 +97,8 @@ export default class Immerser {
     draw: false,
   };
 
-  /** Enables warning reporting. Defaults to NODE_ENV===development. */
-  public debug = InitialDebug;
+  /** Enables warning reporting. Defaults to false. */
+  public debug = false;
 
   /**
    * Creates immerser instance and runs DOM setup unless autoMount is disabled.

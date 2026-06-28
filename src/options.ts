@@ -4,8 +4,6 @@ import type { EventName, Options } from './types';
 
 const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
 
-export const InitialDebug = process.env.NODE_ENV === 'development';
-
 function classnameValidator(str: string): boolean {
   return typeof str === 'string' && str !== '' && ClassnameRegex.test(str);
 }
@@ -83,7 +81,7 @@ export const OptionConfig: MergeOptionConfig<Options> = {
     validator: (x) => typeof x === 'boolean',
   },
   debug: {
-    default: InitialDebug,
+    default: false,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },

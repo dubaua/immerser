@@ -122,7 +122,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
     'If true, immerser will not attach its own scroll handler. Intended for use with an external scroll controller and syncScroll calls',
   'option-hasExternalRenderer':
     'If true, skips most DOM mutation routine. Intended for use with render frameworks such as React, Vue.js, and others',
-  'option-debug': 'Enables warning logging. Defaults to true in development, false otherwise',
+  'option-debug': 'Enables warning logging',
   'option-on': 'Initial event handlers map keyed by event name',
   'events-title': 'Events',
   'events-content':
