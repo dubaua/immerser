@@ -86,7 +86,7 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
 <p>First, immerser gathers information about the layers, solids, window and document. Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer is&nbsp;partially and fully in&nbsp;viewport.</p>
-<p>After that immerser modifies <abbr title="Document Object Model">DOM</abbr>, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
+<p>After that immerser modifies <abbr title="Document Object Model">DOM</abbr>, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser adds an&nbsp;active class to&nbsp;the active layer link.</p>
 <p>Finally, immerser binds listeners to&nbsp;scroll and resize events. On&nbsp;resize, it&nbsp;will meter layers, the window and document heights again and recalculate the statemap.</p>
 <p>On&nbsp;scroll, immerser moves a&nbsp;mask of&nbsp;solids to&nbsp;show part of&nbsp;each solid group according to&nbsp;the layer below.</p>
 `,
