@@ -46,21 +46,22 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
 ```html
 <div class="fixed" data-immerser>
-  <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
-  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo">immerser</a>
+  <div class="fixed__pager pager" data-immerser-solid="pager"></div>
+  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo"
+    >immerser</a
+  >
   <div class="fixed__menu menu" data-immerser-solid="menu">
-    <a href="#reasoning" class="menu__link">Reasoning</a>
-    <a href="#how-to-use" class="menu__link">How to Use</a>
-    <a href="#how-it-works" class="menu__link">How it Works</a>
-    <a href="#options" class="menu__link">Options</a>
-    <a href="#recipes" class="menu__link">Recipes</a>
+    <a href="#reasoning" class="menu__link" data-immerser-synchro-hover="reasoning">Reasoning</a>
+    <a href="#how-to-use" class="menu__link" data-immerser-synchro-hover="how-to-use">How to Use</a>
+    <a href="#how-it-works" class="menu__link" data-immerser-synchro-hover="how-it-works">How it Works</a>
+    <a href="#options" class="menu__link" data-immerser-synchro-hover="options">Options</a>
+    <a href="#recipes" class="menu__link" data-immerser-synchro-hover="recipes">Recipes</a>
   </div>
   <div class="fixed__language language" data-immerser-solid="language">
-    <a href="/" class="language__link">english</a>
-    <a href="/ru.html" class="language__link">по-русски</a>
+    <span class="language__link language__link--active">english</span><a href="./ru.html" class="language__link">по-русски</a>
   </div>
   <div class="fixed__about about" data-immerser-solid="about">
-    &copy; 2026 &mdash; Vladimir Lysov, Chelyabinsk, Russia
+    <span>&copy; 2026 &mdash; Vladimir Lysov, Chelyabinsk, Russia</span>
     <a href="https://github.com/dubaua/immerser">github</a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
@@ -115,7 +116,6 @@ Apply colour and background styles to your layers and solids according to your
 }
 .pager,
 .logo,
-.menu,
 .language,
 .about {
   color: black;
@@ -328,7 +328,7 @@ import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
   // turn off immerser scroll handling when using a custom engine
-  isScrollHandled: false,
+  hasExternalScroll: true,
 });
 
 customScrollEngine.on('scroll', () => {

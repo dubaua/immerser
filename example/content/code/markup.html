@@ -1,19 +1,20 @@
 <div class="fixed" data-immerser>
-  <div class="fixed__pager pager" data-immerser-pager data-immerser-solid="pager"></div>
-  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo"><%= getTranslation('immerser') %></a>
+  <div class="fixed__pager pager" data-immerser-solid="pager"></div>
+  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo"
+    ><%= getTranslation('immerser') %></a
+  >
   <div class="fixed__menu menu" data-immerser-solid="menu">
-    <a href="#reasoning" class="menu__link"><%= getTranslation('menu-link-reasoning') %></a>
-    <a href="#how-to-use" class="menu__link"><%= getTranslation('menu-link-how-to-use') %></a>
-    <a href="#how-it-works" class="menu__link"><%= getTranslation('menu-link-how-it-works') %></a>
-    <a href="#options" class="menu__link"><%= getTranslation('menu-link-options') %></a>
-    <a href="#recipes" class="menu__link"><%= getTranslation('menu-link-recipes') %></a>
+    <a href="#reasoning" class="menu__link" data-immerser-synchro-hover="reasoning"><%= getTranslation('menu-link-reasoning') %></a>
+    <a href="#how-to-use" class="menu__link" data-immerser-synchro-hover="how-to-use"><%= getTranslation('menu-link-how-to-use') %></a>
+    <a href="#how-it-works" class="menu__link" data-immerser-synchro-hover="how-it-works"><%= getTranslation('menu-link-how-it-works') %></a>
+    <a href="#options" class="menu__link" data-immerser-synchro-hover="options"><%= getTranslation('menu-link-options') %></a>
+    <a href="#recipes" class="menu__link" data-immerser-synchro-hover="recipes"><%= getTranslation('menu-link-recipes') %></a>
   </div>
   <div class="fixed__language language" data-immerser-solid="language">
-    <a href="/" class="language__link">english</a>
-    <a href="/ru.html" class="language__link">по-русски</a>
+    <%= getTranslation('language-switcher') %>
   </div>
   <div class="fixed__about about" data-immerser-solid="about">
-    <%= getTranslation('copyright') %>
+    <span><%= getTranslation('copyright') %></span>
     <a href="https://github.com/dubaua/immerser"><%= getTranslation('github') %></a>
     <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
   </div>
