@@ -778,7 +778,7 @@ export default class Immerser {
         this._report({ message, docsHash: '#prepare-your-markup' });
         throw new Error(message);
       }
-      return this._connectMaskMarkup(maskNode, id);
+      return this._connectMaskMarkup(maskNode);
     });
     this._connectLayerStates(this._layerStateArray, maskMarkupArray);
   }
@@ -808,7 +808,7 @@ export default class Immerser {
         this._report({ message, docsHash: '#prepare-your-markup' });
         throw new Error(message);
       }
-      return this._connectMaskMarkup(maskNode, id);
+      return this._connectMaskMarkup(maskNode);
     });
   }
 
@@ -823,14 +823,9 @@ export default class Immerser {
     return { createdMask: true, maskInnerNode, maskNode };
   }
 
-  /** Validates and connects the inner node belonging to an existing mask. */
-  private _connectMaskMarkup(maskNode: HTMLElement, layerId: string): IMaskMarkup {
+  /** Connects the inner node belonging to an existing mask. */
+  private _connectMaskMarkup(maskNode: HTMLElement): IMaskMarkup {
     const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
-    if (!maskInnerNode) {
-      const message = `existing markup mask-inner not found for layer id "${layerId}".`;
-      this._report({ message, docsHash: '#prepare-your-markup' });
-      throw new Error(message);
-    }
     return { createdMask: false, maskInnerNode, maskNode };
   }
 
