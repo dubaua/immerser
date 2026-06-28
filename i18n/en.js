@@ -85,10 +85,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
-<p>First, immerser gathers information about the layers, solids, window and document. Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer is&nbsp;partially and fully in&nbsp;viewport.</p>
-<p>After that immerser modifies <abbr title="Document Object Model">DOM</abbr>, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser adds an&nbsp;active class to&nbsp;the active layer link.</p>
-<p>Finally, immerser binds listeners to&nbsp;scroll and resize events. On&nbsp;resize, it&nbsp;will meter layers, the window and document heights again and recalculate the statemap.</p>
-<p>On&nbsp;scroll, immerser moves a&nbsp;mask of&nbsp;solids to&nbsp;show part of&nbsp;each solid group according to&nbsp;the layer below.</p>
+<p>First, immerser finds the root element, layers, solids and masks. Then it&nbsp;measures layers, window and document and calculates the scroll points where each layer enters the viewport, stays there and leaves it.</p>
+<p>After that immerser prepares the markup: it&nbsp;creates masks for layers or connects to&nbsp;existing masks, clones solids into each mask and applies the classnames given in&nbsp;configuration. Original solids are temporarily removed, so&nbsp;only masked copies remain visible.</p>
+<p>On&nbsp;scroll, immerser moves a&nbsp;mask and its contents in&nbsp;opposite directions. This shows only the part of&nbsp;each solid group that should belong to&nbsp;the current layer. When the active layer changes, immerser updates the pager, can update the location hash and emits events.</p>
+<p>When window or container size changes, immerser measures everything again and recalculates positions. If&nbsp;layers change in&nbsp;<abbr title="Document Object Model">DOM</abbr>, call <code>render()</code> to&nbsp;synchronize the structure. If&nbsp;scroll is&nbsp;controlled outside immerser, disable the built-in scroll listener and call <code>syncScroll()</code> manually.</p>
 `,
 
   'options-title': 'Options',

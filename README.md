@@ -207,13 +207,13 @@ const immerserInstance = new Immerser({
 
 # How it Works
 
-First, immerser gathers information about the layers, solids, window and document. Then it creates a statemap for each layer, containing all necessary information, when the layer is partially and fully in viewport.
+First, immerser finds the root element, layers, solids and masks. Then it measures layers, window and document and calculates the scroll points where each layer enters the viewport, stays there and leaves it.
 
-After that immerser modifies DOM, cloning all solids into mask containers for each layer and applying the classnames given in configuration. If you have added a pager, immerser adds an active class to the active layer link.
+After that immerser prepares the markup: it creates masks for layers or connects to existing masks, clones solids into each mask and applies the classnames given in configuration. Original solids are temporarily removed, so only masked copies remain visible.
 
-Finally, immerser binds listeners to scroll and resize events. On resize, it will meter layers, the window and document heights again and recalculate the statemap.
+On scroll, immerser moves a mask and its contents in opposite directions. This shows only the part of each solid group that should belong to the current layer. When the active layer changes, immerser updates the pager, can update the location hash and emits events.
 
-On scroll, immerser moves a mask of solids to show part of each solid group according to the layer below.
+When window or container size changes, immerser measures everything again and recalculates positions. If layers change in DOM, call `render()` to synchronize the structure. If scroll is controlled outside immerser, disable the built-in scroll listener and call `syncScroll()` manually.
 
 # Options
 
