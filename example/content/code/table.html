@@ -4,6 +4,7 @@
       <th class="token property"><%= getTranslation('option') %></th>
       <th class="token property"><%= getTranslation('type') %></th>
       <th class="token property"><%= getTranslation('default') %></th>
+      <th class="token property"><%= getTranslation('hot-cold') %></th>
       <th class="token property"><%= getTranslation('description') %></th>
     </tr>
   </thead>
@@ -12,78 +13,91 @@
       <td>autoMount</td>
       <td class="token keyword">boolean</td>
       <td class="token boolean">true</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-autoMount') %></td>
     </tr>
     <tr>
       <td>selectorRoot</td>
       <td class="token keyword">unknown</td>
       <td class="token keyword">undefined</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-selectorRoot') %></td>
     </tr>
     <tr>
       <td>solidClassnamesByLayerId</td>
       <td class="token keyword">object</td>
       <td class="token punctuation">{}</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-solidClassnamesByLayerId') %></td>
     </tr>
     <tr>
       <td>fromViewportWidth</td>
       <td class="token keyword">number</td>
       <td class="token number">0</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-fromViewportWidth') %></td>
     </tr>
     <tr>
       <td>pagerThreshold</td>
       <td class="token keyword">number</td>
       <td class="token number">0.5</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-pagerThreshold') %></td>
     </tr>
     <tr>
       <td>updateLocationHash</td>
       <td class="token keyword">function</td>
       <td class="token keyword">undefined</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-updateLocationHash') %></td>
     </tr>
     <tr>
       <td>scrollAdjustThreshold</td>
       <td class="token keyword">number</td>
       <td class="token number">0</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-scrollAdjustThreshold') %></td>
     </tr>
     <tr>
       <td>scrollAdjustDelay</td>
       <td class="token keyword">number</td>
       <td class="token number">600</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-scrollAdjustDelay') %></td>
     </tr>
     <tr>
       <td>pagerLinkActiveClassname</td>
       <td class="token keyword">string</td>
       <td class="token string nowrap">pager-link-active</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-pagerLinkActiveClassname') %></td>
     </tr>
     <tr>
       <td>hasExternalScroll</td>
       <td class="token keyword">boolean</td>
       <td class="token boolean">false</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-hasExternalScroll') %></td>
     </tr>
     <tr>
       <td>hasExternalRenderer</td>
       <td class="token keyword">boolean</td>
       <td class="token boolean">false</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-hasExternalRenderer') %></td>
     </tr>
     <tr>
       <td>debug</td>
       <td class="token keyword">boolean</td>
       <td class="token boolean">false</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-debug') %></td>
     </tr>
     <tr>
       <td>on</td>
       <td class="token keyword">object</td>
       <td class="token punctuation">{}</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-on') %></td>
     </tr>
   </tbody>

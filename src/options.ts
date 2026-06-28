@@ -4,6 +4,8 @@ import type { EventName, Options } from './types';
 
 const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
 
+type OptionUpdateMode = 'hot' | 'init';
+
 function classnameValidator(str: string): boolean {
   return typeof str === 'string' && str !== '' && ClassnameRegex.test(str);
 }
@@ -90,4 +92,21 @@ export const OptionConfig: MergeOptionConfig<Options> = {
     description: 'an object containing event handlers',
     validator: onOptionValidator,
   },
+};
+
+/** @internal Option update mode used by documentation generators. */
+export const OptionUpdateModeByName: Record<keyof Options, OptionUpdateMode> = {
+  autoMount: 'init',
+  selectorRoot: 'init',
+  solidClassnamesByLayerId: 'init',
+  fromViewportWidth: 'hot',
+  pagerThreshold: 'hot',
+  updateLocationHash: 'hot',
+  scrollAdjustThreshold: 'hot',
+  scrollAdjustDelay: 'hot',
+  pagerLinkActiveClassname: 'init',
+  hasExternalScroll: 'init',
+  hasExternalRenderer: 'init',
+  debug: 'hot',
+  on: 'init',
 };

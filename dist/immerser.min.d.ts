@@ -271,41 +271,41 @@ export declare type LayerProgressChangeHandler = (layerProgressArray: number[], 
 /** @public Style for immerser root, to make in click transparent, exposed to use with external rendered */
 export declare const NotInteractiveStyles: Record<string, string>;
 
-/** @public Runtime configuration accepted by immerser (see README Options for defaults and details). */
+/** @public Runtime configuration accepted by immerser. */
 export declare type Options = {
-    /** If true, constructor runs DOM-dependent mount immediately. */
+    /** Init. If true, constructor runs DOM-dependent mount immediately. */
     autoMount: boolean;
-    /** Parent node used only for selector discovery during mount. */
+    /** Init. Parent node used only for selector discovery during mount. */
     selectorRoot?: ParentNode;
-    /** Map of layer id → solid id → classname. */
+    /** Init. Map of layer id → solid id → classname. */
     solidClassnamesByLayerId: SolidClassnamesByLayerId;
-    /** Minimal viewport width (px) at which immerser mounts runtime; below it unmounts runtime. */
+    /** Hot. Minimal viewport width (px) at which immerser mounts runtime; below it unmounts runtime. */
     fromViewportWidth: number;
-    /** Portion of viewport height that must overlap the next layer before pager switches (0–1). */
+    /** Hot. Portion of viewport height that must overlap the next layer before pager switches (0–1). */
     pagerThreshold: number;
-    /** Handles active layer id when it should be pushed into location hash. */
+    /** Hot. Handles active layer id when it should be pushed into location hash. */
     updateLocationHash?: UpdateLocationHashHandler;
-    /** Pixel threshold near section edges that triggers scroll snapping when exceeded, if 0 - no adjusting. */
+    /** Hot. Pixel threshold near section edges that triggers scroll snapping when exceeded, if 0 - no adjusting. */
     scrollAdjustThreshold: number;
-    /** Delay in ms before running scroll snapping after user scroll stops. */
+    /** Hot. Delay in ms before running scroll snapping after user scroll stops. */
     scrollAdjustDelay: number;
-    /** Classname added to pager link pointing to the active layer. */
+    /** Init. Classname added to pager link pointing to the active layer. */
     pagerLinkActiveClassname: string;
-    /** If true, immerser will not attach its own scroll listener.
+    /** Init. If true, immerser will not attach its own scroll listener.
      * Intended to use with external scroll controller and calling `syncScroll` method on immerser instance.
      */
     hasExternalScroll: boolean;
-    /** If true, immerser will not run most of DOM handling routine.
+    /** Init. If true, immerser will not run most of DOM handling routine.
      * Intended to use with render frameworks such React, Vue.js etc.
      */
     hasExternalRenderer: boolean;
-    /** Enables runtime reporting of warnings and errors. */
+    /** Hot. Enables runtime reporting of warnings and errors. */
     debug?: boolean;
-    /** Initial event handlers keyed by event name. */
+    /** Init. Initial event handlers keyed by event name. */
     on?: Partial<EventHandlers>;
 };
 
-/** @public Options that can be updated after instance creation. */
+/** @public Hot options that can be updated after instance creation with updateOptions. */
 export declare type RuntimeOptions = Pick<Options, 'debug' | 'fromViewportWidth' | 'updateLocationHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'>;
 
 /** @public Map of solid id to classname. */

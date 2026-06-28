@@ -65,7 +65,7 @@ function loadTypeScriptModule(modulePath) {
 }
 
 function loadOptionConfig() {
-  const optionConfig = loadTypeScriptModule(optionsPath).OptionConfig;
+  const { OptionConfig: optionConfig } = loadTypeScriptModule(optionsPath);
   if (!optionConfig || typeof optionConfig !== 'object' || Array.isArray(optionConfig)) {
     throw new Error('OptionConfig export not found in src/options.ts');
   }
@@ -75,7 +75,27 @@ function loadOptionConfig() {
   return optionConfig;
 }
 
+function loadOptionUpdateModeByName() {
+  const { OptionUpdateModeByName: optionUpdateModeByName } = loadTypeScriptModule(optionsPath);
+  if (!optionUpdateModeByName || typeof optionUpdateModeByName !== 'object' || Array.isArray(optionUpdateModeByName)) {
+    throw new Error('OptionUpdateModeByName export not found in src/options.ts');
+  }
+  return optionUpdateModeByName;
+}
+
 const OptionConfig = loadOptionConfig();
+const OptionUpdateModeByName = loadOptionUpdateModeByName();
+
+function getUpdateMode(optionName) {
+  const updateMode = OptionUpdateModeByName[optionName];
+  if (!updateMode) {
+    throw new Error(`Missing update mode for option "${optionName}" in src/options.ts`);
+  }
+  if (updateMode !== 'hot' && updateMode !== 'init') {
+    throw new Error(`Invalid update mode "${updateMode}" for option "${optionName}" in src/options.ts`);
+  }
+  return updateMode;
+}
 
 function inferType(optionName, config) {
   const value = config.default;
@@ -150,6 +170,7 @@ function buildHtml() {
       `      <td>${name}</td>`,
       `      <td class="token keyword">${type}</td>`,
       `      ${defaultCell}`,
+      `      <td class="token keyword">${getUpdateMode(name)}</td>`,
       `      <td><%= getTranslation('${translationKey(name)}') %></td>`,
       '    </tr>',
     ].join('\n');
@@ -162,6 +183,7 @@ function buildHtml() {
     '      <th class="token property"><%= getTranslation(\'option\') %></th>',
     '      <th class="token property"><%= getTranslation(\'type\') %></th>',
     '      <th class="token property"><%= getTranslation(\'default\') %></th>',
+    '      <th class="token property"><%= getTranslation(\'hot-cold\') %></th>',
     '      <th class="token property"><%= getTranslation(\'description\') %></th>',
     '    </tr>',
     '  </thead>',
@@ -178,10 +200,10 @@ function buildMarkdown() {
     const type = inferType(name, config);
     const def = formatDefaultForMarkdown(type, config.default);
     const desc = getDescriptionMarkdown(name);
-    return `| ${name} | \`${type}\` | ${def} | ${desc} |`;
+    return `| ${name} | \`${type}\` | ${def} | ${getUpdateMode(name)} | ${desc} |`;
   });
 
-  return ['| option | type | default | description |', '| - | - | - | - |', rows.join('\n'), ''].join('\n');
+  return ['| option | type | default | hot/init | description |', '| - | - | - | - | - |', rows.join('\n'), ''].join('\n');
 }
 
 function main() {

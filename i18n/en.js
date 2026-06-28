@@ -96,9 +96,13 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
 <p>
   You can pass options to immerser as an object parameter.
 </p>
+<p>
+  Hot options can be changed after mount with <code>updateOptions</code>. Init options are applied only during initialization.
+</p>
 `,
 
   option: 'option',
+  'hot-cold': 'hot/init',
   event: 'event',
   type: 'type',
   arguments: 'arguments',
