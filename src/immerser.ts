@@ -14,7 +14,6 @@ import queryElementArray from './utils/query-element-array';
 import validateImmerserMarkup from './utils/validate-immerser-markup';
 import type {
   ICalculationResult,
-  ICalculationTransition,
   IClonedSolid,
   IImmerserLayerState,
   IMaskMarkup,
@@ -578,26 +577,16 @@ export default class Immerser {
       return;
     }
 
-    const { previousActiveIndex, calculation } = this._calculateTransition();
-    const nextDrawSignature = this._createDrawSignature(calculation.activeIndex, calculation.layerProgressArray);
+    const calculation = this._calculate(getLastScrollPosition().y);
+    const nextDrawSignature = this._createDrawSignature(calculation);
 
     if (nextDrawSignature === this._drawSignature) {
       return;
     }
 
     this._drawSignature = nextDrawSignature;
-    this._draw(calculation, previousActiveIndex);
+    this._draw(calculation);
     this._emit(EventNames.layerProgressChange, [...calculation.layerProgressArray], this);
-  }
-
-  /**
-   * Captures the active index before calculation replaces the current active index.
-   * Returning both values prevents callers from reading the new index as if it were the previous one.
-   */
-  private _calculateTransition(scrollY?: number): ICalculationTransition {
-    const previousActiveIndex = this.activeIndex;
-    const calculation = this._calculate(scrollY ?? getLastScrollPosition().y);
-    return { previousActiveIndex, calculation };
   }
 
   /** Stores the latest calculated scroll state as the source for public getters and later transitions. */
@@ -622,27 +611,27 @@ export default class Immerser {
   }
 
   /** Creates a stable render identity so equivalent transition results can be skipped. */
-  private _createDrawSignature(activeIndex: number, layerProgressArray: readonly number[]): string {
+  private _createDrawSignature({ activeIndex, layerProgressArray }: ICalculationResult): string {
     return `${activeIndex}:${layerProgressArray.join('|')}`;
   }
 
   /** Applies transforms based on scroll position and updates active layer state. */
-  private _draw(calculation: ICalculationResult, previousActiveIndex: number): void {
+  private _draw({ activeIndex, previousActiveIndex, transforms }: ICalculationResult): void {
     this._layerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
       if (!maskNode || !maskInnerNode) {
         return;
       }
-      const transform = calculation.transforms[layerIndex];
+      const transform = transforms[layerIndex];
       maskNode.style.transform = `translateY(${transform.maskTranslateY}px)`;
       maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
     });
 
-    if (!this._isMounted || calculation.activeIndex === previousActiveIndex) {
+    if (!this._isMounted || activeIndex === previousActiveIndex) {
       return;
     }
-    this._drawPagerLinks(calculation.activeIndex);
-    this._drawHash(calculation.activeIndex);
-    this._emit(EventNames.activeLayerChange, calculation.activeIndex, this);
+    this._drawPagerLinks(activeIndex);
+    this._drawHash(activeIndex);
+    this._emit(EventNames.activeLayerChange, activeIndex, this);
   }
 
   /** Adds or removes active pager classname according to current layer. */

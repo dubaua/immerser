@@ -53,6 +53,7 @@ export default function calculateLayersRuntimeState({
   return {
     activeIndex,
     layerProgressArray,
+    previousActiveIndex,
     transforms,
   };
 }

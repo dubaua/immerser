@@ -20,6 +20,7 @@ export interface ILayerTransform {
 export interface ICalculationResult {
   activeIndex: number;
   layerProgressArray: readonly number[];
+  previousActiveIndex: number;
   transforms: readonly ILayerTransform[];
 }
 
@@ -40,12 +41,6 @@ export interface IImmerserLayerState {
   maskNode: HTMLElement | null;
   order: number;
   solidClassnames: SolidClassnames | null;
-}
-
-/** @internal */
-export interface ICalculationTransition {
-  previousActiveIndex: number;
-  calculation: ICalculationResult;
 }
 
 /** @internal */
