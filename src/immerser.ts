@@ -621,9 +621,9 @@ export default class Immerser {
       if (!maskNode || !maskInnerNode) {
         return;
       }
-      const transform = transforms[layerIndex];
-      maskNode.style.transform = `translateY(${transform.maskTranslateY}px)`;
-      maskInnerNode.style.transform = `translateY(${transform.innerTranslateY}px)`;
+      const translateY = transforms[layerIndex];
+      maskNode.style.transform = `translateY(${translateY}px)`;
+      maskInnerNode.style.transform = `translateY(${-translateY}px)`;
     });
 
     if (!this._isMounted || activeIndex === previousActiveIndex) {

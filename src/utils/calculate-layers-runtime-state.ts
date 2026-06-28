@@ -44,10 +44,7 @@ export default function calculateLayersRuntimeState({
       progress = -rootHeight;
     }
 
-    return {
-      innerTranslateY: progress === 0 ? 0 : -progress,
-      maskTranslateY: progress,
-    };
+    return progress;
   });
 
   return {

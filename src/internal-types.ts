@@ -11,17 +11,11 @@ export interface ILayerCalculation {
 }
 
 /** @internal */
-export interface ILayerTransform {
-  innerTranslateY: number;
-  maskTranslateY: number;
-}
-
-/** @internal */
 export interface ICalculationResult {
   activeIndex: number;
   layerProgressArray: readonly number[];
   previousActiveIndex: number;
-  transforms: readonly ILayerTransform[];
+  transforms: readonly number[];
 }
 
 /** @internal */
