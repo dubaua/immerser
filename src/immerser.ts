@@ -97,7 +97,7 @@ export default class Immerser {
     draw: false,
   };
 
-  /** Enables warning reporting. Defaults to false. */
+  /** Enables warning reporting */
   public debug = false;
 
   /**
@@ -108,6 +108,7 @@ export default class Immerser {
     this._init(userOptions);
   }
 
+  /** Keeps construction reusable for future full-state reinitialization paths. */
   private _init(userOptions?: Partial<Options>): void {
     this._userOptions = userOptions ?? {};
     const options = this._mergeOptions(this._userOptions);
@@ -157,6 +158,7 @@ export default class Immerser {
     }
   }
 
+  /** Centralizes diagnostics so validation failures and warnings point users to the relevant docs section. */
   private _report({ message, error, isWarning = false, docsHash = '' }: IReportParams): void {
     const resultMessage = `${MessagePrefix} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
 
@@ -232,15 +234,18 @@ export default class Immerser {
     });
   }
 
+  /** Creates a cheap identity snapshot for detecting layer-list changes without comparing DOM nodes. */
   private _createLayerSignature(layerNodeArray: HTMLElement[]): string {
     return layerNodeArray.map((layerNode) => layerNode.id).join('|');
   }
 
+  /** Reads the current DOM layer identity so dynamic markup can be compared with mounted state. */
   private _getLayerSignature(): string {
     const layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
     return this._createLayerSignature(layerNodeArray);
   }
 
+  /** Applies the configured breakpoint before expensive markup work starts. */
   private _shouldMount(): boolean {
     return window.innerWidth >= this._options.fromViewportWidth;
   }
@@ -275,6 +280,7 @@ export default class Immerser {
     this._emit(EventNames.layoutChange, this);
   }
 
+  /** Creates a layout snapshot for skipping redraws that would produce the same geometry. */
   private _createLayoutSignature(): string {
     const rootNode = this._rootNode as HTMLElement;
 
@@ -285,6 +291,7 @@ export default class Immerser {
     ].join('|');
   }
 
+  /** Keeps breakpoint remounting available even when the runtime is currently unmounted. */
   private _addResizeListener(): void {
     if (!this._onResize) {
       this._onResize = this._handleResize.bind(this);
@@ -429,6 +436,7 @@ export default class Immerser {
     });
   }
 
+  /** Removes the global resize hooks when the instance is permanently destroyed. */
   private _removeResizeListener(): void {
     if (this._onResize) {
       window.removeEventListener('resize', this._onResize, false);
@@ -447,6 +455,7 @@ export default class Immerser {
     this._resizeObserver = null;
   }
 
+  /** Prevents stale synchronization work from running after newer DOM or lifecycle changes. */
   private _cancelFlushFrame(): void {
     if (this._flushFrameId !== null) {
       window.cancelAnimationFrame(this._flushFrameId);
@@ -471,6 +480,7 @@ export default class Immerser {
     this._pendingSync.draw = false;
   }
 
+  /** Escalates DOM mutations into the full sync pipeline only when layer identity changed. */
   private _invalidateStructure(): void {
     if (!this.isMounted || this._pendingSync.structure) {
       return;
@@ -489,6 +499,7 @@ export default class Immerser {
     this._scheduleFlush();
   }
 
+  /** Escalates resize/content changes into layout work only when geometry changed. */
   private _invalidateLayout(): void {
     if (!this.isMounted || this._pendingSync.layout) {
       return;
@@ -506,6 +517,7 @@ export default class Immerser {
     this._scheduleFlush();
   }
 
+  /** Queues visual updates without forcing structure or layout recalculation. */
   private _invalidateDraw(): void {
     if (!this.isMounted) {
       return;
@@ -515,6 +527,7 @@ export default class Immerser {
     this._scheduleFlush();
   }
 
+  /** Batches pending synchronization into one animation frame for a coherent DOM update. */
   private _scheduleFlush(): void {
     if (this._flushFrameId !== null) {
       return;
@@ -526,6 +539,7 @@ export default class Immerser {
     });
   }
 
+  /** Runs queued synchronization in dependency order so draw always uses current structure and layout. */
   private _flush(): void {
     if (!this.isMounted) {
       return;
@@ -547,6 +561,7 @@ export default class Immerser {
     }
   }
 
+  /** Rebuilds controller-owned mounted state after a layer-list change without recreating the instance. */
   private _syncMountedStructure(): void {
     this._destroyHoverSynchronization();
     this._clearPagerLinks();
@@ -558,6 +573,7 @@ export default class Immerser {
     this._initHoverSynchronization();
   }
 
+  /** Keeps runtime rendering idempotent so unchanged scroll state does not emit duplicate events. */
   private _drawCurrentState(): void {
     if (!this._isLayoutSet) {
       return;
@@ -585,6 +601,7 @@ export default class Immerser {
     return { previousActiveIndex, calculation };
   }
 
+  /** Provides calculated layer data only after layout has been established. */
   private _getLayerCalculationArray(): ILayerCalculation[] {
     return this._layerStateArray.map(({ calculation }) => {
       if (!calculation) {
@@ -594,6 +611,7 @@ export default class Immerser {
     });
   }
 
+  /** Stores the latest calculated scroll state as the source for public getters and later transitions. */
   private _calculate(scrollY: number): ICalculationResult {
     if (!this._isLayoutSet) {
       throw new Error('Immerser layout is not set.');
@@ -614,6 +632,7 @@ export default class Immerser {
     return calculation;
   }
 
+  /** Creates a stable render identity so equivalent transition results can be skipped. */
   private _createDrawSignature(activeIndex: number, layerProgressArray: readonly number[]): string {
     return `${activeIndex}:${layerProgressArray.join('|')}`;
   }
@@ -690,6 +709,7 @@ export default class Immerser {
     }
   }
 
+  /** Delegates snap-target calculation only when there is an active layer to align against. */
   private _calculateScrollTarget(scrollY: number, scrollAdjustThreshold: number): number | null {
     if (!this._isLayoutSet) {
       throw new Error('Immerser layout is not set.');
@@ -967,6 +987,7 @@ export default class Immerser {
     this._solidNodeArray = [];
   }
 
+  /** Resets runtime-derived values so the next mount starts from an unmeasured state. */
   private _resetMountedState(): void {
     this._isLayoutSet = false;
     this._rootHeight = 0;
