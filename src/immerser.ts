@@ -651,15 +651,16 @@ export default class Immerser {
     if (!this._isMounted || calculation.activeIndex === previousActiveIndex) {
       return;
     }
-    if (this._pagerLinkNodeArray.length > 0) {
-      this._drawPagerLinks(calculation.activeIndex);
-    }
+    this._drawPagerLinks(calculation.activeIndex);
     this._drawHash(calculation.activeIndex);
     this._emit(EventNames.activeLayerChange, calculation.activeIndex, this);
   }
 
   /** Adds or removes active pager classname according to current layer. */
   private _drawPagerLinks(layerIndex?: number): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
     const layerId = layerIndex === undefined ? undefined : this._layerStateArray[layerIndex]?.id;
     this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
       const href = (pagerLinkNode as HTMLAnchorElement).getAttribute('href');
@@ -691,6 +692,9 @@ export default class Immerser {
 
   /** Syncs hover state across elements with matching synchro hover id. */
   private _drawHoverSynchronization(synchroHoverId?: string): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
     this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
       if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
         synchroHoverNode.classList.add('_hover');
