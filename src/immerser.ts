@@ -17,7 +17,6 @@ import type {
   ICalculationTransition,
   IClonedSolid,
   IImmerserLayerState,
-  ILayerCalculation,
   IMaskMarkup,
   IReportParams,
 } from './internal-types';
@@ -601,16 +600,6 @@ export default class Immerser {
     return { previousActiveIndex, calculation };
   }
 
-  /** Provides calculated layer data only after layout has been established. */
-  private _getLayerCalculationArray(): ILayerCalculation[] {
-    return this._layerStateArray.map(({ calculation }) => {
-      if (!calculation) {
-        throw new Error('Immerser layout is not set.');
-      }
-      return calculation;
-    });
-  }
-
   /** Stores the latest calculated scroll state as the source for public getters and later transitions. */
   private _calculate(scrollY: number): ICalculationResult {
     if (!this._isLayoutSet) {
@@ -618,7 +607,7 @@ export default class Immerser {
     }
 
     const calculation = calculateLayersRuntimeState({
-      layerCalculationArray: this._getLayerCalculationArray(),
+      layerCalculationArray: this._layerStateArray.map(({ calculation }) => calculation),
       pagerThreshold: this._options.pagerThreshold,
       previousActiveIndex: this._activeIndex,
       rootHeight: this._rootHeight,
