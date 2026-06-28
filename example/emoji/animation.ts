@@ -154,7 +154,7 @@ export function initEmojiAnimation(immerser: Immerser) {
     }
   };
 
-  handleLayersUpdate([1, 0, 0, 0, 0]);
+  handleLayersUpdate(immerser.layerProgressArray.length > 0 ? [...immerser.layerProgressArray] : [1, 0, 0, 0, 0]);
 
   emojiState.hp.subscribe((hp, prevHp) => {
     const hasMissingHp = 0 < hp && hp < MaxHP;
