@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Runtime bundle 9Kb gzipped.
+Immerser is written on typescript. Runtime bundle 8.89Kb gzipped.
 
 ## Terms
 
@@ -337,6 +337,12 @@ customScrollEngine.on('scroll', () => {
 });
 
 ```
+
+## External Renderer
+
+Use `hasExternalRenderer=true` when a rendering framework owns immerser markup. For example, a React wrapper can keep the masks and solids in framework state: [immerser-react](https://github.com/dubaua/immerser-react).
+
+With this flag enabled, immerser does not create masks, clone solids, detach original solids, clean or restore renderer-owned markup, update pager active class, or synchronize hover classes. It still connects existing masks, measures layers, applies required technical styles, updates mask transforms, and emits state events for the external renderer.
 
 ## <abbr title="Artificial Intelligence">AI</abbr> usage note
 

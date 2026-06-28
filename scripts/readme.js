@@ -148,6 +148,10 @@ ${turndownService.turndown(en['external-scroll-engine-content'])}
 ${externalScrollEngineCode}
 \`\`\`
 
+## ${en['external-renderer-title']}
+
+${turndownService.turndown(en['external-renderer-content'])}
+
 ## ${en['ai-usage-title']}
 
 ${turndownService.turndown(en['ai-usage-content'])}

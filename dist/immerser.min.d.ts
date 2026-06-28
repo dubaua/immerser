@@ -80,18 +80,20 @@ declare class Immerser {
     private _layoutSignature;
     private _drawSignature;
     private _pendingSync;
-    /** Enables warning reporting. Defaults to false. */
+    /** Enables warning reporting */
     debug: boolean;
     /**
      * Creates immerser instance and runs DOM setup unless autoMount is disabled.
      * @param userOptions - overrides for defaults defined in OptionConfig when they pass validation
      */
     constructor(userOptions?: Partial<Options>);
+    /** Keeps construction reusable for future full-state reinitialization paths. */
     private _init;
     /** Saves event handlers passed via options into internal registry. */
     private _registerHandlersFromOptions;
     /** Executes registered event handlers with provided arguments. */
     private _emit;
+    /** Centralizes diagnostics so validation failures and warnings point users to the relevant docs section. */
     private _report;
     /** Discovers root, layers and existing masks, then rebuilds layer state references. */
     private _syncStructure;
@@ -99,12 +101,17 @@ declare class Immerser {
     private _validateMarkup;
     /** Merges user options with defaults and attaches helper metadata to messages. */
     private _mergeOptions;
+    /** Creates a cheap identity snapshot for detecting layer-list changes without comparing DOM nodes. */
     private _createLayerSignature;
+    /** Reads the current DOM layer identity so dynamic markup can be compared with mounted state. */
     private _getLayerSignature;
+    /** Applies the configured breakpoint before expensive markup work starts. */
     private _shouldMount;
     /** Recalculates sizes and thresholds for each layer. */
     private _syncLayoutSizes;
+    /** Creates a layout snapshot for skipping redraws that would produce the same geometry. */
     private _createLayoutSignature;
+    /** Keeps breakpoint remounting available even when the runtime is currently unmounted. */
     private _addResizeListener;
     /** Attaches runtime listeners respecting hasExternalScroll flag. */
     private _addMountedListeners;
@@ -122,28 +129,33 @@ declare class Immerser {
     private _destroyHoverSynchronization;
     /** Clears runtime active state from pager links. */
     private _clearPagerLinks;
+    /** Removes the global resize hooks when the instance is permanently destroyed. */
     private _removeResizeListener;
     /** Removes runtime listeners while keeping breakpoint resize handling alive. */
     private _removeMountedListeners;
+    /** Prevents stale synchronization work from running after newer DOM or lifecycle changes. */
     private _cancelFlushFrame;
     /** Clears the pending scroll-adjust timer. */
     private _clearScrollAdjustTimer;
     /** Cancels deferred runtime work before mounted markup is cleaned. */
     private _cancelScheduledRuntimeWork;
+    /** Escalates DOM mutations into the full sync pipeline only when layer identity changed. */
     private _invalidateStructure;
+    /** Escalates resize/content changes into layout work only when geometry changed. */
     private _invalidateLayout;
+    /** Queues visual updates without forcing structure or layout recalculation. */
     private _invalidateDraw;
+    /** Batches pending synchronization into one animation frame for a coherent DOM update. */
     private _scheduleFlush;
+    /** Runs queued synchronization in dependency order so draw always uses current structure and layout. */
     private _flush;
+    /** Rebuilds controller-owned mounted state after a layer-list change without recreating the instance. */
     private _syncMountedStructure;
+    /** Keeps runtime rendering idempotent so unchanged scroll state does not emit duplicate events. */
     private _drawCurrentState;
-    /**
-     * Captures the active index before calculation replaces the current active index.
-     * Returning both values prevents callers from reading the new index as if it were the previous one.
-     */
-    private _calculateTransition;
-    private _getLayerCalculationArray;
+    /** Stores the latest calculated scroll state as the source for public getters and later transitions. */
     private _calculate;
+    /** Creates a stable render identity so equivalent transition results can be skipped. */
     private _createDrawSignature;
     /** Applies transforms based on scroll position and updates active layer state. */
     private _draw;
@@ -155,6 +167,7 @@ declare class Immerser {
     private _drawHoverSynchronization;
     /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
     private _adjustScroll;
+    /** Delegates snap-target calculation only when there is an active layer to align against. */
     private _calculateScrollTarget;
     /** Invalidates draw on scroll and optionally schedules scroll snapping. */
     private _handleScroll;
@@ -168,7 +181,7 @@ declare class Immerser {
     private _resolveMaskMarkup;
     /** Creates one detached mask and its required inner node. */
     private _createMaskMarkup;
-    /** Validates and connects the inner node belonging to an existing mask. */
+    /** Connects the inner node belonging to an existing mask. */
     private _connectMaskMarkup;
     /** Associates each layer state with its corresponding validated mask pair. */
     private _connectLayerStates;
@@ -202,6 +215,7 @@ declare class Immerser {
     private _removeCreatedMasks;
     /** Clears committed ownership references after cleanup completes. */
     private _resetMarkupState;
+    /** Resets runtime-derived values so the next mount starts from an unmeasured state. */
     private _resetMountedState;
     /** Discovers DOM state, validates configuration and starts runtime when breakpoint allows it. */
     mount(): void;

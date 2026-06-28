@@ -196,6 +196,18 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
 </p>
 `,
+  'external-renderer-title': 'External Renderer',
+  'external-renderer-content': `
+<p>
+  Use <code>hasExternalRenderer=true</code> when a rendering framework owns immerser markup.
+  For example, a React wrapper can keep the masks and solids in framework state:
+  <a href="https://github.com/dubaua/immerser-react">immerser-react</a>.
+</p>
+<p>
+  With this flag enabled, immerser does not create masks, clone solids, detach original solids, clean or restore renderer-owned markup, update pager active class, or synchronize hover classes.
+  It still connects existing masks, measures layers, applies required technical styles, updates mask transforms, and emits state events for the external renderer.
+</p>
+`,
   'recipes-changing-dom': 'make any manipulations, that changes <abbr title="Document Object Model">DOM</abbr> flow',
   'recipes-redraw-immerser': 'then tell immerser redraw things',
   'recipes-disable-scroll-handling-with-external-scroll':
