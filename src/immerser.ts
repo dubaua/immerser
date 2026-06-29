@@ -1112,6 +1112,15 @@ export default class Immerser {
   }
 }
 
+// Keeps public values reachable from the UMD default export without changing the CommonJS entry shape.
+Object.assign(Immerser, {
+  CroppedFullAbsoluteStyles,
+  EventNameArray,
+  EventNames,
+  InteractiveStyles,
+  NotInteractiveStyles,
+});
+
 // Used by typedef generation.
 export type {
   ActiveLayerChangeHandler,

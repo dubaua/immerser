@@ -1,20 +1,13 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = {
+const baseConfig = {
   entry: './src/immerser.ts',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
     extensions: ['.ts', '.js'],
-  },
-  output: {
-    filename: 'immerser.min.js',
-    library: 'Immerser',
-    libraryTarget: 'umd',
-    libraryExport: 'default',
-    globalObject: 'this',
   },
   module: {
     rules: [
@@ -39,3 +32,28 @@ module.exports = {
     ],
   },
 };
+
+module.exports = [
+  {
+    ...baseConfig,
+    output: {
+      filename: 'immerser.min.js',
+      library: 'Immerser',
+      libraryTarget: 'umd',
+      libraryExport: 'default',
+      globalObject: 'this',
+    },
+  },
+  {
+    ...baseConfig,
+    output: {
+      filename: 'immerser.esm.mjs',
+      library: {
+        type: 'module',
+      },
+    },
+    experiments: {
+      outputModule: true,
+    },
+  },
+];

@@ -1,18 +1,22 @@
 {
   "name": "immerser",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Javascript library for switching fixed elements on scroll through sections. Like Midnight.js, but without jQuery",
   "source": "src/immerser.ts",
   "main": "dist/immerser.min.js",
   "exports": {
     ".": {
+      "types": "./dist/immerser.min.d.ts",
       "require": "./dist/immerser.min.js",
-      "import": "./dist/immerser.min.js",
+      "import": "./dist/immerser.esm.mjs",
       "default": "./dist/immerser.min.js"
     }
   },
+  "module": "dist/immerser.esm.mjs",
   "types": "./dist/immerser.min.d.ts",
   "files": [
+    "dist/immerser.esm.mjs",
+    "dist/immerser.esm.mjs.map",
     "dist/immerser.min.js",
     "dist/immerser.min.d.ts",
     "dist/immerser.min.js.map",
