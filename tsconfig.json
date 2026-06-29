@@ -10,9 +10,9 @@
     "skipLibCheck": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "./dist/types",
+    "outDir": "./.tmp/types",
     "rootDir": "./src"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/tests/**"]
+  "exclude": ["node_modules", "dist"]
 }

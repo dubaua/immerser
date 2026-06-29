@@ -2,7 +2,7 @@ import Immerser from 'immerser';
 
 const immerserInstance = new Immerser({
   // <%= getTranslation('recipes-disable-scroll-handling-with-external-scroll') %>
-  isScrollHandled: false,
+  hasExternalScroll: true,
 });
 
 customScrollEngine.on('scroll', () => {

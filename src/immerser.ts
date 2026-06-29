@@ -1,10 +1,24 @@
 import mergeOptions from '@dubaua/merge-options';
-import ImmerserDomAdapter from './dom/immerser-dom-adapter';
-import ImmerserEngine from './engine/immerser-engine';
-import { EventNames } from './events';
-import { InitialDebug, OptionConfig } from './options';
+import Observable from '@dubaua/observable';
+import calculateLayerStateArray from './utils/calculate-layer-state-array';
+import calculateLayersRuntimeState from './utils/calculate-layers-runtime-state';
+import calculateScrollTarget from './utils/calculate-scroll-target';
+import { EventNameArray, EventNames } from './events';
+import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
+import { ImmerserSelectors } from './selectors';
+import { OptionConfig } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
-import type { IReportParams } from './dom/types';
+import assignInlineStyles from './utils/assign-inline-styles';
+import getLastScrollPosition from './utils/get-last-scroll-position';
+import queryElementArray from './utils/query-element-array';
+import validateImmerserMarkup from './utils/validate-immerser-markup';
+import type {
+  ICalculationResult,
+  IClonedSolid,
+  IImmerserLayerState,
+  IMaskMarkup,
+  IReportParams,
+} from './internal-types';
 import type {
   ActiveLayerChangeHandler,
   BaseHandler,
@@ -12,76 +26,110 @@ import type {
   EventName,
   HandlerArgs,
   HandlerByEventName,
-  LayersUpdateHandler,
+  LayerProgressChangeHandler,
   Options,
+  RuntimeOptions,
   SolidClassnames,
+  SolidClassnamesByLayerId,
+  UpdateLocationHashHandler,
 } from './types';
 
 const MessagePrefix = '[immerser]:';
+const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
+  'debug',
+  'fromViewportWidth',
+  'updateLocationHash',
+  'pagerThreshold',
+  'scrollAdjustDelay',
+  'scrollAdjustThreshold',
+];
 
-/** @public Main Immerser controller orchestrating markup cloning and scroll-driven transitions. */
+/** @public Main Immerser controller orchestrating markup preparation and scroll-driven transitions. */
 export default class Immerser {
-  private _adapter!: ImmerserDomAdapter;
+  private _options!: Options;
+  private _selectors = ImmerserSelectors;
+  private _userOptions: Partial<Options> = {};
+  private _layerStateArray: IImmerserLayerState[] = [];
+  private _isMounted = false;
+  private _rootNode: HTMLElement | null = null;
+  private _selectorRoot: ParentNode = document;
+  private _layerNodeArray: HTMLElement[] = [];
+  private _maskNodeArray: HTMLElement[] = [];
+  private _pagerLinkNodeArray: HTMLElement[] = [];
+  private _originalSolidNodeArray: HTMLElement[] = [];
+  private _clonedSolidArray: IClonedSolid[] = [];
+  private _preparedMaskMarkupArray: IMaskMarkup[] = [];
+  private _solidNodeArray: HTMLElement[] = [];
+  private _synchroHoverNodeArray: HTMLElement[] = [];
+  private _activeIndex = -1;
+  private _rootHeight = 0;
+  private _viewportHeight = 0;
+  private _resizeObserver: ResizeObserver | null = null;
+  private _flushFrameId: number | null = null;
+  private _scrollAdjustTimerId: ReturnType<typeof setTimeout> | null = null;
+  private _reactiveSynchroHoverId = new Observable<string | null>(null);
+  private _unsubscribeSynchroHover: (() => void) | null = null;
   private _handlers: Record<EventName, Set<HandlerByEventName[EventName]>> = {
-    init: new Set(),
-    bind: new Set(),
-    unbind: new Set(),
-    destroy: new Set(),
-    activeLayerChange: new Set(),
-    layersUpdate: new Set(),
+    [EventNames.init]: new Set(),
+    [EventNames.mount]: new Set(),
+    [EventNames.unmount]: new Set(),
+    [EventNames.destroy]: new Set(),
+    [EventNames.structureChange]: new Set(),
+    [EventNames.layoutChange]: new Set(),
+    [EventNames.layerProgressChange]: new Set(),
+    [EventNames.activeLayerChange]: new Set(),
+    [EventNames.stateChange]: new Set(),
+  };
+  private _onResize: (() => void) | null = null;
+  private _onScroll: (() => void) | null = null;
+  private _onSynchroHoverMouseOver: ((e: MouseEvent) => void) | null = null;
+  private _onSynchroHoverMouseOut: (() => void) | null = null;
+  private _isLayoutSet = false;
+  private _layerProgressArray: number[] = [];
+  private _structureSignature = '';
+  private _layoutSignature = '';
+  private _drawSignature = '';
+  private _pendingSync = {
+    structure: false,
+    layout: false,
+    draw: false,
   };
 
-  /** Enables warnings/errors reporting. Defaults to NODE_ENV===development. */
-  public debug = InitialDebug;
+  /** Enables warning reporting */
+  public debug = false;
 
   /**
-   * Creates immerser instance and immediately runs setup with optional user options.
-   * @param userOptions - overrides for defaults defined in OptionConfig if pass validation
+   * Creates immerser instance and runs DOM setup unless autoMount is disabled.
+   * @param userOptions - overrides for defaults defined in OptionConfig when they pass validation
    */
   constructor(userOptions?: Partial<Options>) {
     this._init(userOptions);
   }
 
+  /** Keeps construction reusable for future full-state reinitialization paths. */
   private _init(userOptions?: Partial<Options>): void {
-    const options = this._mergeOptions(userOptions);
+    this._userOptions = userOptions ?? {};
+    const options = this._mergeOptions(this._userOptions);
+    this._options = options;
+    this._selectorRoot = options.selectorRoot ?? document;
     this.debug = options.debug;
-    this._registerHandlersFromOptions(options);
+    this._registerHandlersFromOptions();
+    this._addResizeListener();
 
-    const engine = new ImmerserEngine({ pagerThreshold: options.pagerThreshold });
-    this._adapter = new ImmerserDomAdapter({
-      callbacks: {
-        onActiveLayerChange: (layerIndex) => this._emit('activeLayerChange', layerIndex, this),
-        onBind: () => this._emit('bind', this),
-        onDestroy: () => this._emit('destroy', this),
-        onLayersUpdate: (layersProgress) => this._emit('layersUpdate', layersProgress, this),
-        onUnbind: () => this._emit('unbind', this),
-        report: (params) => this._report(params),
-      },
-      engine,
-      options,
-    });
-    this._adapter.initialize();
-    this._emit('init', this);
-  }
+    if (options.autoMount) {
+      this.mount();
+    }
 
-  /** Merges user options with defaults and attaches helper metadata to messages. */
-  private _mergeOptions(userOptions?: Partial<Options>): Options {
-    return mergeOptions({
-      optionConfig: OptionConfig,
-      userOptions,
-      prefix: MessagePrefix,
-      suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
-      strict: false,
-    });
+    this._emit(EventNames.init, this);
   }
 
   /** Saves event handlers passed via options into internal registry. */
-  private _registerHandlersFromOptions(options: Options): void {
-    if (!options.on) {
+  private _registerHandlersFromOptions(): void {
+    if (!this._options.on) {
       return;
     }
-    EventNames.forEach((eventName) => {
-      const handler = options.on?.[eventName];
+    EventNameArray.forEach((eventName) => {
+      const handler = this._options.on[eventName];
       if (typeof handler === 'function') {
         this.on(eventName, handler);
       }
@@ -102,14 +150,14 @@ export default class Immerser {
         });
       }
     });
+
+    if (eventName !== EventNames.stateChange) {
+      this._emit(EventNames.stateChange, this);
+    }
   }
 
-  private _report({
-    message,
-    error,
-    isWarning = false,
-    docsHash = '',
-  }: IReportParams): void {
+  /** Centralizes diagnostics so validation failures and warnings point users to the relevant docs section. */
+  private _report({ message, error, isWarning = false, docsHash = '' }: IReportParams): void {
     const resultMessage = `${MessagePrefix} ${message} \nCheck out documentation https://github.com/dubaua/immerser${docsHash}`;
 
     if (isWarning) {
@@ -125,58 +173,903 @@ export default class Immerser {
     throw new Error(resultMessage, { cause: error });
   }
 
-  /**
-   * Prepares markup, attaches listeners and triggers first draw; also emits bind event.
-   * Intended to be idempotent for toggling immerser on when viewport width allows.
-   */
-  public bind(): void {
-    this._adapter.bind();
+  /** Discovers root, layers and existing masks, then rebuilds layer state references. */
+  private _syncStructure(): void {
+    this._rootNode = this._selectorRoot.querySelector<HTMLElement>(this._selectors.root);
+    this._layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
+    this._maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+
+    this._validateMarkup();
+
+    const previousLayerStateById = new Map(this._layerStateArray.map((layerState) => [layerState.id, layerState]));
+
+    this._layerStateArray = this._layerNodeArray.map((layerNode, order) => {
+      const previousLayerState = previousLayerStateById.get(layerNode.id);
+
+      return {
+        calculation: previousLayerState?.calculation ?? null,
+        id: layerNode.id,
+        layerNode,
+        maskInnerNode: previousLayerState?.maskInnerNode ?? null,
+        maskNode: previousLayerState?.maskNode ?? null,
+        order,
+        solidClassnames: this._options.solidClassnamesByLayerId[layerNode.id] ?? null,
+      };
+    });
+
+    this._structureSignature = this._createLayerSignature(this._layerNodeArray);
+    this._emit(EventNames.structureChange, this);
+  }
+
+  /** Validates required markup and option references. */
+  private _validateMarkup(): void {
+    const messageArray = validateImmerserMarkup({
+      layerNodeArray: this._layerNodeArray,
+      maskInnerSelector: this._selectors.maskInner,
+      maskNodeArray: this._maskNodeArray,
+      rootNode: this._rootNode,
+      solidClassnamesByLayerId: this._options.solidClassnamesByLayerId,
+    });
+
+    if (messageArray.length > 0) {
+      messageArray.forEach((message) => {
+        this._report({
+          message,
+          docsHash: '#prepare-your-markup',
+        });
+      });
+    }
+  }
+
+  /** Merges user options with defaults and attaches helper metadata to messages. */
+  private _mergeOptions(userOptions?: Partial<Options>): Options {
+    return mergeOptions({
+      optionConfig: OptionConfig,
+      userOptions,
+      prefix: MessagePrefix,
+      suffix: '\nCheck out documentation https://github.com/dubaua/immerser#options',
+      strict: false,
+    });
+  }
+
+  /** Creates a cheap identity snapshot for detecting layer-list changes without comparing DOM nodes. */
+  private _createLayerSignature(layerNodeArray: HTMLElement[]): string {
+    return layerNodeArray.map((layerNode) => layerNode.id).join('|');
+  }
+
+  /** Reads the current DOM layer identity so dynamic markup can be compared with mounted state. */
+  private _getLayerSignature(): string {
+    const layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
+    return this._createLayerSignature(layerNodeArray);
+  }
+
+  /** Applies the configured breakpoint before expensive markup work starts. */
+  private _shouldMount(): boolean {
+    return window.innerWidth >= this._options.fromViewportWidth;
+  }
+
+  /** Recalculates sizes and thresholds for each layer. */
+  private _syncLayoutSizes(): void {
+    const rootNode = this._rootNode as HTMLElement;
+    const layers = this._layerStateArray.map(({ layerNode }) => ({
+      bottom: layerNode.offsetTop + layerNode.offsetHeight,
+      top: layerNode.offsetTop,
+    }));
+    this._isLayoutSet = true;
+    this._rootHeight = rootNode.offsetHeight;
+    this._viewportHeight = window.innerHeight;
+    const layerCalculationArray = calculateLayerStateArray({
+      layers,
+      rootHeight: this._rootHeight,
+      rootTop: rootNode.offsetTop,
+    });
+    this._layerStateArray = this._layerStateArray.map((layerState, layerIndex) => ({
+      ...layerState,
+      calculation: layerCalculationArray[layerIndex],
+    }));
+    if (this._layerProgressArray.length === 0) {
+      this._layerProgressArray = layers.map(() => 0);
+    }
+
+    this._layoutSignature = this._createLayoutSignature();
+    // Same progress can produce different pixel transforms after layout changes.
+    this._drawSignature = '';
+
+    this._emit(EventNames.layoutChange, this);
+  }
+
+  /** Creates a layout snapshot for skipping redraws that would produce the same geometry. */
+  private _createLayoutSignature(): string {
+    const rootNode = this._rootNode as HTMLElement;
+
+    return [
+      window.innerHeight,
+      rootNode.offsetHeight,
+      ...this._layerStateArray.map(({ layerNode }) => layerNode.offsetHeight),
+    ].join('|');
+  }
+
+  /** Keeps breakpoint remounting available even when the runtime is currently unmounted. */
+  private _addResizeListener(): void {
+    if (!this._onResize) {
+      this._onResize = this._handleResize.bind(this);
+      window.addEventListener('resize', this._onResize, false);
+      window.addEventListener('orientationchange', this._onResize, false);
+    }
+  }
+
+  /** Attaches runtime listeners respecting hasExternalScroll flag. */
+  private _addMountedListeners(): void {
+    if (!this._options.hasExternalScroll && !this._onScroll) {
+      this._onScroll = this._handleScroll.bind(this);
+      window.addEventListener('scroll', this._onScroll, false);
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(this._onResize);
+      this._resizeObserver.observe(this._rootNode);
+    }
+  }
+
+  /** Clears internal caches, observables and references after destroy. */
+  private _resetInternalState(): void {
+    this._layerStateArray = [];
+    this._isMounted = false;
+    this._rootNode = null;
+    this._selectorRoot = document;
+    this._layerNodeArray = [];
+    this._maskNodeArray = [];
+    this._pagerLinkNodeArray = [];
+    this._synchroHoverNodeArray = [];
+    this._resizeObserver = null;
+    this._flushFrameId = null;
+    this._scrollAdjustTimerId = null;
+    this._reactiveSynchroHoverId.reset();
+    this._unsubscribeSynchroHover = null;
+    this._onResize = null;
+    this._onScroll = null;
+    this._onSynchroHoverMouseOver = null;
+    this._onSynchroHoverMouseOut = null;
+    this._originalSolidNodeArray = [];
+    this._clonedSolidArray = [];
+    this._preparedMaskMarkupArray = [];
+    this._solidNodeArray = [];
+    this._structureSignature = '';
+    this._layoutSignature = '';
+    this._drawSignature = '';
+    this._pendingSync.structure = false;
+    this._pendingSync.layout = false;
+    this._pendingSync.draw = false;
+    this._resetMountedState();
+  }
+
+  /** Connects external mask markup or prepares controller-owned markup. */
+  private _prepareMarkup(): void {
+    if (this._options.hasExternalRenderer) {
+      this._connectExistingMaskMarkup();
+      return;
+    }
+    if (this._preparedMaskMarkupArray.length > 0) {
+      this._cleanupMarkup();
+    }
+
+    const layerStateArray = this._layerStateArray;
+    const maskMarkupArray = this._resolveMaskMarkup(layerStateArray);
+    const nextLayerStateArray = this._connectLayerStates(layerStateArray, maskMarkupArray);
+    const originalSolidNodeArray = this._findSourceSolids(maskMarkupArray);
+    const clonedSolidArray = this._cloneSolids(nextLayerStateArray, originalSolidNodeArray);
+    const solidNodeArray = this._collectSolidNodes(maskMarkupArray, clonedSolidArray);
+
+    this._reportEmptyMarkup(originalSolidNodeArray, maskMarkupArray);
+    this._applyTechnicalStyles(maskMarkupArray, solidNodeArray);
+    this._commitNodes(maskMarkupArray, clonedSolidArray);
+    this._applyCreatedMasksAria(maskMarkupArray);
+    this._savePreparedMarkupState(maskMarkupArray, clonedSolidArray, originalSolidNodeArray, solidNodeArray);
+    this._detachOriginalSolids(originalSolidNodeArray);
+  }
+
+  /** Restores markup according to controller-recorded ownership. */
+  private _cleanupMarkup(): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
+    this._removeClonedSolids();
+    this._restoreOriginalSolids();
+    this._clearTechnicalStyles();
+    this._removeCreatedMasks();
+    this._resetMarkupState();
+    this._layerStateArray = this._layerStateArray.map((layerState) => ({
+      ...layerState,
+      maskInnerNode: null,
+      maskNode: null,
+    }));
+  }
+
+  /** Collects pager links that will receive runtime active state. */
+  private _initPagerLinks(): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
+    this._pagerLinkNodeArray = queryElementArray({ selector: this._selectors.pagerLink, parent: this._rootNode });
+  }
+
+  /** Sets up hover synchronization listeners and reactive updates. */
+  private _initHoverSynchronization(): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
+    this._synchroHoverNodeArray = queryElementArray({ selector: this._selectors.synchroHover, parent: this._rootNode });
+
+    this._onSynchroHoverMouseOver = (e: MouseEvent): void => {
+      const target = e.currentTarget as HTMLElement;
+      const synchroHoverId = target.dataset.immerserSynchroHover;
+      this._reactiveSynchroHoverId.value = synchroHoverId;
+    };
+
+    this._onSynchroHoverMouseOut = (): void => {
+      this._reactiveSynchroHoverId.value = null;
+    };
+
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      synchroHoverNode.addEventListener('mouseover', this._onSynchroHoverMouseOver!);
+      synchroHoverNode.addEventListener('mouseout', this._onSynchroHoverMouseOut!);
+    });
+    if (this._synchroHoverNodeArray.length > 0) {
+      this._unsubscribeSynchroHover = this._reactiveSynchroHoverId.subscribe(this._drawHoverSynchronization.bind(this));
+    }
+  }
+
+  /** Removes hover synchronization listeners and reactive updates. */
+  private _destroyHoverSynchronization(): void {
+    this._unsubscribeSynchroHover?.();
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      synchroHoverNode.removeEventListener('mouseover', this._onSynchroHoverMouseOver!);
+      synchroHoverNode.removeEventListener('mouseout', this._onSynchroHoverMouseOut!);
+    });
+  }
+
+  /** Clears runtime active state from pager links. */
+  private _clearPagerLinks(): void {
+    this._pagerLinkNodeArray.forEach((node) => {
+      node.classList.remove(this._options.pagerLinkActiveClassname);
+    });
+  }
+
+  /** Removes the global resize hooks when the instance is permanently destroyed. */
+  private _removeResizeListener(): void {
+    if (this._onResize) {
+      window.removeEventListener('resize', this._onResize, false);
+      window.removeEventListener('orientationchange', this._onResize, false);
+      this._onResize = null;
+    }
+  }
+
+  /** Removes runtime listeners while keeping breakpoint resize handling alive. */
+  private _removeMountedListeners(): void {
+    if (!this._options.hasExternalScroll && this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll, false);
+      this._onScroll = null;
+    }
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+  }
+
+  /** Prevents stale synchronization work from running after newer DOM or lifecycle changes. */
+  private _cancelFlushFrame(): void {
+    if (this._flushFrameId !== null) {
+      window.cancelAnimationFrame(this._flushFrameId);
+      this._flushFrameId = null;
+    }
+  }
+
+  /** Clears the pending scroll-adjust timer. */
+  private _clearScrollAdjustTimer(): void {
+    if (this._scrollAdjustTimerId !== null) {
+      clearTimeout(this._scrollAdjustTimerId);
+      this._scrollAdjustTimerId = null;
+    }
+  }
+
+  /** Cancels deferred runtime work before mounted markup is cleaned. */
+  private _cancelScheduledRuntimeWork(): void {
+    this._cancelFlushFrame();
+    this._clearScrollAdjustTimer();
+    this._pendingSync.structure = false;
+    this._pendingSync.layout = false;
+    this._pendingSync.draw = false;
+  }
+
+  /** Escalates DOM mutations into the full sync pipeline only when layer identity changed. */
+  private _invalidateStructure(): void {
+    if (!this.isMounted || this._pendingSync.structure) {
+      return;
+    }
+
+    const nextLayerSignature = this._getLayerSignature();
+
+    if (nextLayerSignature === this._structureSignature) {
+      this._invalidateLayout();
+      return;
+    }
+
+    this._pendingSync.structure = true;
+    this._pendingSync.layout = true;
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  /** Escalates resize/content changes into layout work only when geometry changed. */
+  private _invalidateLayout(): void {
+    if (!this.isMounted || this._pendingSync.layout) {
+      return;
+    }
+
+    const nextLayoutSignature = this._createLayoutSignature();
+
+    if (nextLayoutSignature === this._layoutSignature) {
+      this._invalidateDraw();
+      return;
+    }
+
+    this._pendingSync.layout = true;
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  /** Queues visual updates without forcing structure or layout recalculation. */
+  private _invalidateDraw(): void {
+    if (!this.isMounted) {
+      return;
+    }
+
+    this._pendingSync.draw = true;
+    this._scheduleFlush();
+  }
+
+  /** Batches pending synchronization into one animation frame for a coherent DOM update. */
+  private _scheduleFlush(): void {
+    if (this._flushFrameId !== null) {
+      return;
+    }
+
+    this._flushFrameId = window.requestAnimationFrame(() => {
+      this._flushFrameId = null;
+      this._flush();
+    });
+  }
+
+  /** Runs queued synchronization in dependency order so draw always uses current structure and layout. */
+  private _flush(): void {
+    if (!this.isMounted) {
+      return;
+    }
+
+    if (this._pendingSync.structure) {
+      this._pendingSync.structure = false;
+      this._syncMountedStructure();
+    }
+
+    if (this._pendingSync.layout) {
+      this._pendingSync.layout = false;
+      this._syncLayoutSizes();
+    }
+
+    if (this._pendingSync.draw) {
+      this._pendingSync.draw = false;
+      this._drawCurrentState();
+    }
+  }
+
+  /** Rebuilds controller-owned mounted state after a layer-list change without recreating the instance. */
+  private _syncMountedStructure(): void {
+    this._destroyHoverSynchronization();
+    this._clearPagerLinks();
+    this._cleanupMarkup();
+    this._resetMountedState();
+    this._syncStructure();
+    this._prepareMarkup();
+    this._initPagerLinks();
+    this._initHoverSynchronization();
+  }
+
+  /** Keeps runtime rendering idempotent so unchanged scroll state does not emit duplicate events. */
+  private _drawCurrentState(): void {
+    if (!this._isLayoutSet) {
+      return;
+    }
+
+    const calculation = this._calculate(getLastScrollPosition().y);
+    const nextDrawSignature = this._createDrawSignature(calculation);
+
+    if (nextDrawSignature === this._drawSignature) {
+      return;
+    }
+
+    this._drawSignature = nextDrawSignature;
+    this._draw(calculation);
+    this._emit(EventNames.layerProgressChange, [...calculation.layerProgressArray], this);
+  }
+
+  /** Stores the latest calculated scroll state as the source for public getters and later transitions. */
+  private _calculate(scrollY: number): ICalculationResult {
+    if (!this._isLayoutSet) {
+      throw new Error('Immerser layout is not set.');
+    }
+
+    const calculation = calculateLayersRuntimeState({
+      layerCalculationArray: this._layerStateArray.map(({ calculation }) => calculation),
+      pagerThreshold: this._options.pagerThreshold,
+      previousActiveIndex: this._activeIndex,
+      rootHeight: this._rootHeight,
+      scrollY,
+      viewportHeight: this._viewportHeight,
+    });
+
+    this._activeIndex = calculation.activeIndex;
+    this._layerProgressArray = [...calculation.layerProgressArray];
+
+    return calculation;
+  }
+
+  /** Creates a stable render identity so equivalent transition results can be skipped. */
+  private _createDrawSignature({ activeIndex, layerProgressArray }: ICalculationResult): string {
+    return `${activeIndex}:${layerProgressArray.join('|')}`;
+  }
+
+  /** Applies transforms based on scroll position and updates active layer state. */
+  private _draw({ activeIndex, previousActiveIndex, transforms }: ICalculationResult): void {
+    this._layerStateArray.forEach(({ maskNode, maskInnerNode }, layerIndex) => {
+      if (!maskNode || !maskInnerNode) {
+        return;
+      }
+      const translateY = transforms[layerIndex];
+      maskNode.style.transform = `translateY(${translateY}px)`;
+      maskInnerNode.style.transform = `translateY(${-translateY}px)`;
+    });
+
+    if (!this._isMounted || activeIndex === previousActiveIndex) {
+      return;
+    }
+    this._drawPagerLinks(activeIndex);
+    this._drawHash(activeIndex);
+    this._emit(EventNames.activeLayerChange, activeIndex, this);
+  }
+
+  /** Adds or removes active pager classname according to current layer. */
+  private _drawPagerLinks(layerIndex?: number): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
+    const layerId = layerIndex === undefined ? undefined : this._layerStateArray[layerIndex]?.id;
+    this._pagerLinkNodeArray.forEach((pagerLinkNode) => {
+      const href = (pagerLinkNode as HTMLAnchorElement).getAttribute('href');
+
+      pagerLinkNode.classList.toggle(
+        this._options.pagerLinkActiveClassname,
+        Boolean(layerId && href?.endsWith(`#${layerId}`)),
+      );
+    });
+  }
+
+  /** Passes active layer id to configured hash update handler. */
+  private _drawHash(layerIndex: number): void {
+    if (!this._options.updateLocationHash) {
+      return;
+    }
+    const layerState = this._layerStateArray[layerIndex];
+    if (!layerState) {
+      return;
+    }
+    const { id, layerNode } = layerState;
+    layerNode.removeAttribute('id');
+    try {
+      this._options.updateLocationHash(id);
+    } finally {
+      layerNode.setAttribute('id', id);
+    }
+  }
+
+  /** Syncs hover state across elements with matching synchro hover id. */
+  private _drawHoverSynchronization(synchroHoverId?: string): void {
+    if (this._options.hasExternalRenderer) {
+      return;
+    }
+    this._synchroHoverNodeArray.forEach((synchroHoverNode) => {
+      if (synchroHoverNode.dataset.immerserSynchroHover === synchroHoverId) {
+        synchroHoverNode.classList.add('_hover');
+      } else {
+        synchroHoverNode.classList.remove('_hover');
+      }
+    });
+  }
+
+  /** Adjusts scroll to layer edges when near thresholds, improving alignment. */
+  private _adjustScroll(): void {
+    const { x, y } = getLastScrollPosition();
+    const scrollTarget = this._calculateScrollTarget(y, this._options.scrollAdjustThreshold);
+    if (scrollTarget !== null) {
+      window.scrollTo(x, scrollTarget);
+    }
+  }
+
+  /** Delegates snap-target calculation only when there is an active layer to align against. */
+  private _calculateScrollTarget(scrollY: number, scrollAdjustThreshold: number): number | null {
+    if (!this._isLayoutSet) {
+      throw new Error('Immerser layout is not set.');
+    }
+
+    const activeLayer = this._layerStateArray[this._activeIndex]?.calculation;
+    if (!activeLayer) {
+      return null;
+    }
+
+    return calculateScrollTarget({
+      activeLayer,
+      scrollAdjustThreshold,
+      scrollY,
+      viewportHeight: this._viewportHeight,
+    });
+  }
+
+  /** Invalidates draw on scroll and optionally schedules scroll snapping. */
+  private _handleScroll(): void {
+    if (!this._isMounted) {
+      return;
+    }
+
+    this._invalidateDraw();
+
+    if (this._options.scrollAdjustThreshold > 0) {
+      this._clearScrollAdjustTimer();
+      this._scrollAdjustTimerId = setTimeout(this._adjustScroll.bind(this), this._options.scrollAdjustDelay);
+    }
+  }
+
+  /** Invalidates layout on resize-like changes and toggles mount state by breakpoint. */
+  private _handleResize(): void {
+    if (!this._shouldMount()) {
+      this.unmount();
+      return;
+    }
+    if (!this._isMounted) {
+      this.mount();
+      return;
+    }
+    this._invalidateLayout();
+  }
+
+  /** Keeps updateOptions scoped to runtime fields even when called from plain JavaScript. */
+  private _pickRuntimeOptions(userOptions: Partial<Options>): Partial<RuntimeOptions> {
+    return RuntimeOptionNames.reduce<Partial<RuntimeOptions>>((result, optionName) => {
+      if (optionName in userOptions) {
+        result[optionName] = userOptions[optionName] as never;
+      }
+      return result;
+    }, {});
+  }
+
+  /** Connects already existing masks without creating or mutating markup. */
+  private _connectExistingMaskMarkup(): void {
+    if (this._maskNodeArray.length === 0) {
+      return;
+    }
+
+    const maskMarkupArray = this._layerStateArray.map(({ id }) => {
+      const maskNode = this._maskNodeArray.find((node) => node.dataset.immerserLayerId === id);
+      if (!maskNode) {
+        const message = `existing markup mask not found for layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      return this._connectMaskMarkup(maskNode);
+    });
+    this._connectLayerStates(this._layerStateArray, maskMarkupArray);
+  }
+
+  /** Uses complete existing masks by layer id or creates a detached mask set when none exists. */
+  private _resolveMaskMarkup(layerStateArray: IImmerserLayerState[]): IMaskMarkup[] {
+    const existingMaskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+    if (existingMaskNodeArray.length === 0) {
+      return layerStateArray.map(({ id }) => this._createMaskMarkup(id));
+    }
+    if (existingMaskNodeArray.length !== layerStateArray.length) {
+      const message = 'existing markup mask count differs from count of layers.';
+      this._report({ message, docsHash: '#prepare-your-markup' });
+      throw new Error(message);
+    }
+
+    return layerStateArray.map(({ id }) => {
+      const maskNodeArray = existingMaskNodeArray.filter((maskNode) => maskNode.dataset.immerserLayerId === id);
+      if (maskNodeArray.length > 1) {
+        const message = `existing markup has duplicate mask layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      const maskNode = maskNodeArray[0];
+      if (!maskNode) {
+        const message = `existing markup mask not found for layer id "${id}".`;
+        this._report({ message, docsHash: '#prepare-your-markup' });
+        throw new Error(message);
+      }
+      return this._connectMaskMarkup(maskNode);
+    });
+  }
+
+  /** Creates one detached mask and its required inner node. */
+  private _createMaskMarkup(layerId: string): IMaskMarkup {
+    const maskNode = document.createElement('div');
+    const maskInnerNode = document.createElement('div');
+    maskNode.dataset.immerserMask = '';
+    maskNode.dataset.immerserLayerId = layerId;
+    maskInnerNode.dataset.immerserMaskInner = '';
+    maskNode.appendChild(maskInnerNode);
+    return { createdMask: true, maskInnerNode, maskNode };
+  }
+
+  /** Connects the inner node belonging to an existing mask. */
+  private _connectMaskMarkup(maskNode: HTMLElement): IMaskMarkup {
+    const maskInnerNode = maskNode.querySelector<HTMLElement>(this._selectors.maskInner);
+    return { createdMask: false, maskInnerNode, maskNode };
+  }
+
+  /** Associates each layer state with its corresponding validated mask pair. */
+  private _connectLayerStates(
+    layerStateArray: IImmerserLayerState[],
+    maskMarkupArray: IMaskMarkup[],
+  ): IImmerserLayerState[] {
+    const nextLayerStateArray = layerStateArray.map((layerState, layerIndex) => ({
+      ...layerState,
+      maskInnerNode: maskMarkupArray[layerIndex].maskInnerNode,
+      maskNode: maskMarkupArray[layerIndex].maskNode,
+    }));
+    this._layerStateArray = nextLayerStateArray;
+    return nextLayerStateArray;
+  }
+
+  /** Finds source solids while excluding client-owned content already placed inside masks. */
+  private _findSourceSolids(maskMarkupArray: IMaskMarkup[]): HTMLElement[] {
+    return queryElementArray({ selector: this._selectors.solid, parent: this._rootNode }).filter(
+      (solidNode) => !maskMarkupArray.some(({ maskNode }) => maskNode.contains(solidNode)),
+    );
+  }
+
+  /** Builds configured clones and records the inner node that will receive each clone. */
+  private _cloneSolids(layerStateArray: IImmerserLayerState[], originalSolidNodeArray: HTMLElement[]): IClonedSolid[] {
+    return layerStateArray.reduce<IClonedSolid[]>((result, { maskInnerNode, solidClassnames }) => {
+      originalSolidNodeArray.forEach((originalSolidNode) => {
+        const clonedSolidNode = originalSolidNode.cloneNode(true);
+        if (clonedSolidNode instanceof HTMLElement && maskInnerNode) {
+          const solidId = clonedSolidNode.dataset.immerserSolid;
+          const classname = solidId ? solidClassnames?.[solidId] : undefined;
+          if (classname) {
+            clonedSolidNode.classList.add(classname);
+          }
+          result.push({ maskInnerNode, node: clonedSolidNode });
+        }
+      });
+      return result;
+    }, []);
+  }
+
+  /** Collects existing and cloned solids that require interactive technical styles. */
+  private _collectSolidNodes(maskMarkupArray: IMaskMarkup[], clonedSolidArray: IClonedSolid[]): HTMLElement[] {
+    const existingSolidNodeArray = maskMarkupArray.flatMap(({ maskInnerNode }) =>
+      queryElementArray({ selector: this._selectors.solid, parent: maskInnerNode }),
+    );
+    return [...existingSolidNodeArray, ...clonedSolidArray.map(({ node }) => node)];
+  }
+
+  /** Warns when neither source solids nor existing mask content can produce a visual result. */
+  private _reportEmptyMarkup(originalSolidNodeArray: HTMLElement[], maskMarkupArray: IMaskMarkup[]): void {
+    if (
+      originalSolidNodeArray.length === 0 &&
+      maskMarkupArray.every(({ maskInnerNode }) => maskInnerNode.children.length === 0)
+    ) {
+      this._report({
+        message: 'immerser will do nothing without source solids or existing mask content.',
+        docsHash: '#prepare-your-markup',
+        isWarning: true,
+      });
+    }
+  }
+
+  /** Replaces inline styles on controller-managed runtime nodes with technical styles. */
+  private _applyTechnicalStyles(maskMarkupArray: IMaskMarkup[], solidNodeArray: HTMLElement[]): void {
+    this._setTechnicalStyles(this._rootNode as HTMLElement, NotInteractiveStyles);
+    maskMarkupArray.forEach(({ maskInnerNode, maskNode }) => {
+      this._setTechnicalStyles(maskNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+      this._setTechnicalStyles(maskInnerNode, { ...CroppedFullAbsoluteStyles, transform: '' });
+    });
+    solidNodeArray.forEach((node) => {
+      this._setTechnicalStyles(node, InteractiveStyles);
+    });
+  }
+
+  /** Drops client inline styles before assigning the complete technical style set. */
+  private _setTechnicalStyles(node: HTMLElement, styles: Record<string, string>): void {
+    node.removeAttribute('style');
+    assignInlineStyles(node, styles);
+  }
+
+  /** Inserts staged clones and appends controller-created masks to the live root. */
+  private _commitNodes(maskMarkupArray: IMaskMarkup[], clonedSolidArray: IClonedSolid[]): void {
+    clonedSolidArray.forEach(({ maskInnerNode, node }) => {
+      maskInnerNode.appendChild(node);
+    });
+    maskMarkupArray
+      .filter(({ createdMask }) => createdMask)
+      .forEach(({ maskNode }) => (this._rootNode as HTMLElement).appendChild(maskNode));
+  }
+
+  /** Hides duplicate content only on masks created by this instance. */
+  private _applyCreatedMasksAria(maskMarkupArray: IMaskMarkup[]): void {
+    maskMarkupArray
+      .filter(({ createdMask }) => createdMask)
+      .forEach(({ maskNode }, maskIndex) => {
+        if (maskIndex !== 0) {
+          maskNode.setAttribute('aria-hidden', 'true');
+        }
+      });
+  }
+
+  /** Stores references required to clean the committed markup lifecycle. */
+  private _savePreparedMarkupState(
+    maskMarkupArray: IMaskMarkup[],
+    clonedSolidArray: IClonedSolid[],
+    originalSolidNodeArray: HTMLElement[],
+    solidNodeArray: HTMLElement[],
+  ): void {
+    this._clonedSolidArray = clonedSolidArray;
+    this._preparedMaskMarkupArray = maskMarkupArray;
+    this._originalSolidNodeArray = originalSolidNodeArray;
+    this._solidNodeArray = solidNodeArray;
+  }
+
+  /** Detaches source solids after every clone and mask has been committed successfully. */
+  private _detachOriginalSolids(originalSolidNodeArray: HTMLElement[]): void {
+    originalSolidNodeArray.forEach((solidNode) => solidNode.remove());
+  }
+
+  /** Removes every clone owned by this instance without touching existing mask content. */
+  private _removeClonedSolids(): void {
+    this._clonedSolidArray.forEach(({ node }) => node.remove());
+  }
+
+  /** Returns detached source solids to the root in their original relative order. */
+  private _restoreOriginalSolids(): void {
+    this._originalSolidNodeArray.forEach((solidNode) => (this._rootNode as HTMLElement).appendChild(solidNode));
+  }
+
+  /** Clears technical styles from the root and client-owned existing masks. */
+  private _clearTechnicalStyles(): void {
+    (this._rootNode as HTMLElement).removeAttribute('style');
+    this._preparedMaskMarkupArray.forEach(({ createdMask, maskInnerNode, maskNode }) => {
+      if (!createdMask) {
+        maskNode.removeAttribute('style');
+        maskInnerNode.removeAttribute('style');
+      }
+    });
+    this._solidNodeArray.forEach((node) => node.removeAttribute('style'));
+  }
+
+  /** Removes only masks that were created by this instance. */
+  private _removeCreatedMasks(): void {
+    this._preparedMaskMarkupArray.filter(({ createdMask }) => createdMask).forEach(({ maskNode }) => maskNode.remove());
+  }
+
+  /** Clears committed ownership references after cleanup completes. */
+  private _resetMarkupState(): void {
+    this._originalSolidNodeArray = [];
+    this._clonedSolidArray = [];
+    this._preparedMaskMarkupArray = [];
+    this._solidNodeArray = [];
+  }
+
+  /** Resets runtime-derived values so the next mount starts from an unmeasured state. */
+  private _resetMountedState(): void {
+    this._isLayoutSet = false;
+    this._rootHeight = 0;
+    this._viewportHeight = 0;
+    this._activeIndex = -1;
+    this._layerProgressArray = [];
+  }
+
+  /** Discovers DOM state, validates configuration and starts runtime when breakpoint allows it. */
+  public mount(): void {
+    if (this._isMounted || !this._shouldMount()) {
+      return;
+    }
+    this._syncStructure();
+    this._prepareMarkup();
+    this._syncLayoutSizes();
+    this._initPagerLinks();
+    this._initHoverSynchronization();
+    this._addMountedListeners();
+    this._isMounted = true;
+    this._drawCurrentState();
+    this._emit(EventNames.mount, this);
   }
 
   /**
-   * Tears down generated markup and listeners, restores DOM, resets active layer and emits unbind event.
-   * Safe to call multiple times; no-op when already unbound.
+   * Stops runtime behavior while keeping resize handling active for breakpoint remount.
+   * Safe to call multiple times; no-op when already unmounted.
    */
-  public unbind(): void {
-    this._adapter.unbind();
+  public unmount(): void {
+    if (!this._isMounted) {
+      return;
+    }
+    this._cancelScheduledRuntimeWork();
+    this._destroyHoverSynchronization();
+    this._clearPagerLinks();
+    this._removeMountedListeners();
+    this._cleanupMarkup();
+    this._isMounted = false;
+    this._emit(EventNames.unmount, this);
+    this._resetMountedState();
+  }
+
+  /** Updates runtime options and applies minimal side effects without remounting the instance. */
+  public updateOptions(userOptions: Partial<RuntimeOptions>): void {
+    const previousOptions = this._options;
+    const runtimeOptions = this._pickRuntimeOptions(userOptions as Partial<Options>);
+    this._userOptions = { ...this._userOptions, ...runtimeOptions };
+    const options = this._mergeOptions(this._userOptions);
+    this._options = options;
+    this.debug = options.debug;
+
+    if (
+      previousOptions.scrollAdjustDelay !== options.scrollAdjustDelay ||
+      previousOptions.scrollAdjustThreshold !== options.scrollAdjustThreshold
+    ) {
+      this._clearScrollAdjustTimer();
+    }
+
+    if (previousOptions.fromViewportWidth !== options.fromViewportWidth) {
+      if (this._isMounted || this._onResize) {
+        this._handleResize();
+      }
+    } else if (previousOptions.pagerThreshold !== options.pagerThreshold) {
+      this._invalidateDraw();
+    }
   }
 
   /**
-   * Fully destroys immerser: unbinds, removes window listeners, runs destroy event and clears all references.
+   * Fully destroys immerser: unmounts runtime, removes resize handling, runs destroy event and clears references.
    * Use when component is permanently removed.
    */
   public destroy(): void {
-    this._adapter.destroy();
-    EventNames.forEach((eventName) => this._handlers[eventName].clear());
+    this.unmount();
+    this._removeResizeListener();
+    this._emit(EventNames.destroy, this);
+    this._resetInternalState();
+    EventNameArray.forEach((eventName) => this._handlers[eventName].clear());
   }
 
   /**
-   * Manually recomputes sizes and redraws masks; call after DOM mutations that change layout.
-   * Exposed for dynamic content updates without reinitializing immerser.
+   * Schedules structure, layout and draw synchronization after DOM mutations.
+   * Designed for dynamic content updates without reinitializing immerser.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public render(): void {
-    this._adapter.render();
+    this._invalidateStructure();
   }
 
   /**
    * Syncs immerser with an externally controlled scroll position.
-   * `isScrollHandled=false` option flag is required to call this method.
-   * Call when using a custom scroll engine.
+   * Designed for using with custom scroll handlers when `hasExternalScroll=true`.
    *
    * No throttling or performance optimization is applied here. The client is responsible for invocation frequency.
    */
   public syncScroll(): void {
-    this._adapter.syncScroll();
+    this._invalidateDraw();
   }
 
-  /** Register persistent event handler. */
+  /** Registers persistent event handler. */
   public on<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
     this._handlers[eventName].add(handler);
   }
 
-  /** Register event handler that will be removed after first call. */
+  /** Registers event handler that will be removed after first call. */
   public once<K extends EventName>(eventName: K, handler: HandlerByEventName[K]): void {
     this._handlers[eventName].add(
       wrapOnceHandler(handler, (...args: HandlerArgs<K>) => {
@@ -200,34 +1093,37 @@ export default class Immerser {
 
   /** Current active layer index derived from scroll position. */
   public get activeIndex(): number {
-    return this._adapter.activeIndex;
+    return this._activeIndex;
   }
 
-  /** Indicates whether immerser is currently bound (markup cloned and listeners attached). */
-  public get isBound(): boolean {
-    return this._adapter.isBound;
+  /** Indicates whether immerser runtime is mounted. */
+  public get isMounted(): boolean {
+    return this._isMounted;
   }
 
   /** The root DOM node immerser is attached to. */
-  public get rootNode(): HTMLElement {
-    return this._adapter.rootNode;
+  public get rootNode(): HTMLElement | null {
+    return this._rootNode;
   }
 
   /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
   public get layerProgressArray(): readonly number[] {
-    return this._adapter.layerProgressArray;
+    return this._layerProgressArray;
   }
 }
 
-// for typedef generation needs
+// Used by typedef generation.
 export type {
   ActiveLayerChangeHandler,
   BaseHandler,
   EventHandlers,
   EventName,
   HandlerByEventName,
-  LayersUpdateHandler,
+  LayerProgressChangeHandler,
   Options,
+  RuntimeOptions,
   SolidClassnames,
+  SolidClassnamesByLayerId,
+  UpdateLocationHashHandler,
 };
-export { EventNames };
+export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };

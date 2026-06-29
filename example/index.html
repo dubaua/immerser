@@ -62,9 +62,9 @@
         <a href="https://github.com/dubaua/immerser"><%= getTranslation('github') %></a>
         <a href="mailto:dubaua@gmail.com">dubaua@gmail.com</a>
       </div>
-      <div data-immerser-mask>
+      <div data-immerser-mask data-immerser-layer-id="reasoning">
         <div data-immerser-mask-inner>
-          <div class="fixed__emoji emoji" data-sulking>
+          <div class="fixed__emoji emoji" data-sulking data-immerser-solid="emoji">
             <!-- @build-source-code ./content/emoji.html raw -->
 <svg
   class="emoji__face"
@@ -150,9 +150,9 @@
           </div>
         </div>
       </div>
-      <div data-immerser-mask>
+      <div data-immerser-mask data-immerser-layer-id="how-to-use" aria-hidden="true">
         <div data-immerser-mask-inner>
-          <div class="fixed__emoji emoji emoji--inverse" data-sulking>
+          <div class="fixed__emoji emoji emoji--inverse" data-sulking data-immerser-solid="emoji">
             <!-- @build-source-code ./content/emoji.html raw -->
 <svg
   class="emoji__face"
@@ -238,9 +238,9 @@
           </div>
         </div>
       </div>
-      <div data-immerser-mask>
+      <div data-immerser-mask data-immerser-layer-id="how-it-works" aria-hidden="true">
         <div data-immerser-mask-inner>
-          <div class="fixed__emoji emoji" data-sulking>
+          <div class="fixed__emoji emoji" data-sulking data-immerser-solid="emoji">
             <!-- @build-source-code ./content/emoji.html raw -->
 <svg
   class="emoji__face"
@@ -326,9 +326,9 @@
           </div>
         </div>
       </div>
-      <div data-immerser-mask>
+      <div data-immerser-mask data-immerser-layer-id="options" aria-hidden="true">
         <div data-immerser-mask-inner>
-          <div class="fixed__emoji emoji emoji--inverse" data-sulking>
+          <div class="fixed__emoji emoji emoji--inverse" data-sulking data-immerser-solid="emoji">
             <!-- @build-source-code ./content/emoji.html raw -->
 <svg
   class="emoji__face"
@@ -414,9 +414,9 @@
           </div>
         </div>
       </div>
-      <div data-immerser-mask>
+      <div data-immerser-mask data-immerser-layer-id="recipes" aria-hidden="true">
         <div data-immerser-mask-inner>
-          <div class="fixed__emoji emoji" data-sulking>
+          <div class="fixed__emoji emoji" data-sulking data-immerser-solid="emoji">
             <!-- @build-source-code ./content/emoji.html raw -->
 <svg
   class="emoji__face"
@@ -512,7 +512,6 @@
       id="reasoning"
       class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "language": "language--contrast-lg"}'
     >
       <div class="grid__col grid__col--alpha background--contrast"></div>
       <div class="grid__col grid__col--beta tall start end background">
@@ -531,7 +530,6 @@
       id="how-to-use"
       class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"pager": "pager--contrast-only-md", "menu": "menu--contrast", "about": "about--contrast"}'
     >
       <div class="grid__col grid__col--alpha"></div>
       <div class="grid__col grid__col--beta-gamma tall">
@@ -570,44 +568,138 @@ yarn add immerser
               <div class="code-highlight code-highlight--contrast">
                 <!-- @build-source-code ./content/code/markup.html -->
 <pre><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__pager pager<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager</span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__logo logo<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>logo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('immerser')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__pager pager<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager-reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager-link</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-to-use<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager-how-to-use<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager-link</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-it-works<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager-how-it-works<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager-link</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#options<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager-options<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager-link</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#recipes<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>pager-recipes<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-pager-link</span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__logo logo<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>logo<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>logo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <%=getTranslation('immerser')%>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__menu menu<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-reasoning')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-to-use<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-how-to-use')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-it-works<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-how-it-works')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#options<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-options')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#recipes<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-recipes')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#reasoning<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>reasoning<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-reasoning')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-to-use<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-to-use<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-how-to-use')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#how-it-works<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-it-works<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-how-it-works')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#options<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>options<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-options')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#recipes<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>menu__link<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-synchro-hover</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>recipes<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('menu-link-recipes')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__language language<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>language<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>/<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>language__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>english<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>/ru.html<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>language__link<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>по-русски<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
+    <%=getTranslation('language-switcher')%>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fixed__about about<span class="token punctuation">"</span></span> <span class="token attr-name">data-immerser-solid</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>about<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-    <%=getTranslation('copyright')%>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>span</span><span class="token punctuation">></span></span><%=getTranslation('copyright')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>span</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://github.com/dubaua/immerser<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><%=getTranslation('github')%><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>mailto:dubaua@gmail.com<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>dubaua@gmail.com<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
 
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">'</span>{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>reasoning<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">'</span>{"menu": "menu--contrast", "about": "about--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-to-use<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">'</span>{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-it-works<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">'</span>{"menu": "menu--contrast", "about": "about--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>options<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">data-immerser-layer-config</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">'</span>{"logo": "logo--contrast", "pager": "pager--contrast", "social": "social--contrast"}<span class="token punctuation">'</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>recipes<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span></code></pre>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>reasoning<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-to-use<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>how-it-works<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>options<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">data-immerser-layer</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>recipes<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre>
+<!-- @end-build-source-code -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid" id="initialize-immerser">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <h1><%= getTranslation('initialize-immerser-title') %></h1>
+              <%= getTranslation('initialize-immerser-content') %>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma background--contrast scroller-x">
+            <div class="as-if-title" aria-hidden="true"></div>
+            <div class="grid__content">
+              <div class="code-highlight code-highlight--contrast">
+                <!-- @build-source-code ./content/code/initialization.js -->
+<pre><code class="language-javascript"><span class="token comment">// <%=getTranslation('dont-import-if-umd-line-1')%></span>
+<span class="token comment">// <%=getTranslation('dont-import-if-umd-line-2')%></span>
+<span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'immerser'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token literal-property property">solidClassnamesByLayerId</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">reasoning</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string-property property">'how-to-use'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string-property property">'how-it-works'</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">options</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-only-md'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-only-md'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">recipes</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">updateLocationHash</span><span class="token punctuation">(</span><span class="token parameter">layerId</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    window<span class="token punctuation">.</span>history<span class="token punctuation">.</span><span class="token function">replaceState</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">#</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>layerId<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">fromViewportWidth</span><span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">pagerLinkActiveClassname</span><span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">scrollAdjustThreshold</span><span class="token operator">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">scrollAdjustDelay</span><span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">on</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token function">init</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-init')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">mount</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-mount')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">unmount</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-unmount')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">destroy</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-destroy')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">structureChange</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-structure-change')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">layoutChange</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-layout-change')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">activeLayerChange</span><span class="token punctuation">(</span><span class="token parameter">activeIndex<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-active-layer-change')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">layerProgressChange</span><span class="token punctuation">(</span><span class="token parameter">layerProgressArray<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// <%=getTranslation('callback-on-layer-progress-change')%></span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
 <!-- @end-build-source-code -->
               </div>
             </div>
           </div>
         </div>
         <div class="grid" id="apply-styles">
-          <div class="grid__col grid__col--beta">
+          <div class="grid__col grid__col--beta end">
             <div class="grid__content typography">
               <h1><%= getTranslation('apply-styles-title') %></h1>
               <%= getTranslation('apply-styles-content') %>
             </div>
           </div>
-          <div class="grid__col grid__col--gamma background--contrast scroller-x">
+          <div class="grid__col grid__col--gamma end background--contrast scroller-x">
             <div class="as-if-title" aria-hidden="true"></div>
             <div class="grid__content">
               <div class="code-highlight code-highlight--contrast">
@@ -648,7 +740,6 @@ yarn add immerser
 <span class="token punctuation">}</span>
 <span class="token selector">.pager,
 .logo,
-.menu,
 .language,
 .about</span> <span class="token punctuation">{</span>
   <span class="token property">color</span><span class="token punctuation">:</span> black<span class="token punctuation">;</span>
@@ -665,86 +756,7 @@ yarn add immerser
             </div>
           </div>
         </div>
-        <div class="grid" id="initialize-immerser">
-          <div class="grid__col grid__col--beta end">
-            <div class="grid__content typography">
-              <h1><%= getTranslation('initialize-immerser-title') %></h1>
-              <%= getTranslation('initialize-immerser-content') %>
-            </div>
-          </div>
-          <div class="grid__col grid__col--gamma end background--contrast scroller-x">
-            <div class="as-if-title" aria-hidden="true"></div>
-            <div class="grid__content">
-              <div class="code-highlight code-highlight--contrast">
-                <!-- @build-source-code ./content/code/initialization.js -->
-<pre><code class="language-javascript"><span class="token comment">// <%=getTranslation('dont-import-if-umd-line-1')%></span>
-<span class="token comment">// <%=getTranslation('dont-import-if-umd-line-2')%></span>
-<span class="token keyword">import</span> Immerser <span class="token keyword">from</span> <span class="token string">'immerser'</span><span class="token punctuation">;</span>
 
-<span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-  <span class="token comment">// <%=getTranslation('data-attribute-will-override-this-option-line-1')%></span>
-  <span class="token comment">// <%=getTranslation('data-attribute-will-override-this-option-line-2')%></span>
-  <span class="token literal-property property">solidClassnameArray</span><span class="token operator">:</span> <span class="token punctuation">[</span>
-    <span class="token punctuation">{</span>
-      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
-      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
-      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
-      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-only-md'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-only-md'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-only-md'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">menu</span><span class="token operator">:</span> <span class="token string">'menu--contrast'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">about</span><span class="token operator">:</span> <span class="token string">'about--contrast'</span><span class="token punctuation">,</span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token punctuation">{</span>
-      <span class="token literal-property property">logo</span><span class="token operator">:</span> <span class="token string">'logo--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">pager</span><span class="token operator">:</span> <span class="token string">'pager--contrast-lg'</span><span class="token punctuation">,</span>
-      <span class="token literal-property property">language</span><span class="token operator">:</span> <span class="token string">'language--contrast-lg'</span><span class="token punctuation">,</span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token punctuation">]</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">hasToUpdateHash</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">fromViewportWidth</span><span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">pagerLinkActiveClassname</span><span class="token operator">:</span> <span class="token string">'pager__link--active'</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">scrollAdjustThreshold</span><span class="token operator">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">scrollAdjustDelay</span><span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
-  <span class="token literal-property property">on</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-    <span class="token function">init</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-init')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token function">bind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-bind')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token function">unbind</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-unbind')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token function">destroy</span><span class="token punctuation">(</span><span class="token parameter">immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-destroy')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token function">activeLayerChange</span><span class="token punctuation">(</span><span class="token parameter">activeIndex<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-active-layer-change')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-    <span class="token function">layersUpdate</span><span class="token punctuation">(</span><span class="token parameter">layersProgress<span class="token punctuation">,</span> immerser</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token comment">// <%=getTranslation('callback-on-layers-update')%></span>
-    <span class="token punctuation">}</span><span class="token punctuation">,</span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre>
-<!-- @end-build-source-code -->
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -752,7 +764,6 @@ yarn add immerser
       id="how-it-works"
       class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "language": "language--contrast-lg"}'
     >
       <div class="grid__col grid__col--alpha background--contrast"></div>
       <div class="tall start end grid__col grid__col--beta">
@@ -768,7 +779,6 @@ yarn add immerser
       id="options"
       class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast-only-md", "pager": "pager--contrast-only-md", "language": "language--contrast-only-md", "menu": "menu--contrast", "about": "about--contrast"}'
     >
       <div class="grid__col grid__col--alpha"></div>
       <div class="grid__col grid__col--beta-gamma tall start end background--contrast scroller-x">
@@ -792,68 +802,100 @@ yarn add immerser
       <th class="token property"><%= getTranslation('option') %></th>
       <th class="token property"><%= getTranslation('type') %></th>
       <th class="token property"><%= getTranslation('default') %></th>
+      <th class="token property"><%= getTranslation('hot-cold') %></th>
       <th class="token property"><%= getTranslation('description') %></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>solidClassnameArray</td>
-      <td class="token keyword">array</td>
-      <td class="token punctuation">[]</td>
-      <td><%= getTranslation('option-solidClassnameArray') %></td>
+      <td>autoMount</td>
+      <td class="token keyword">boolean</td>
+      <td class="token boolean">true</td>
+      <td class="token keyword">init</td>
+      <td><%= getTranslation('option-autoMount') %></td>
+    </tr>
+    <tr>
+      <td>selectorRoot</td>
+      <td class="token keyword">unknown</td>
+      <td class="token keyword">undefined</td>
+      <td class="token keyword">init</td>
+      <td><%= getTranslation('option-selectorRoot') %></td>
+    </tr>
+    <tr>
+      <td>solidClassnamesByLayerId</td>
+      <td class="token keyword">object</td>
+      <td class="token punctuation">{}</td>
+      <td class="token keyword">init</td>
+      <td><%= getTranslation('option-solidClassnamesByLayerId') %></td>
     </tr>
     <tr>
       <td>fromViewportWidth</td>
       <td class="token keyword">number</td>
       <td class="token number">0</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-fromViewportWidth') %></td>
     </tr>
     <tr>
       <td>pagerThreshold</td>
       <td class="token keyword">number</td>
       <td class="token number">0.5</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-pagerThreshold') %></td>
     </tr>
     <tr>
-      <td>hasToUpdateHash</td>
-      <td class="token keyword">boolean</td>
-      <td class="token boolean">false</td>
-      <td><%= getTranslation('option-hasToUpdateHash') %></td>
+      <td>updateLocationHash</td>
+      <td class="token keyword">function</td>
+      <td class="token keyword">undefined</td>
+      <td class="token keyword">hot</td>
+      <td><%= getTranslation('option-updateLocationHash') %></td>
     </tr>
     <tr>
       <td>scrollAdjustThreshold</td>
       <td class="token keyword">number</td>
       <td class="token number">0</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-scrollAdjustThreshold') %></td>
     </tr>
     <tr>
       <td>scrollAdjustDelay</td>
       <td class="token keyword">number</td>
       <td class="token number">600</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-scrollAdjustDelay') %></td>
     </tr>
     <tr>
       <td>pagerLinkActiveClassname</td>
       <td class="token keyword">string</td>
       <td class="token string nowrap">pager-link-active</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-pagerLinkActiveClassname') %></td>
     </tr>
     <tr>
-      <td>isScrollHandled</td>
+      <td>hasExternalScroll</td>
       <td class="token keyword">boolean</td>
-      <td class="token boolean">true</td>
-      <td><%= getTranslation('option-isScrollHandled') %></td>
+      <td class="token boolean">false</td>
+      <td class="token keyword">init</td>
+      <td><%= getTranslation('option-hasExternalScroll') %></td>
+    </tr>
+    <tr>
+      <td>hasExternalRenderer</td>
+      <td class="token keyword">boolean</td>
+      <td class="token boolean">false</td>
+      <td class="token keyword">init</td>
+      <td><%= getTranslation('option-hasExternalRenderer') %></td>
     </tr>
     <tr>
       <td>debug</td>
       <td class="token keyword">boolean</td>
       <td class="token boolean">false</td>
+      <td class="token keyword">hot</td>
       <td><%= getTranslation('option-debug') %></td>
     </tr>
     <tr>
       <td>on</td>
       <td class="token keyword">object</td>
       <td class="token punctuation">{}</td>
+      <td class="token keyword">init</td>
       <td><%= getTranslation('option-on') %></td>
     </tr>
   </tbody>
@@ -894,14 +936,14 @@ yarn add immerser
       <td><%= getTranslation('event-init') %></td>
     </tr>
     <tr>
-      <td>bind</td>
+      <td>mount</td>
       <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-bind') %></td>
+      <td><%= getTranslation('event-mount') %></td>
     </tr>
     <tr>
-      <td>unbind</td>
+      <td>unmount</td>
       <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-unbind') %></td>
+      <td><%= getTranslation('event-unmount') %></td>
     </tr>
     <tr>
       <td>destroy</td>
@@ -909,14 +951,29 @@ yarn add immerser
       <td><%= getTranslation('event-destroy') %></td>
     </tr>
     <tr>
+      <td>structureChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-structureChange') %></td>
+    </tr>
+    <tr>
+      <td>layoutChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-layoutChange') %></td>
+    </tr>
+    <tr>
       <td>activeLayerChange</td>
       <td class="nowrap"><span class="token parameter">layerIndex</span><span class="token operator">:</span> <span class="token class-name">number</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
       <td><%= getTranslation('event-activeLayerChange') %></td>
     </tr>
     <tr>
-      <td>layersUpdate</td>
-      <td class="nowrap"><span class="token parameter">layersProgress</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-layersUpdate') %></td>
+      <td>layerProgressChange</td>
+      <td class="nowrap"><span class="token parameter">layerProgressArray</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-layerProgressChange') %></td>
+    </tr>
+    <tr>
+      <td>stateChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-stateChange') %></td>
     </tr>
   </tbody>
 </table>
@@ -955,14 +1012,19 @@ yarn add immerser
       <td><%= getTranslation('public-field-debug') %></td>
     </tr>
     <tr>
-      <td>bind</td>
+      <td>mount</td>
       <td class="token keyword">method</td>
-      <td><%= getTranslation('public-field-bind') %></td>
+      <td><%= getTranslation('public-field-mount') %></td>
     </tr>
     <tr>
-      <td>unbind</td>
+      <td>unmount</td>
       <td class="token keyword">method</td>
-      <td><%= getTranslation('public-field-unbind') %></td>
+      <td><%= getTranslation('public-field-unmount') %></td>
+    </tr>
+    <tr>
+      <td>updateOptions</td>
+      <td class="token keyword">method</td>
+      <td><%= getTranslation('public-field-updateOptions') %></td>
     </tr>
     <tr>
       <td>destroy</td>
@@ -1000,9 +1062,9 @@ yarn add immerser
       <td><%= getTranslation('public-field-activeIndex') %></td>
     </tr>
     <tr>
-      <td>isBound</td>
+      <td>isMounted</td>
       <td class="token keyword">getter</td>
-      <td><%= getTranslation('public-field-isBound') %></td>
+      <td><%= getTranslation('public-field-isMounted') %></td>
     </tr>
     <tr>
       <td>rootNode</td>
@@ -1029,7 +1091,6 @@ yarn add immerser
       id="recipes"
       class="grid"
       data-immerser-layer
-      data-immerser-layer-config='{"logo": "logo--contrast-lg", "pager": "pager--contrast-lg", "language": "language--contrast-lg"}'
     >
       <div class="grid__col grid__col--alpha background--contrast"></div>
       <div class="grid__col grid__col--beta-gamma tall start end">
@@ -1123,7 +1184,7 @@ immerserInstance<span class="token punctuation">.</span><span class="token funct
 
 <span class="token keyword">const</span> immerserInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Immerser</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
   <span class="token comment">// <%=getTranslation('recipes-disable-scroll-handling-with-external-scroll')%></span>
-  <span class="token literal-property property">isScrollHandled</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">hasExternalScroll</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 customScrollEngine<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'scroll'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
@@ -1135,6 +1196,15 @@ customScrollEngine<span class="token punctuation">.</span><span class="token fun
               </div>
             </div>
           </div>
+        </div>
+        <div class="grid">
+          <div class="grid__col grid__col--beta">
+            <div class="grid__content typography">
+              <h1><%= getTranslation('external-renderer-title') %></h1>
+              <%= getTranslation('external-renderer-content') %>
+            </div>
+          </div>
+          <div class="grid__col grid__col--gamma"></div>
         </div>
         <div class="grid">
           <div class="grid__col grid__col--beta">

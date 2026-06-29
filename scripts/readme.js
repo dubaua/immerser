@@ -78,20 +78,20 @@ ${turndownService.turndown(en['prepare-your-markup-content'])}
 ${markupCode}
 \`\`\`
 
-## ${en['apply-styles-title']}
-
-${turndownService.turndown(en['apply-styles-content'])}
-
-\`\`\`css
-${styleCode}
-\`\`\`
-
 ## ${en['initialize-immerser-title']}
 
 ${turndownService.turndown(en['initialize-immerser-content'])}
 
 \`\`\`js
 ${initializationCode}
+\`\`\`
+
+## ${en['apply-styles-title']}
+
+${turndownService.turndown(en['apply-styles-content'])}
+
+\`\`\`css
+${styleCode}
 \`\`\`
 
 # ${en['how-it-works-title']}
@@ -147,6 +147,10 @@ ${turndownService.turndown(en['external-scroll-engine-content'])}
 \`\`\`js
 ${externalScrollEngineCode}
 \`\`\`
+
+## ${en['external-renderer-title']}
+
+${turndownService.turndown(en['external-renderer-content'])}
 
 ## ${en['ai-usage-title']}
 
