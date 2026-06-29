@@ -13,8 +13,9 @@
   },
   "types": "./dist/immerser.min.d.ts",
   "files": [
-    "dist",
-    "src",
+    "dist/immerser.min.js",
+    "dist/immerser.min.d.ts",
+    "dist/immerser.min.js.map",
     "README.md"
   ],
   "keywords": [
