@@ -52,9 +52,8 @@ module.exports = {
   'prepare-your-markup-content': `
 <p>Сначала настройте свой фиксированный контейнер как корневой элемент иммёрсера, добавив атрибут <code>data-immerser</code></p>
 <p>Затем расположите в&nbsp;нем абсолютно позиционированные дочерние элементы и&nbsp;добавьте каждому атрибут <code>data-immerser-solid="solid-id"</code> с&nbsp;идентификатором блока.</p>
-<p>Добавьте каждому слою атрибут <code>data-immerser-layer</code>. Передайте конфигурацию всех слоёв объектом в&nbsp;параметре <code>solidClassnamesByLayerId</code> настроек.
-Конфигурация должна содержать описание классов для блоков, когда они находятся поверх слоя.</p>
-<p>Так&nbsp;же вы&nbsp;можете добавить элемент с&nbsp;атрибутом <code>data-immerser-pager</code> для создания навигации.</p>
+<p>Добавьте каждому слою атрибут <code>data-immerser-layer</code> и&nbsp;уникальный <code>id</code>.</p>
+<p>Также вы&nbsp;можете добавить ссылкам навигации атрибут <code>data-immerser-pager-link</code>, чтобы иммёрсер отмечал активный слой в&nbsp;пейджере.</p>
 `,
 
   'apply-styles-title': 'Примените стили',
@@ -68,7 +67,10 @@ module.exports = {
   'dont-import-if-umd-line-2': `если вы используете его в браузере как глобальную переменную`,
 
   'initialize-immerser-title': 'Инициализируйте иммёрсер',
-  'initialize-immerser-content': `<p>Добавьте иммёрсер в&nbsp;код и&nbsp;создайте экземпляр с&nbsp;настройками.</p>`,
+  'initialize-immerser-content': `
+<p>Добавьте иммёрсер в&nbsp;код и&nbsp;создайте экземпляр с&nbsp;настройками.</p>
+<p>Передайте карту классов в&nbsp;настройке <code>solidClassnamesByLayerId</code>. В&nbsp;примере видно, как id слоя связывается с&nbsp;id фиксированного блока и&nbsp;классом, который применяется, пока блок находится поверх слоя.</p>
+`,
 
   'callback-on-init': 'колбек события инициализации',
   'callback-on-mount': 'колбек события монтирования',

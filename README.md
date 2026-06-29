@@ -40,16 +40,22 @@ First, setup fixed container as the immerser root container, and add the `data
 
 Next place absolutely positioned children into the immerser parent and add `data-immerser-solid="solid-id"` to each.
 
-Then add `data-immerser-layer` attribute to each section and pass configuration as `solidClassnamesByLayerId` option to immerser. Config should contain JSON describing what class should be applied on each solid element, when it's over a section.
+Then add `data-immerser-layer` attribute and a unique `id` to each section.
 
-Also feel free to add `data-immerser-pager` to create a pager for your layers.
+You can also add `data-immerser-pager-link` to navigation links so immerser can mark the active layer in the pager.
 
 ```html
 <div class="fixed" data-immerser>
-  <div class="fixed__pager pager" data-immerser-solid="pager"></div>
-  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo"
-    >immerser</a
-  >
+  <div class="fixed__pager pager" data-immerser-solid="pager">
+    <a href="#reasoning" class="pager__link" data-immerser-synchro-hover="pager-reasoning" data-immerser-pager-link></a>
+    <a href="#how-to-use" class="pager__link" data-immerser-synchro-hover="pager-how-to-use" data-immerser-pager-link></a>
+    <a href="#how-it-works" class="pager__link" data-immerser-synchro-hover="pager-how-it-works" data-immerser-pager-link></a>
+    <a href="#options" class="pager__link" data-immerser-synchro-hover="pager-options" data-immerser-pager-link></a>
+    <a href="#recipes" class="pager__link" data-immerser-synchro-hover="pager-recipes" data-immerser-pager-link></a>
+  </div>
+  <a href="#reasoning" class="fixed__logo logo" data-immerser-solid="logo" data-immerser-synchro-hover="logo">
+    immerser
+  </a>
   <div class="fixed__menu menu" data-immerser-solid="menu">
     <a href="#reasoning" class="menu__link" data-immerser-synchro-hover="reasoning">Reasoning</a>
     <a href="#how-to-use" class="menu__link" data-immerser-synchro-hover="how-to-use">How to Use</a>
@@ -75,63 +81,11 @@ Also feel free to add `data-immerser-pager` to create a pager for your layers.
 
 ```
 
-## Apply styles
-
-Apply colour and background styles to your layers and solids according to your classname configuration passed in options. I’m using [BEM methodology](https://en.bem.info/methodology/) in this example.
-
-```css
-.fixed {
-  position: fixed;
-  top: 2em;
-  bottom: 3em;
-  left: 3em;
-  right: 3em;
-  z-index: 1;
-}
-.fixed__pager {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translate(0, -50%);
-}
-.fixed__logo {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-.fixed__menu {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-.fixed__language {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-}
-.fixed__about {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-}
-.pager,
-.logo,
-.language,
-.about {
-  color: black;
-}
-.pager--contrast,
-.logo--contrast,
-.menu--contrast,
-.language--contrast,
-.about--contrast {
-  color: white;
-}
-```
-
 ## Initialize Immerser
 
 Include immerser in your code and create immerser instance with options.
+
+Pass the classname map in the `solidClassnamesByLayerId` option. The example shows how a layer id maps to a fixed solid id and the classname applied while the solid is over that layer.
 
 ```js
 // You don't have to import immerser
@@ -203,6 +157,60 @@ const immerserInstance = new Immerser({
   },
 });
 
+```
+
+## Apply styles
+
+Apply colour and background styles to your layers and solids according to your classname configuration passed in options. I’m using [BEM methodology](https://en.bem.info/methodology/) in this example.
+
+```css
+.fixed {
+  position: fixed;
+  top: 2em;
+  bottom: 3em;
+  left: 3em;
+  right: 3em;
+  z-index: 1;
+}
+.fixed__pager {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(0, -50%);
+}
+.fixed__logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.fixed__menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.fixed__language {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.fixed__about {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.pager,
+.logo,
+.language,
+.about {
+  color: black;
+}
+.pager--contrast,
+.logo--contrast,
+.menu--contrast,
+.language--contrast,
+.about--contrast {
+  color: white;
+}
 ```
 
 # How it Works

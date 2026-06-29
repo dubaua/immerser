@@ -54,10 +54,8 @@ and indicate active state.
   'prepare-your-markup-content': `
 <p>First, setup fixed container as&nbsp;the immerser root container, and add the&nbsp;<code>data-immerser</code> attribute.</p>
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
-<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration as
-<code>solidClassnamesByLayerId</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
-applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
-<p>Also feel free to&nbsp;add <code>data-immerser-pager</code> to&nbsp;create a pager for your layers.</p>
+<p>Then add&nbsp;<code>data-immerser-layer</code> attribute and a&nbsp;unique <code>id</code> to&nbsp;each section.</p>
+<p>You can also add <code>data-immerser-pager-link</code> to&nbsp;navigation links so&nbsp;immerser can mark the active layer in&nbsp;the pager.</p>
 `,
 
   'apply-styles-title': 'Apply styles',
@@ -72,7 +70,10 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'dont-import-if-umd-line-2': `if you're using it in browser as global variable`,
 
   'initialize-immerser-title': 'Initialize Immerser',
-  'initialize-immerser-content': `<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>`,
+  'initialize-immerser-content': `
+<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>
+<p>Pass the classname map in&nbsp;the <code>solidClassnamesByLayerId</code> option. The example shows how a&nbsp;layer id maps to&nbsp;a&nbsp;fixed solid id and the classname applied while the solid is&nbsp;over that layer.</p>
+`,
 
   'callback-on-init': 'callback on init event',
   'callback-on-mount': 'callback on mount event',

@@ -78,20 +78,20 @@ ${turndownService.turndown(en['prepare-your-markup-content'])}
 ${markupCode}
 \`\`\`
 
-## ${en['apply-styles-title']}
-
-${turndownService.turndown(en['apply-styles-content'])}
-
-\`\`\`css
-${styleCode}
-\`\`\`
-
 ## ${en['initialize-immerser-title']}
 
 ${turndownService.turndown(en['initialize-immerser-content'])}
 
 \`\`\`js
 ${initializationCode}
+\`\`\`
+
+## ${en['apply-styles-title']}
+
+${turndownService.turndown(en['apply-styles-content'])}
+
+\`\`\`css
+${styleCode}
 \`\`\`
 
 # ${en['how-it-works-title']}
