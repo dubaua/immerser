@@ -1,3 +1,53 @@
+# 6.0.0
+
+## Breaking changes
+
+- Renamed `bind()` to `mount()`.
+- Renamed `unbind()` to `unmount()`.
+- Renamed `isBound` to `isMounted`.
+- Replaced `solidClassnameArray` array with `solidClassnamesByLayerId` object.
+- Replaced `isScrollHandled` with `hasExternalScroll`. The option meaning is inverted: use `hasExternalScroll: true` instead of `isScrollHandled: false`.
+- Replaced `hasToUpdateHash` flag with `updateLocationHash(layerId) callback`.
+- Removed `data-immerser-layer-config` JSON configuration.
+- Renamed `bind` event to `mount`.
+- Renamed `unbind` event to `unmount`.
+- Renamed `layersUpdate` event to `layerProgressChange`, also it emitted only on state change.
+- `data-immerser-layer` elements now require explicit `id` attributes.
+- Source solids are expected to be direct children of the `data-immerser` root.
+- Manual pager markup must also be marked as a solid if it should participate in Immerser rendering.
+- The `data-immerser` root is now treated as Immerser-controlled markup. Do not put arbitrary markup into it.
+- Immerser-owned technical nodes are internal rendering nodes. Do not put user-defined inline styles on them; use CSS classes instead.
+- Events are emitted when related data changes, not on every scroll tick.
+
+## Added
+
+- Added `updateOptions()` for runtime-updatable options.
+- Added support for external renderers through `hasExternalRenderer`.
+- Added `selectorRoot` to scope DOM queries.
+- Added `autoMount` to control automatic mounting.
+- Added `structureChange`, `layoutChange`, and `stateChange` events.
+
+## Changed
+
+- `render()` now syncs structure too, so it can be called after adding, removing, or reordering layers.
+- URL/hash updates are no longer hardcoded to `window.location.hash`; pass `updateLocationHash(layerId)` instead.
+- Runtime option updates are limited to supported runtime options:
+  - `debug`
+  - `fromViewportWidth`
+  - `updateLocationHash`
+  - `pagerThreshold`
+  - `scrollAdjustDelay`
+  - `scrollAdjustThreshold`
+
+## Removed
+
+- Removed layer JSON config from `data-immerser-layer-config`.
+- Removed automatic fallback ids for layers.
+
+## Migration
+
+See [MIGRATION-v6.md](./MIGRATION-v6.md).
+
 # 5.1.0
 
 ## Features

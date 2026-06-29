@@ -28,7 +28,7 @@ module.exports = {
   Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
 </p>
 <p>
-  Immerser is&nbsp;written on&nbsp;typescript. Only&nbsp;%%BUNDLESIZE%%Kb gzipped.
+  Immerser is&nbsp;written on&nbsp;typescript. Runtime bundle %%BUNDLESIZE%%Kb gzipped.
 </p>
 `,
 
@@ -54,53 +54,56 @@ and indicate active state.
   'prepare-your-markup-content': `
 <p>First, setup fixed container as&nbsp;the immerser root container, and add the&nbsp;<code>data-immerser</code> attribute.</p>
 <p>Next place absolutely positioned children into the immerser parent and add&nbsp;<code>data-immerser-solid="solid-id"</code> to&nbsp;each.</p>
-<p>Then add&nbsp;<code>data-immerser-layer</code> attribute to&nbsp;each section and pass configuration in
-<code>data-immerser-layer-config='{"solid-id": "classname-modifier"}'</code>. Otherwise, you can pass configuration as
-<code>solidClassnameArray</code> option to&nbsp;immerser. Config should contain <abbr title="JavaScript Object Notation">JSON</abbr> describing what class should be
-applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
-<p>Also feel free to&nbsp;add <code>data-immerser-pager</code> to&nbsp;create a pager for your layers.</p>
+<p>Then add&nbsp;<code>data-immerser-layer</code> attribute and a&nbsp;unique <code>id</code> to&nbsp;each section.</p>
+<p>You can also add <code>data-immerser-pager-link</code> to&nbsp;navigation links so&nbsp;immerser can mark the active layer in&nbsp;the pager.</p>
 `,
 
   'apply-styles-title': 'Apply styles',
   'apply-styles-content': `
 <p>
-  Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;data attribute or&nbsp;options.
+  Apply colour and background styles to&nbsp;your layers and solids according to&nbsp;your classname configuration passed in&nbsp;options.
   I&rsquo;m using <a href="https://en.bem.info/methodology/"><abbr title="Block Element Modifier">BEM</abbr> methodology</a> in&nbsp;this example.
 </p>
 `,
 
   'dont-import-if-umd-line-1': `You don't have to import immerser`,
   'dont-import-if-umd-line-2': `if you're using it in browser as global variable`,
-  'data-attribute-will-override-this-option-line-1': 'this option will be overridden by options',
-  'data-attribute-will-override-this-option-line-2': 'passed in data-immerser-layer-config attribute in each layer',
 
   'initialize-immerser-title': 'Initialize Immerser',
-  'initialize-immerser-content': `<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>`,
+  'initialize-immerser-content': `
+<p>Include immerser in&nbsp;your code and create immerser instance with options.</p>
+<p>Pass the classname map in&nbsp;the <code>solidClassnamesByLayerId</code> option. The example shows how a&nbsp;layer id maps to&nbsp;a&nbsp;fixed solid id and the classname applied while the solid is&nbsp;over that layer.</p>
+`,
 
   'callback-on-init': 'callback on init event',
-  'callback-on-bind': 'callback on bind event',
-  'callback-on-unbind': 'callback on unbind event',
+  'callback-on-mount': 'callback on mount event',
+  'callback-on-unmount': 'callback on unmount event',
   'callback-on-destroy': 'callback on destroy event',
+  'callback-on-structure-change': 'callback on DOM structure change event',
+  'callback-on-layout-change': 'callback on layer size recalculation event',
   'callback-on-active-layer-change': 'callback on active layer change event',
-  'callback-on-layers-update': 'callback on layers update event',
+  'callback-on-layer-progress-change': 'callback on layer progress change event',
 
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
-<p>First, immerser gathers information about the layers, solids, window and document. Then it&nbsp;creates a&nbsp;statemap for each layer, containing all necessary information, when the layer is&nbsp;partially and fully in&nbsp;viewport.</p>
-<p>After that immerser modifies <abbr title="Document Object Model">DOM</abbr>, cloning all solids into mask containers for each layer and applying the classnames given in&nbsp;configuration. If&nbsp;you have added a&nbsp;pager, immerser also creates links for layers.</p>
-<p>Finally, immerser binds listeners to&nbsp;scroll and resize events. On&nbsp;resize, it&nbsp;will meter layers, the window and document heights again and recalculate the statemap.</p>
-<p>On&nbsp;scroll, immerser moves a&nbsp;mask of&nbsp;solids to&nbsp;show part of&nbsp;each solid group according to&nbsp;the layer below.</p>
+<p>First, immerser finds the root element, layers, solids and masks. Then it&nbsp;measures layers, window and document and calculates the scroll points where each layer enters the viewport, stays there and leaves it.</p>
+<p>After that immerser prepares the markup: it&nbsp;creates masks for layers or connects to&nbsp;existing masks, clones solids into each mask and applies the classnames given in&nbsp;configuration. Original solids are temporarily removed, so&nbsp;only masked copies remain visible.</p>
+<p>On&nbsp;scroll, immerser moves a&nbsp;mask and its contents in&nbsp;opposite directions. This shows only the part of&nbsp;each solid group that should belong to&nbsp;the current layer. When the active layer changes, immerser updates the pager, can update the location hash and emits events.</p>
+<p>When window or container size changes, immerser measures everything again and recalculates positions. If&nbsp;layers change in&nbsp;<abbr title="Document Object Model">DOM</abbr>, call <code>render()</code> to&nbsp;synchronize the structure. If&nbsp;scroll is&nbsp;controlled outside immerser, disable the built-in scroll listener and call <code>syncScroll()</code> manually.</p>
 `,
 
   'options-title': 'Options',
   'options-content': `
 <p>
-  You can pass options to immerser as data-attributes on layers or as object as function parameter. Data-attributes are
-  processed last, so they override the options passed to the function.
+  You can pass options to immerser as an object parameter.
+</p>
+<p>
+  Hot options can be changed after mount with <code>updateOptions</code>. Init options are applied only during initialization.
 </p>
 `,
 
   option: 'option',
+  'hot-cold': 'hot/init',
   event: 'event',
   type: 'type',
   arguments: 'arguments',
@@ -108,44 +111,56 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   description: 'description',
   name: 'name',
 
-  'option-solidClassnameArray':
-    'Array of layer class configurations. Overriding by config passed in data-immerser-layer-config for corresponding layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
-  'option-fromViewportWidth': 'A viewport width, from which immerser will init',
-  'option-pagerThreshold': 'How much next layer should be in viewport to trigger pager',
-  'option-hasToUpdateHash': 'Flag to control changing hash on pager active state change',
+  'option-solidClassnamesByLayerId':
+    'Nested lookup table: layer id → solid id → CSS class that immerser adds to that solid on that layer. Configuration example <a href="#initialize-immerser">is shown above</a>',
+  'option-autoMount': 'If true, constructor mounts immerser immediately',
+  'option-selectorRoot': 'Parent element used only for selector lookup during mount',
+  'option-fromViewportWidth': 'Minimum viewport width in pixels, breakpoint at which immerser mounts',
+  'option-pagerThreshold': 'Portion of viewport height that must overlap the next layer before pager switches',
+  'option-updateLocationHash':
+    'Callback that receives active layer id when active layer changes. Use it to update location hash or route state',
   'option-scrollAdjustThreshold':
-    'A distance from the viewport top or bottom to the section top or bottom edge in pixels. If the current distance is below the threshold, the scroll adjustment will be applied. Will not adjust, if zero passed',
-  'option-scrollAdjustDelay': 'Delay after user interaction and before scroll adjust',
-  'option-pagerLinkActiveClassname': 'Added to each pager link pointing to active',
-  'option-isScrollHandled': "Binds scroll listener if true. Set to false if you're using remote scroll controller",
-  'option-debug': 'Enables logging warnings and errors. Defaults to true in development, false otherwise',
+    'Pixel threshold near section edges that triggers scroll snapping when exceeded. Pass zero to disable scroll snapping',
+  'option-scrollAdjustDelay': 'Delay in ms before running scroll snapping after user scroll stops',
+  'option-pagerLinkActiveClassname': 'Class for the pager link pointing to the active layer',
+  'option-hasExternalScroll':
+    'If true, immerser will not attach its own scroll handler. Intended for use with an external scroll controller and syncScroll calls',
+  'option-hasExternalRenderer':
+    'If true, skips most DOM mutation routine. Intended for use with render frameworks such as React, Vue.js, and others',
+  'option-debug': 'Enables warning logging',
   'option-on': 'Initial event handlers map keyed by event name',
   'events-title': 'Events',
   'events-content':
     '<p>You can subscribe to events via the <code>on</code> option or by calling the <code>on</code> or <code>once</code> method on an immerser instance.</p>',
-  'event-init': 'Emitted after initialization.',
-  'event-bind': 'Emitted after binding <abbr title="Document Object Model">DOM</abbr>.',
-  'event-unbind': 'Emitted after unbinding <abbr title="Document Object Model">DOM</abbr>.',
-  'event-destroy': 'Emitted after destroy.',
-  'event-activeLayerChange': 'Emitted after active layer change.',
-  'event-layersUpdate': 'Emitted on each scroll update.',
+  'event-init': 'Emitted after initialization',
+  'event-mount': 'Emitted after immerser mounts and is ready to work',
+  'event-unmount': 'Emitted after unmount when viewport width is below fromViewportWidth',
+  'event-destroy': 'Emitted after instance destroy',
+  'event-structureChange': 'Emitted after DOM structure synchronization',
+  'event-layoutChange': 'Emitted after layer size recalculation changes',
+  'event-activeLayerChange': 'Emitted after active layer changes',
+  'event-layerProgressChange': 'Emitted after layer progress changes',
+  'event-stateChange': 'Emitted after any immerser event so external renderers can read current public fields',
 
   'public-fields-title': 'Public fields and methods',
-  'public-field-bind': 'Clones markup, attaches listeners, and starts internal logic',
-  'public-field-unbind': 'Remove generated markup and listeners, keeping the instance reusable',
+  'public-field-mount':
+    'Mounts immerser when viewport width passes the fromViewportWidth breakpoint: discovers DOM, prepares markup, calculates layer sizes, and attaches event listeners',
+  'public-field-unmount':
+    'Unmounts immerser: cleans markup owned by immerser and keeps resize handling active for breakpoint remount',
+  'public-field-updateOptions': 'Updates runtime options and applies minimal side effects without remounting',
   'public-field-destroy':
-    'Fully destroys immerser: disables it, removes listeners, restores original markup, and clears internal state',
-  'public-field-render': 'Recalculates sizes and redraws masks',
-  'public-field-syncScroll': 'Updates immerser when scroll is controlled externally (requires isScrollHandled = false)',
+    'Fully destroys immerser: unmounts it, removes resize handling, restores original markup, and clears internal state',
+  'public-field-render': 'Schedules structure synchronization, calculations, and redraw after DOM mutations',
+  'public-field-syncScroll':
+    'Syncs immerser with an externally controlled scroll position. Intended for use with hasExternalScroll=true',
   'public-field-on': 'Registers a persistent immerser event handler',
   'public-field-once': 'Registers a one-time immerser event handler that is removed after the first call',
   'public-field-off': 'Removes a specific handler for the given immerser event',
-  'public-field-activeIndex': 'Index of the currently active layer, calculated from scroll position',
-  'public-field-isBound': 'Indicates whether immerser is currently active (markup cloned, listeners attached)',
-  'public-field-rootNode': 'Root element the immerser instance is attached to',
-  'public-field-layerProgressArray':
-    'Per-layer progress values (0–1) showing how much each layer is visible in the viewport',
-  'public-field-debug': 'Controls whether immerser reports warnings and errors',
+  'public-field-activeIndex': 'Active layer index derived from scroll position',
+  'public-field-isMounted': 'Indicates whether immerser is mounted',
+  'public-field-rootNode': 'Root DOM element immerser is attached to',
+  'public-field-layerProgressArray': 'Progress of each layer from 0 (off-screen) to 1 (fully visible)',
+  'public-field-debug': 'Controls whether immerser reports warnings',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',
   'cloning-event-listeners-content': `
@@ -182,8 +197,20 @@ applied on&nbsp;each solid element, when it's&nbsp;over a&nbsp;section.</p>
   'external-scroll-engine-content': `
 <p>
   If you drive scrolling with a custom scroll engine, for example Locomotive Scroll, disable immerser scroll listener with
-  <code>isScrollHandled=false</code> flag and call <code>syncScroll</code> method every time the engine updates position.
+  <code>hasExternalScroll=true</code> flag and call <code>syncScroll</code> method every time the engine updates position.
   Immerser will only redraw masks without attaching another scroll handler. Keep in mind that immerser will not optimize calls this way, and performance optimization is client responsibility.
+</p>
+`,
+  'external-renderer-title': 'External Renderer',
+  'external-renderer-content': `
+<p>
+  Use <code>hasExternalRenderer=true</code> when a rendering framework owns immerser markup.
+  For example, a React wrapper can keep the masks and solids in framework state:
+  <a href="https://github.com/dubaua/immerser-react">immerser-react</a>.
+</p>
+<p>
+  With this flag enabled, immerser does not create masks, clone solids, detach original solids, clean or restore renderer-owned markup, update pager active class, or synchronize hover classes.
+  It still connects existing masks, measures layers, applies required technical styles, updates mask transforms, and emits state events for the external renderer.
 </p>
 `,
   'recipes-changing-dom': 'make any manipulations, that changes <abbr title="Document Object Model">DOM</abbr> flow',

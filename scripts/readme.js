@@ -7,9 +7,12 @@ const turndownService = new TurndownService();
 const rootDir = path.join(__dirname, '..');
 
 function getTranslationFromTemplate(fileContent) {
-  return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) =>
-    Object.prototype.hasOwnProperty.call(en, capture) ? en[capture] : 'TRANSLATION_NOT_FOUND!',
-  );
+  return fileContent.replace(/<%= getTranslation\('(.*)'\) %>/gm, (_, capture) => {
+    if (!Object.prototype.hasOwnProperty.call(en, capture)) {
+      throw new Error(`Missing translation for "${capture}" in i18n/en.js`);
+    }
+    return en[capture];
+  });
 }
 
 const markupCode = getTranslationFromTemplate(
@@ -75,20 +78,20 @@ ${turndownService.turndown(en['prepare-your-markup-content'])}
 ${markupCode}
 \`\`\`
 
-## ${en['apply-styles-title']}
-
-${turndownService.turndown(en['apply-styles-content'])}
-
-\`\`\`css
-${styleCode}
-\`\`\`
-
 ## ${en['initialize-immerser-title']}
 
 ${turndownService.turndown(en['initialize-immerser-content'])}
 
 \`\`\`js
 ${initializationCode}
+\`\`\`
+
+## ${en['apply-styles-title']}
+
+${turndownService.turndown(en['apply-styles-content'])}
+
+\`\`\`css
+${styleCode}
 \`\`\`
 
 # ${en['how-it-works-title']}
@@ -144,6 +147,10 @@ ${turndownService.turndown(en['external-scroll-engine-content'])}
 \`\`\`js
 ${externalScrollEngineCode}
 \`\`\`
+
+## ${en['external-renderer-title']}
+
+${turndownService.turndown(en['external-renderer-content'])}
 
 ## ${en['ai-usage-title']}
 

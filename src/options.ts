@@ -1,15 +1,13 @@
-import type { OptionConfig } from '@dubaua/merge-options';
+import type { OptionConfig as MergeOptionConfig } from '@dubaua/merge-options';
+import { EventNameArray } from './events';
 import type { EventName, Options } from './types';
 
-const CLASSNAME_REGEX = /^[a-z_-][a-z\d_-]*$/i;
+const ClassnameRegex = /^[a-z_-][a-z\d_-]*$/i;
 
-export const INITIAL_DEBUG = process.env.NODE_ENV === 'development';
-
-/** @public All available immerser event names. */
-export const EVENT_NAMES = ['init', 'bind', 'unbind', 'destroy', 'activeLayerChange', 'layersUpdate'] as const;
+type OptionUpdateMode = 'hot' | 'init';
 
 function classnameValidator(str: string): boolean {
-  return typeof str === 'string' && str !== '' && CLASSNAME_REGEX.test(str);
+  return typeof str === 'string' && str !== '' && ClassnameRegex.test(str);
 }
 
 function onOptionValidator(on?: Options['on']): boolean {
@@ -21,17 +19,28 @@ function onOptionValidator(on?: Options['on']): boolean {
   }
   return Object.keys(on).every(
     (eventName) =>
-      EVENT_NAMES.includes(eventName as EventName) &&
+      EventNameArray.includes(eventName as EventName) &&
       (on as Record<string, unknown>)[eventName] !== undefined &&
       typeof (on as Record<string, unknown>)[eventName] === 'function',
   );
 }
 
-export const OPTION_CONFIG: OptionConfig<Options> = {
-  solidClassnameArray: {
-    default: [],
-    description: 'non empty array of objects',
-    validator: (x) => Array.isArray(x) && x.length !== 0,
+export const OptionConfig: MergeOptionConfig<Options> = {
+  autoMount: {
+    default: true,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
+  selectorRoot: {
+    // actually defaults to document in browser env, here `undefined` because this file also used in build pipeline
+    default: undefined,
+    description: 'a parent node used for selector discovery',
+    validator: (x) => x === undefined || (x && typeof (x as ParentNode).querySelectorAll === 'function'),
+  },
+  solidClassnamesByLayerId: {
+    default: {},
+    description: 'object mapping layer ids to solid classname maps',
+    validator: (x) => x !== null && typeof x === 'object' && !Array.isArray(x),
   },
   fromViewportWidth: {
     default: 0,
@@ -43,10 +52,10 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     description: 'a number between 0 and 1',
     validator: (x) => typeof x === 'number' && 0 <= x && x <= 1,
   },
-  hasToUpdateHash: {
-    default: false,
-    description: 'a boolean',
-    validator: (x) => typeof x === 'boolean',
+  updateLocationHash: {
+    default: undefined,
+    description: 'a function or undefined',
+    validator: (x) => x === undefined || typeof x === 'function',
   },
   scrollAdjustThreshold: {
     default: 0,
@@ -63,13 +72,18 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
     description: 'valid non empty classname string',
     validator: classnameValidator,
   },
-  isScrollHandled: {
-    default: true,
+  hasExternalScroll: {
+    default: false,
+    description: 'a boolean',
+    validator: (x) => typeof x === 'boolean',
+  },
+  hasExternalRenderer: {
+    default: false,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },
   debug: {
-    default: INITIAL_DEBUG,
+    default: false,
     description: 'a boolean',
     validator: (x) => typeof x === 'boolean',
   },
@@ -80,23 +94,19 @@ export const OPTION_CONFIG: OptionConfig<Options> = {
   },
 };
 
-export const MESSAGE_PREFIX = '[immerser]:';
-
-export const CROPPED_FULL_ABSOLUTE_STYLES: Record<string, string> = {
-  position: 'absolute',
-  top: '0',
-  right: '0',
-  bottom: '0',
-  left: '0',
-  overflow: 'hidden',
-};
-
-export const NOT_INTERACTIVE_STYLES: Record<string, string> = {
-  pointerEvents: 'none',
-  touchAction: 'none',
-};
-
-export const INTERACTIVE_STYLES: Record<string, string> = {
-  pointerEvents: 'all',
-  touchAction: 'auto',
+/** @internal Option update mode used by documentation generators. */
+export const OptionUpdateModeByName: Record<keyof Options, OptionUpdateMode> = {
+  autoMount: 'init',
+  selectorRoot: 'init',
+  solidClassnamesByLayerId: 'init',
+  fromViewportWidth: 'hot',
+  pagerThreshold: 'hot',
+  updateLocationHash: 'hot',
+  scrollAdjustThreshold: 'hot',
+  scrollAdjustDelay: 'hot',
+  pagerLinkActiveClassname: 'init',
+  hasExternalScroll: 'init',
+  hasExternalRenderer: 'init',
+  debug: 'hot',
+  on: 'init',
 };

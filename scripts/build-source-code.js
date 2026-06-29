@@ -39,7 +39,7 @@ function renderSource(sourcePath, { skipPrism = false } = {}) {
   try {
     loadLanguages([language]);
   } catch (error) {
-    console.warn(`Could not load Prism language "${language}", falling back to "${fallbackLanguage}".`, error.message);
+    throw new Error(`Could not load Prism language "${language}".`, { cause: error });
   }
 
   const grammar = Prism.languages[language] || Prism.languages[fallbackLanguage];
@@ -73,8 +73,7 @@ function buildSourceCode() {
   });
 
   if (replacements === 0) {
-    console.warn('No @build-source-code blocks found.');
-    return;
+    throw new Error('No @build-source-code blocks found.');
   }
 
   fs.writeFileSync(indexPath, nextHtml, 'utf8');

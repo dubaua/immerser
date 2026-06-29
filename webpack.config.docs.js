@@ -32,7 +32,7 @@ module.exports = Object.keys(languages).map((language) => ({
       new TerserJSPlugin({
         terserOptions: {
           mangle: {
-            reserved: ['Immerser'],
+            reserved: ['Immerser', 'ImmerserDomController', 'ImmerserMarkupController', 'ImmerserEngine'],
           },
         },
       }),

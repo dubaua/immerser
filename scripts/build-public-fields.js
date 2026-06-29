@@ -42,10 +42,18 @@ function memberKind(member) {
 function getPublicMembers() {
   const src = fs.readFileSync(immerserPath, 'utf8');
   const sourceFile = ts.createSourceFile(immerserPath, src, ts.ScriptTarget.Latest, true);
+  if (sourceFile.parseDiagnostics.length > 0) {
+    const diagnostics = sourceFile.parseDiagnostics
+      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+      .join('\n');
+    throw new Error(`Could not parse ${immerserPath}:\n${diagnostics}`);
+  }
   const members = [];
+  let immerserClassFound = false;
 
   sourceFile.forEachChild((node) => {
     if (ts.isClassDeclaration(node) && node.name?.text === 'Immerser') {
+      immerserClassFound = true;
       node.members.forEach((member) => {
         if (ts.isConstructorDeclaration(member)) return;
         if (!isPublic(member)) return;
@@ -57,6 +65,13 @@ function getPublicMembers() {
       });
     }
   });
+
+  if (!immerserClassFound) {
+    throw new Error('Immerser class not found in src/immerser.ts');
+  }
+  if (members.length === 0) {
+    throw new Error('Immerser class does not contain any public fields');
+  }
 
   return members;
 }

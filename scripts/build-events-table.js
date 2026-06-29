@@ -28,6 +28,19 @@ function normalizeType(typeStr) {
   return typeStr.replace(/import\([^)]+\)\./g, '').replace(/"/g, "'");
 }
 
+function getEventName(member, sourceFile, checker) {
+  if (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)) {
+    return member.name.text;
+  }
+  if (ts.isComputedPropertyName(member.name)) {
+    const type = checker.getTypeAtLocation(member.name.expression);
+    if (type.isStringLiteral()) {
+      return type.value;
+    }
+  }
+  return member.name.getText(sourceFile);
+}
+
 function getEventDefinitions() {
   const program = ts.createProgram([typesPath], {
     module: ts.ModuleKind.CommonJS,
@@ -37,6 +50,12 @@ function getEventDefinitions() {
   const sourceFile = program.getSourceFile(typesPath);
   if (!sourceFile) {
     throw new Error(`Could not read ${typesPath}`);
+  }
+  if (sourceFile.parseDiagnostics.length > 0) {
+    const diagnostics = sourceFile.parseDiagnostics
+      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+      .join('\n');
+    throw new Error(`Could not parse ${typesPath}:\n${diagnostics}`);
   }
 
   let handlerAlias = null;
@@ -50,29 +69,36 @@ function getEventDefinitions() {
     throw new Error('HandlerByEventName type alias not found in src/types.ts');
   }
 
-  return handlerAlias.type.members.filter(ts.isPropertySignature).map((member) => {
-    const name = member.name.getText(sourceFile);
+  const events = handlerAlias.type.members.filter(ts.isPropertySignature).map((member) => {
+    const name = getEventName(member, sourceFile, checker);
     const type = checker.getTypeAtLocation(member);
     const signature = type.getCallSignatures()[0];
-    const parameters = signature
-      ? signature.getParameters().map((paramSymbol) => {
-          const decl = paramSymbol.valueDeclaration || paramSymbol.declarations?.[0];
-          const paramType = checker.getTypeOfSymbolAtLocation(paramSymbol, decl ?? member);
-          return {
-            name: paramSymbol.getName(),
-            type: normalizeType(
-              checker.typeToString(
-                paramType,
-                decl,
-                ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseFullyQualifiedType,
-              ),
-            ),
-          };
-        })
-      : [];
+    if (!signature) {
+      throw new Error(`Event "${name}" does not have a callable handler type`);
+    }
+    const parameters = signature.getParameters().map((paramSymbol) => {
+      const decl = paramSymbol.valueDeclaration || paramSymbol.declarations?.[0];
+      const paramType = checker.getTypeOfSymbolAtLocation(paramSymbol, decl ?? member);
+      return {
+        name: paramSymbol.getName(),
+        type: normalizeType(
+          checker.typeToString(
+            paramType,
+            decl,
+            ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseFullyQualifiedType,
+          ),
+        ),
+      };
+    });
 
     return { name, parameters };
   });
+
+  if (events.length === 0) {
+    throw new Error('HandlerByEventName does not contain any events');
+  }
+
+  return events;
 }
 
 function formatArgsHtml(parameters) {

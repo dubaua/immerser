@@ -13,14 +13,14 @@
       <td><%= getTranslation('event-init') %></td>
     </tr>
     <tr>
-      <td>bind</td>
+      <td>mount</td>
       <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-bind') %></td>
+      <td><%= getTranslation('event-mount') %></td>
     </tr>
     <tr>
-      <td>unbind</td>
+      <td>unmount</td>
       <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-unbind') %></td>
+      <td><%= getTranslation('event-unmount') %></td>
     </tr>
     <tr>
       <td>destroy</td>
@@ -28,14 +28,29 @@
       <td><%= getTranslation('event-destroy') %></td>
     </tr>
     <tr>
+      <td>structureChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-structureChange') %></td>
+    </tr>
+    <tr>
+      <td>layoutChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-layoutChange') %></td>
+    </tr>
+    <tr>
       <td>activeLayerChange</td>
       <td class="nowrap"><span class="token parameter">layerIndex</span><span class="token operator">:</span> <span class="token class-name">number</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
       <td><%= getTranslation('event-activeLayerChange') %></td>
     </tr>
     <tr>
-      <td>layersUpdate</td>
-      <td class="nowrap"><span class="token parameter">layersProgress</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
-      <td><%= getTranslation('event-layersUpdate') %></td>
+      <td>layerProgressChange</td>
+      <td class="nowrap"><span class="token parameter">layerProgressArray</span><span class="token operator">:</span> <span class="token class-name">number[]</span>, <span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-layerProgressChange') %></td>
+    </tr>
+    <tr>
+      <td>stateChange</td>
+      <td class="nowrap"><span class="token parameter">immerser</span><span class="token operator">:</span> <span class="token class-name">Immerser</span></td>
+      <td><%= getTranslation('event-stateChange') %></td>
     </tr>
   </tbody>
 </table>
