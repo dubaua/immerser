@@ -259,6 +259,14 @@ declare class Immerser {
     get rootNode(): HTMLElement | null;
     /** Progress of each layer from 0 (off-screen) to 1 (fully visible). */
     get layerProgressArray(): readonly number[];
+    /** Layer ids in the same order as layers appear in DOM. */
+    get layerIds(): readonly string[];
+    /** Current structure signature used to detect layer-list changes. */
+    get structureSignature(): string;
+    /** Current layout signature used to detect geometry changes. */
+    get layoutSignature(): string;
+    /** Current draw signature used to detect visual state changes. */
+    get drawSignature(): string;
 }
 export default Immerser;
 

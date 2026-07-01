@@ -1110,6 +1110,26 @@ export default class Immerser {
   public get layerProgressArray(): readonly number[] {
     return this._layerProgressArray;
   }
+
+  /** Layer ids in the same order as layers appear in DOM. */
+  public get layerIds(): readonly string[] {
+    return this._layerStateArray.map(({ id }) => id);
+  }
+
+  /** Current structure signature used to detect layer-list changes. */
+  public get structureSignature(): string {
+    return this._structureSignature;
+  }
+
+  /** Current layout signature used to detect geometry changes. */
+  public get layoutSignature(): string {
+    return this._layoutSignature;
+  }
+
+  /** Current draw signature used to detect visual state changes. */
+  public get drawSignature(): string {
+    return this._drawSignature;
+  }
 }
 
 // Keeps public values reachable from the UMD default export without changing the CommonJS entry shape.

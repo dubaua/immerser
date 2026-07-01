@@ -6,7 +6,7 @@ Immerser comes to help you. It’s a javascript library to change fixed eleme
 
 Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
 
-Immerser is written on typescript. Runtime bundle 9.01Kb gzipped.
+Immerser is written on typescript. Runtime bundle 9.06Kb gzipped.
 
 ## Terms
 
@@ -281,6 +281,10 @@ You can subscribe to events via the `on` option or by calling the `on` or `once`
 | isMounted | `getter` | Indicates whether immerser is mounted |
 | rootNode | `getter` | Root DOM element immerser is attached to |
 | layerProgressArray | `getter` | Progress of each layer from 0 (off-screen) to 1 (fully visible) |
+| layerIds | `getter` | Layer ids in the same order as layers appear in DOM |
+| structureSignature | `getter` | Current structure signature used to detect layer-list changes |
+| layoutSignature | `getter` | Current layout signature used to detect geometry changes |
+| drawSignature | `getter` | Current draw signature used to detect visual state changes |
 
 
 # Recipes

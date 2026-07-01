@@ -14,3 +14,7 @@
 | isMounted | `getter` | Indicates whether immerser is mounted |
 | rootNode | `getter` | Root DOM element immerser is attached to |
 | layerProgressArray | `getter` | Progress of each layer from 0 (off-screen) to 1 (fully visible) |
+| layerIds | `getter` | Layer ids in the same order as layers appear in DOM |
+| structureSignature | `getter` | Current structure signature used to detect layer-list changes |
+| layoutSignature | `getter` | Current layout signature used to detect geometry changes |
+| drawSignature | `getter` | Current draw signature used to detect visual state changes |

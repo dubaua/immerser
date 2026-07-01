@@ -160,6 +160,10 @@ and indicate active state.
   'public-field-isMounted': 'Indicates whether immerser is mounted',
   'public-field-rootNode': 'Root DOM element immerser is attached to',
   'public-field-layerProgressArray': 'Progress of each layer from 0 (off-screen) to 1 (fully visible)',
+  'public-field-layerIds': 'Layer ids in the same order as layers appear in DOM',
+  'public-field-structureSignature': 'Current structure signature used to detect layer-list changes',
+  'public-field-layoutSignature': 'Current layout signature used to detect geometry changes',
+  'public-field-drawSignature': 'Current draw signature used to detect visual state changes',
   'public-field-debug': 'Controls whether immerser reports warnings',
 
   'cloning-event-listeners-title': 'Cloning Event Listeners',

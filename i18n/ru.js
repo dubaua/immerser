@@ -160,6 +160,10 @@ module.exports = {
   'public-field-isMounted': 'Показывает, смонтирован ли иммёрсер',
   'public-field-rootNode': 'Корневой DOM-элемент, к которому привязан иммёрсер',
   'public-field-layerProgressArray': 'Прогресс каждого слоя от 0 (вне экрана) до 1 (полностью видим)',
+  'public-field-layerIds': 'Id слоёв в том же порядке, в котором слои идут в DOM',
+  'public-field-structureSignature': 'Текущая сигнатура структуры для определения изменений в списке слоёв',
+  'public-field-layoutSignature': 'Текущая сигнатура layout для определения изменений геометрии',
+  'public-field-drawSignature': 'Текущая сигнатура отрисовки для определения изменений визуального состояния',
   'public-field-debug': 'Управляет тем, сообщает ли иммёрсер о предупреждениях',
 
   'cloning-event-listeners-title': 'Клонирование подписчиков',
