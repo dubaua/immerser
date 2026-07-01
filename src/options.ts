@@ -25,6 +25,7 @@ function onOptionValidator(on?: Options['on']): boolean {
   );
 }
 
+/** @public Runtime option config used by merge-options and wrapper documentation generators. */
 export const OptionConfig: MergeOptionConfig<Options> = {
   autoMount: {
     default: true,

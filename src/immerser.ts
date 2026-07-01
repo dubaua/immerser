@@ -1139,6 +1139,7 @@ Object.assign(Immerser, {
   EventNames,
   InteractiveStyles,
   NotInteractiveStyles,
+  OptionConfig,
 });
 
 // Used by typedef generation.
@@ -1155,4 +1156,4 @@ export type {
   SolidClassnamesByLayerId,
   UpdateLocationHashHandler,
 };
-export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles };
+export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles, OptionConfig };

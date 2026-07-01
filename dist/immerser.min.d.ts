@@ -1,3 +1,5 @@
+import type { OptionConfig as OptionConfig_2 } from '@dubaua/merge-options';
+
 /** @public Handler signature for active layer change events. */
 export declare type ActiveLayerChangeHandler = (layerIndex: number, immerser: Immerser) => void;
 
@@ -278,6 +280,9 @@ export declare type LayerProgressChangeHandler = (layerProgressArray: number[], 
 
 /** @public Style for immerser root, to make in click transparent, exposed to use with external rendered */
 export declare const NotInteractiveStyles: Record<string, string>;
+
+/** @public Runtime option config used by merge-options and wrapper documentation generators. */
+export declare const OptionConfig: OptionConfig_2<Options>;
 
 /** @public Runtime configuration accepted by immerser. */
 export declare type Options = {
