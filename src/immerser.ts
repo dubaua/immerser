@@ -6,7 +6,7 @@ import calculateScrollTarget from './utils/calculate-scroll-target';
 import { EventNameArray, EventNames } from './events';
 import { CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles } from './styles';
 import { ImmerserSelectors } from './selectors';
-import { OptionConfig } from './options';
+import { OptionConfig, OptionUpdateMode, OptionUpdateModeByName } from './options';
 import { getOriginalHandler, wrapOnceHandler } from './utils/once-handler';
 import assignInlineStyles from './utils/assign-inline-styles';
 import getLastScrollPosition from './utils/get-last-scroll-position';
@@ -35,14 +35,9 @@ import type {
 } from './types';
 
 const MessagePrefix = '[immerser]:';
-const RuntimeOptionNames: (keyof RuntimeOptions)[] = [
-  'debug',
-  'fromViewportWidth',
-  'updateLocationHash',
-  'pagerThreshold',
-  'scrollAdjustDelay',
-  'scrollAdjustThreshold',
-];
+const RuntimeOptionNames = Object.keys(OptionUpdateModeByName).filter(
+  (optionName) => OptionUpdateModeByName[optionName] === 'hot',
+) as (keyof RuntimeOptions)[];
 
 /** @public Main Immerser controller orchestrating markup preparation and scroll-driven transitions. */
 export default class Immerser {
@@ -197,7 +192,7 @@ export default class Immerser {
       };
     });
 
-    this._structureSignature = this._createLayerSignature(this._layerNodeArray);
+    this._structureSignature = this._createLayerSignature(this._layerNodeArray, this._maskNodeArray);
     this._emit(EventNames.structureChange, this);
   }
 
@@ -233,14 +228,24 @@ export default class Immerser {
   }
 
   /** Creates a cheap identity snapshot for detecting layer-list changes without comparing DOM nodes. */
-  private _createLayerSignature(layerNodeArray: HTMLElement[]): string {
-    return layerNodeArray.map((layerNode) => layerNode.id).join('|');
+  private _createLayerSignature(layerNodeArray: HTMLElement[], maskNodeArray: HTMLElement[]): string {
+    return layerNodeArray
+      .map((layerNode) => {
+        const maskNode = maskNodeArray.find((node) => node.dataset.immerserLayerId === layerNode.id);
+        const maskInnerNodeArray = queryElementArray({ selector: this._selectors.maskInner, parent: maskNode });
+        let maskState = 0;
+        maskState += maskNode ? 1 : 0;
+        maskState += maskInnerNodeArray.length > 0 ? 1 : 0;
+        return `${layerNode.id}:${maskState}`;
+      })
+      .join('|');
   }
 
   /** Reads the current DOM layer identity so dynamic markup can be compared with mounted state. */
   private _getLayerSignature(): string {
     const layerNodeArray = queryElementArray({ selector: this._selectors.layer, parent: this._selectorRoot });
-    return this._createLayerSignature(layerNodeArray);
+    const maskNodeArray = queryElementArray({ selector: this._selectors.mask, parent: this._rootNode });
+    return this._createLayerSignature(layerNodeArray, maskNodeArray);
   }
 
   /** Applies the configured breakpoint before expensive markup work starts. */
@@ -1140,6 +1145,7 @@ Object.assign(Immerser, {
   InteractiveStyles,
   NotInteractiveStyles,
   OptionConfig,
+  OptionUpdateModeByName,
 });
 
 // Used by typedef generation.
@@ -1150,10 +1156,19 @@ export type {
   EventName,
   HandlerByEventName,
   LayerProgressChangeHandler,
+  OptionUpdateMode,
   Options,
   RuntimeOptions,
   SolidClassnames,
   SolidClassnamesByLayerId,
   UpdateLocationHashHandler,
 };
-export { EventNameArray, EventNames, CroppedFullAbsoluteStyles, InteractiveStyles, NotInteractiveStyles, OptionConfig };
+export {
+  EventNameArray,
+  EventNames,
+  CroppedFullAbsoluteStyles,
+  InteractiveStyles,
+  NotInteractiveStyles,
+  OptionConfig,
+  OptionUpdateModeByName,
+};
