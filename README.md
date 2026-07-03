@@ -4,13 +4,17 @@ Sometimes designers create complex logic and fix parts of the interface. Also t
 
 Immerser comes to help you. It’s a javascript library to change fixed elements on scroll.
 
-Immerser fast, because it calculates states once on init. Then it watches the scroll position and schedules redraw document in the next event loop tick with requestAnimationFrame. Script changes transform property, so it uses graphic hardware acceleration.
-
 Immerser is written on typescript. Runtime bundle 9.19Kb gzipped.
 
 ## Terms
 
 `Immerser root` — is the parent container for your fixed parts `solids`. Actually, solids are positioned absolutely to fixed immerser root. The `layers` are sections of your page. Also you may want to add `pager` to navigate through layers and indicate active state.
+
+## Framework Adapters
+
+Framework adapters are essential for practical use in modern frontend apps. That is why Immerser 6 reworked its core API to support external rendering.
+
+Woo-hoo! [React adapter for Immerser](https://github.com/dubaua/immerser-react) is finally released: now Immerser markup can be described with React components instead of manually assembling `data-immerser-*`. A Vue adapter is also in progress.
 
 # How to Use
 
@@ -31,7 +35,7 @@ yarn add immerser
 Or if you want to use immerser in browser as global variable:
 
 ```html
-<script src="https://unpkg.com/immerser@6.1.1/dist/immerser.min.js"></script>
+<script src="https://unpkg.com/immerser@6.1.2/dist/immerser.min.js"></script>
 ```
 
 ## Prepare Your Markup
@@ -216,6 +220,8 @@ Apply colour and background styles to your layers and solids according to your
 # How it Works
 
 First, immerser finds the root element, layers, solids and masks. Then it measures layers, window and document and calculates the scroll points where each layer enters the viewport, stays there and leaves it.
+
+Core states are calculated once during initialization. While scrolling, immerser only reads the position, schedules redraw with requestAnimationFrame and changes transform to use graphics acceleration.
 
 After that immerser prepares the markup: it creates masks for layers or connects to existing masks, clones solids into each mask and applies the classnames given in configuration. Original solids are temporarily removed, so only masked copies remain visible.
 

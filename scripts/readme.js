@@ -48,6 +48,10 @@ ${turndownService.turndown(en['why-immerser-content'])}
 
 ${turndownService.turndown(en['terms-content'])}
 
+## ${en['framework-adapters-title']}
+
+${turndownService.turndown(en['framework-adapters-content'])}
+
 # ${en['menu-link-how-to-use']}
 
 ## ${en['install-title']}

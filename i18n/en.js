@@ -23,11 +23,6 @@ module.exports = {
   Immerser comes to&nbsp;help you. It&rsquo;s a&nbsp;javascript library to&nbsp;change fixed elements on&nbsp;scroll.
 </p>
 <p>
-  Immerser fast, because it&nbsp;calculates states once on&nbsp;init.
-  Then it&nbsp;watches the scroll position and schedules redraw document in&nbsp;the next event loop tick with requestAnimationFrame.
-  Script changes transform property, so&nbsp;it&nbsp;uses graphic hardware acceleration.
-</p>
-<p>
   Immerser is&nbsp;written on&nbsp;typescript. Runtime bundle %%BUNDLESIZE%%Kb gzipped.
 </p>
 `,
@@ -42,6 +37,16 @@ Actually, solids are positioned absolutely to&nbsp;fixed immerser root. The
 Also you may want to&nbsp;add
 <code class="highlighter" data-highlighter="[data-immerser-solid='pager']">pager</code> to&nbsp;navigate through layers
 and indicate active state.
+</p>
+`,
+
+  'framework-adapters-title': 'Framework Adapters',
+  'framework-adapters-content': `
+<p>
+  Framework adapters are essential for practical use in&nbsp;modern frontend apps. That is&nbsp;why Immerser&nbsp;6 reworked its core API to&nbsp;support external rendering.
+</p>
+<p>
+  Woo-hoo! <a href="https://github.com/dubaua/immerser-react">React adapter for Immerser</a> is&nbsp;finally released: now Immerser markup can be&nbsp;described with React components instead of&nbsp;manually assembling <code>data-immerser-*</code>. A&nbsp;Vue adapter is&nbsp;also in&nbsp;progress.
 </p>
 `,
 
@@ -87,6 +92,7 @@ and indicate active state.
   'how-it-works-title': 'How it Works',
   'how-it-works-content': `
 <p>First, immerser finds the root element, layers, solids and masks. Then it&nbsp;measures layers, window and document and calculates the scroll points where each layer enters the viewport, stays there and leaves it.</p>
+<p>Core states are calculated once during initialization. While scrolling, immerser only reads the position, schedules redraw with requestAnimationFrame and changes transform to&nbsp;use graphics acceleration.</p>
 <p>After that immerser prepares the markup: it&nbsp;creates masks for layers or connects to&nbsp;existing masks, clones solids into each mask and applies the classnames given in&nbsp;configuration. Original solids are temporarily removed, so&nbsp;only masked copies remain visible.</p>
 <p>On&nbsp;scroll, immerser moves a&nbsp;mask and its contents in&nbsp;opposite directions. This shows only the part of&nbsp;each solid group that should belong to&nbsp;the current layer. When the active layer changes, immerser updates the pager, can update the location hash and emits events.</p>
 <p>When window or container size changes, immerser measures everything again and recalculates positions. If&nbsp;layers change in&nbsp;<abbr title="Document Object Model">DOM</abbr>, call <code>render()</code> to&nbsp;synchronize the structure. If&nbsp;scroll is&nbsp;controlled outside immerser, disable the built-in scroll listener and call <code>syncScroll()</code> manually.</p>
