@@ -318,6 +318,12 @@ export declare type Options = {
     on?: Partial<EventHandlers>;
 };
 
+/** @public Option lifecycle mode used by runtime filtering and documentation generators. */
+export declare type OptionUpdateMode = 'hot' | 'init';
+
+/** @public Option update mode used by runtime filtering and documentation generators. */
+export declare const OptionUpdateModeByName: Record<keyof Options, OptionUpdateMode>;
+
 /** @public Hot options that can be updated after instance creation with updateOptions. */
 export declare type RuntimeOptions = Pick<Options, 'debug' | 'fromViewportWidth' | 'updateLocationHash' | 'pagerThreshold' | 'scrollAdjustDelay' | 'scrollAdjustThreshold'>;
 
